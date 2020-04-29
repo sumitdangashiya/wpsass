@@ -21,6 +21,23 @@ body #wpcontent {
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
+.wpsass-setup-wizard-main-logo-wrap {
+	text-align: center;
+	padding-bottom: 40px;
+}
+.wpsass-setup-wizard-main-logo {
+	width: 120px;
+	display: inline-block;
+	vertical-align: top;
+}
+.wpsass-setup-wizard-main-logo img {
+	width: auto;
+	height: auto;
+	max-width: 100%;
+	max-height: 100%;
+	display: block;
+	margin: 0 auto;
+}
 .wpsass-setup-wizard-step {
 	margin: 0;
 	border-bottom: 2px solid #007cba;
@@ -66,6 +83,7 @@ body #wpcontent {
 	margin-bottom: 10px;
 	font-size: 16px;
 }
+.wpsass-setup-wizard-extensions-search input[type="text"], 
 .wpsass-setup-wizard-block input[type="text"], 
 .wpsass-setup-wizard-block input[type="file"], 
 .wpsass-setup-wizard-plan select {
@@ -178,10 +196,14 @@ body #wpcontent {
 	font-weight: bold;
 	font-size: 16px;
 	color: #666;
-	width: 150px;
 	display: inline-block;
 	vertical-align: top;
 	padding-right: 10px;
+}
+.wpsass-setup-wizard-payment-label label span {
+	width: 150px;
+	display: inline-block;
+	vertical-align: top;
 }
 .wpsass-setup-wizard-payment-img p {
 	margin: 0;
@@ -193,4 +215,126 @@ body #wpcontent {
 	font-size: 16px;
 	font-style: italic;
 	line-height: 1.2;
+}
+.wpsass-setup-wizard-extensions-wrap {
+	display: flex;
+	flex-wrap: wrap;
+	margin: 0 -15px;
+	padding-top: 20px;
+}
+.wpsass-setup-wizard-extensions-block {
+	margin-bottom: 30px;
+	width: 33.33%;
+	padding: 0 15px;
+}
+.wpsass-setup-wizard-extensions-content {
+	background-color: #fff;
+	padding: 50px 20px 20px;
+	text-align: center;
+	border-radius: 14px;
+	box-shadow: 0 0 5px #ccc;
+	height: 100%;
+}
+.wpsass-setup-wizard-extensions-title {
+	margin-top: 0;
+	margin-bottom: 50px;
+	font-size: 22px;
+	line-height: 1.2;
+}
+.wpsass-setup-wizard-extensions-desc {
+	margin: 0 0 10px;
+	font-weight: bold;
+	line-height: 1.2;
+	min-height: 130px;
+}
+.wpsass-setup-wizard-extensions-enable:after {
+	content: "";
+	display: block;
+	clear: both;
+}
+.wpsass-setup-wizard-extensions-enable p {
+	margin: 0;
+	font-size: 18px;
+	color: #ccc;
+	float: left;
+	font-weight: bold;
+	line-height: 1.2;
+}
+.wpsass-setup-wizard-extensions-enable label {
+	float: right;
+	font-size: 18px;
+	color: #666;
+}
+.wpsass-setup-wizard-extensions-enable label input[type="checkbox"] {
+	margin-left: 10px;
+}
+.wpsass-setup-wizard-extensions-search input[type="text"] {
+	width: 200px;
+	display: inline-block;
+	vertical-align: top;
+}
+.wpsass-setup-wizard-extensions-search {
+	text-align: right;
+	padding-top: 20px;
+}
+.wpsass-setup-wizard-ready-sec {
+	background-color: #fff;
+	padding: 20px 10px 20px;
+	max-width: 620px;
+	margin: 0 auto;
+}
+.wpsass-setup-wizard-ready-title::after {
+	content: "";
+	display: block;
+	clear: both;
+}
+.wpsass-setup-wizard-ready-title h3 {
+	float: left;
+	color: #999;
+	margin: 0;
+}
+.wpsass-setup-wizard-twitter {
+	float: right;
+}
+.wpsass-setup-wizard-twitter a {
+	display: inline-block;
+	vertical-align: top;
+	padding: 7px 16px;
+	border-radius: 4px;
+	background-color: #007cba;
+	color: #fff;
+	font-size: 15px;
+	text-decoration: none;
+	font-weight: bold;
+	line-height: 1.2;
+}
+.wpsass-setup-wizard-ready-sec p {
+	margin: 0;
+	color: #777;
+	font-weight: 600;
+	line-height: 1.5;
+}
+.wpsass-setup-wizard-ready-title {
+	padding-bottom: 20px;
+}
+.wpsass-setup-wizard-subscribe-main h3 {
+	text-align: center;
+	font-size: 23px;
+	font-style: italic;
+	font-weight: 400;
+}
+.wpsass-setup-wizard-subscribe-btn {
+	text-align: center;
+}
+.wpsass-setup-wizard-skip {
+	padding-top: 20px;
+	text-align: center;
+}
+.wpsass-setup-wizard-skip a {
+	display: inline-block;
+	vertical-align: top;
+	text-decoration: none;
+	color: #999;
+	font-weight: bold;
+	font-size: 16px;
 }

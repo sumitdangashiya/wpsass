@@ -22,5 +22,12 @@ jQuery( document ).ready( function(){
 		previous_fs.show();
 		current_fs.hide();
 	});
+	
+	jQuery( ".wpsass-setup-wizard-extensions-search input" ).on( "keyup", function() {
+		var search_value = jQuery( this ).val().toLowerCase();
+		jQuery( ".wpsass-setup-wizard-extensions-block" ).filter(function() {
+		  jQuery( this ).toggle( jQuery( this ).data( "search" ).toLowerCase().indexOf( search_value ) > -1 );
+		});
+	});
 
 });

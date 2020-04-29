@@ -5622,13 +5622,13 @@ function psts_text_body($phpmailer) {
 
 //setup_currency
 function setup_currency( $currency = '', $amount = false ) {
-
+	global $psts;
 	$settings = get_site_option( 'psts_settings' );
 
 	// get the currency symbol
 	$currencies = @ProSites_Model_Data::$currencies;
 	if( empty( $currencies) ) {
-		$currencies = $this->currencies;
+		$currencies = $psts->currencies;
 		$symbol = @$currencies[ $currency ][1];
 	} else {
 		$symbol = @ProSites_Model_Data::$currencies[ $currency ]['symbol'];
@@ -5651,12 +5651,26 @@ function setup_currency( $currency = '', $amount = false ) {
 //setup_wizard_content
 function setup_wizard() { 
 	global $psts;
+	global $psts_modules;
+
+	if( isset( $_POST['wpsass_setup_wizard_submit'] ) ) {
+		$psts->update_setting( 'gateways_enabled', @$_POST['gateway_active'] );
+		$psts->update_setting( 'offer_trial', @$_POST['offer_trial'] );
+		$psts->update_setting( 'setup_fee', @$_POST['setup_fee'] );
+		
+		wp_redirect(admin_url()."network/admin.php?page=psts");
+	}
 	$settings = get_site_option( 'psts_settings' );
 
 	?>
 	<form method="post" class="wpsass-setup-wizard-main">
 		<!-- progressbar -->
 		<input type="hidden" name="setup_wizard" value="1" />
+		<div class="wpsass-setup-wizard-main-logo-wrap">
+			<div class="wpsass-setup-wizard-main-logo">
+				<img src="<?php echo $psts->plugin_url . 'images/wpsaaspro.png'; ?>" alt="wpsass" width="353" height="342" />
+			</div>
+		</div>
 		<ul id="progressbar" class="wpsass-setup-wizard-step">
 			<li id="setup-step" class="active"><?php _e( 'Setup', 'psts' ) ?></li>
 			<li id="plans-step"><?php _e( 'Plans', 'psts' ) ?></li>
@@ -5664,7 +5678,7 @@ function setup_wizard() {
 			<li id="extensions-step"><?php _e( 'Extensions', 'psts' ) ?></li>
 			<li id="ready-step"><?php _e( 'Ready !', 'psts' ) ?></li>
 		</ul>
-
+		<!-- fieldsets -->
 		<div class="wpsass-setup-wizard-content" data-id="setup-step">
 			<h2 class="wpsass-setup-wizard-title"><?php _e( 'Welcome!', 'psts' ) ?></h2>
 			<div class="wpsass-setup-wizard-subcontent">
@@ -5674,6 +5688,7 @@ function setup_wizard() {
 			<?php
 			//update name logo 
 			if ( isset( $_POST['setup_first'] ) ) {
+				echo "new rtest";
 				$error = false;
 				if ( empty( $_POST['network_site_name'] ) ) {
 					$error[] = __( 'Please enter a valid site name.', 'psts' );
@@ -5770,11 +5785,11 @@ function setup_wizard() {
 					</select>
 				</div>
 				<div class="wpsass-setup-wizard-plan col-4">
-					<label><?php _e( 'OFFER TRIAL', 'psts' ) ?><input type="checkbox" checked /></label>
+					<label><?php _e( 'OFFER TRIAL', 'psts' ) ?><input type="checkbox" name="offer_trial" value="7 DAYS" checked /></label>
 					<p class="wpsass-setup-wizard-offer"><?php _e( '7 DAYS', 'psts' ) ?></p>
 				</div>
 				<div class="wpsass-setup-wizard-plan col-4">
-					<label><?php _e( 'SETUP FEE', 'psts' ) ?><input type="checkbox" checked /></label>
+					<label><?php _e( 'SETUP FEE', 'psts' ) ?><input type="checkbox" name="setup_fee" value="$99" checked /></label>
 					<p class="wpsass-setup-wizard-offer"><?php _e( '$99', 'psts' ) ?></p>
 				</div>
 			</div>
@@ -5783,17 +5798,13 @@ function setup_wizard() {
 			$levels = get_site_option( 'psts_levels' );
 			//add level
 			if ( isset( $_POST['add_level'] ) ) {
-
 				$error = false;
-
 				if ( empty( $_POST['add_name'] ) ) {
 					$error[] = __( 'Please enter a valid level name.', 'psts' );
 				}
-
 				if ( ! is_numeric( $_POST['add_price_1'] ) && ! is_numeric( $_POST['add_price_3'] ) && ! is_numeric( $_POST['add_price_12'] ) ) {
 					$error[] = __( 'You must enter a price for at least one payment period.', 'psts' );
 				}
-
 				if ( ! $error ) {
 					$level_data = array(
 						'name'       => stripslashes( trim( wp_filter_nohtml_kses( $_POST['add_name'] ) ) ),
@@ -5927,7 +5938,6 @@ function setup_wizard() {
 					$bgcolor = $class = '';
 					foreach ( $level_list as $level_code => $level ) {
 						$class = ( 'alternate' == $class ) ? '' : 'alternate';
-
 						echo '<tr class="' . $class . ' blog-row">';
 
 						foreach ( $posts_columns as $column_name => $column_display_name ) {
@@ -5992,7 +6002,6 @@ function setup_wizard() {
 									</td>
 									<?php
 									break;
-
 							}
 						}
 						?>
@@ -6016,6 +6025,7 @@ function setup_wizard() {
 				<input type="button" name="next" class="next action-button" value="Next" />
 			</div>
 		</div>
+		
 		<div class="wpsass-setup-wizard-content" data-id="payment-step" style="display: none;">
 			<h2 class="wpsass-setup-wizard-title"><?php _e( 'Payment Gateways', 'psts' ) ?></h2>
 			<div class="wpsass-setup-wizard-payment-wrap">
@@ -6024,9 +6034,10 @@ function setup_wizard() {
 						<img src="<?php echo $psts->plugin_url . 'images/stripe-payment.png'; ?>" alt="stripe" width="240" height="100" />
 					</div>
 					<div class="wpsass-setup-wizard-payment-label">
-						<label><?php _e( 'Enable Stripe', 'psts' ) ?></label>
-						<input type="hidden" name="gateway" value="ProSites_Gateway_Stripe" />
-						<input type="checkbox" name="gateway_active" value="1" />
+						<label><span><?php _e( 'Enable Stripe', 'psts' ) ?></span>
+							<input type="hidden" name="gateway[]" value="ProSites_Gateway_Stripe" />
+							<input type="checkbox" name="gateway_active[]" value="ProSites_Gateway_Stripe" />
+						</label>
 					</div>
 				</div>
 				<div class="wpsass-setup-wizard-payment-block">
@@ -6034,9 +6045,10 @@ function setup_wizard() {
 						<img src="<?php echo $psts->plugin_url . 'images/paypal-payment.png'; ?>" alt="paypal" width="251" height="100" />
 					</div>
 					<div class="wpsass-setup-wizard-payment-label">
-						<label><?php _e( 'Enable Paypal', 'psts' ) ?></label>
-						<input type="hidden" name="gateway" value="ProSites_Gateway_PayPalExpressPro" />
-						<input type="checkbox" name="gateway_active" value="1" />
+						<label><span><?php _e( 'Enable Paypal', 'psts' ) ?></span>
+							<input type="hidden" name="gateway[]" value="ProSites_Gateway_PayPalExpressPro" />
+							<input type="checkbox" name="gateway_active[]" value="ProSites_Gateway_PayPalExpressPro" />
+						</label>
 					</div>
 				</div>
 				<div class="wpsass-setup-wizard-payment-block">
@@ -6044,9 +6056,10 @@ function setup_wizard() {
 						<p><?php _e( 'Manual Payments', 'psts' ) ?></p>
 					</div>
 					<div class="wpsass-setup-wizard-payment-label">
-						<label><?php _e( 'Enable <br>Manual Payments', 'psts' ) ?></label>
-						<input type="hidden" name="gateway" value="ProSites_Gateway_Manual" />
-						<input type="checkbox" name="gateway_active" value="1" />
+						<label><span><?php _e( 'Enable <br>Manual Payments', 'psts' ) ?></span>
+							<input type="hidden" name="gateway[]" value="ProSites_Gateway_Manual" />
+							<input type="checkbox" name="gateway_active[]" value="ProSites_Gateway_Manual" />
+						</label>
 					</div>
 				</div>
 			</div>
@@ -6055,12 +6068,78 @@ function setup_wizard() {
 				<input type="button" name="next" class="next action-button" value="Next" />
 			</div>
 		</div>
+		
 		<div class="wpsass-setup-wizard-content" data-id="extensions-step" style="display: none;">
-			
+			<h2 class="wpsass-setup-wizard-title"><?php _e( 'Boost your Platform using Extensions!', 'psts' ) ?></h2>
+			<?php wp_nonce_field( 'psts_modules' ) ?>
+			<div class="wpsass-setup-wizard-extensions-search">
+				<input type="text" placeholder="Filters" value="" />
+			</div>
+			<div class="wpsass-setup-wizard-extensions-wrap">
+				<?php
+				$css  = '';
+				// @todo Remove this when we stop supporting PHP 5.2.
+				if ( version_compare( PHP_VERSION, '5.4', '<' ) ) {
+					uasort( $psts_modules, create_function( '$a,$b', 'if ($a[0] == $b[0]) return 0;return ($a[0] < $b[0])? -1 : 1;' ) );
+				} else {
+					uasort( $psts_modules, function( $a, $b ) {
+						if ( $a[0] == $b[0] ) {
+							return 0;
+						}
+						return ( $a[0] < $b[0] ) ? -1 : 1;
+					} );
+				}
+				foreach ( (array) $psts_modules as $class => $plugin ) {
+					$css = ( 'alt' == $css ) ? '' : 'alt';
+					?>
+					<div class="wpsass-setup-wizard-extensions-block" data-search="<?php echo esc_attr( $plugin[0] ); ?>">
+						<div class="wpsass-setup-wizard-extensions-content">
+							<h3 class="wpsass-setup-wizard-extensions-title" for="psts_<?php echo $class; ?>"><?php echo esc_attr( $plugin[0] ); ?></h3>
+							<p class="wpsass-setup-wizard-extensions-desc"><?php echo esc_attr( $plugin[1] ); ?></p>
+							<div class="wpsass-setup-wizard-extensions-enable">
+								<p>
+									<?php if ( $plugin[2] ) {
+										echo "$99";
+									} else {
+										echo "FREE BETA";
+									}								
+									?>
+								</p>
+								<label><?php _e( 'Enable', 'psts' ) ?> <input type="checkbox" id="psts_<?php echo $class; ?>" name="allowed_modules[]" value="<?php echo $class; ?>" /></label>
+							</div>
+						</div>
+					</div>
+					<?php
+				}
+				?>
+			</div>
+			<?php do_action( 'psts_modules_page' ); ?>
 			<div class="wpsass-setup-wizard-btn">
 				<input type="button" name="previous" class="previous action-button" value="Previous" />
 				<input type="button" name="next" class="next action-button" value="Next" />
 			</div>
+		</div>
+		
+		<div class="wpsass-setup-wizard-content" data-id="extensions-step" style="display: none;">
+			<h2 class="wpsass-setup-wizard-title"><?php _e( 'Your Network is Ready!', 'psts' ) ?></h2>
+			<div class="wpsass-setup-wizard-ready-sec">
+				<div class="wpsass-setup-wizard-ready-title">
+					<h3><?php _e( 'Your Network is Ready!', 'psts' ) ?></h3>
+					<div class="wpsass-setup-wizard-twitter">
+						<a href="" ><?php _e( 'Tweet', 'psts' ) ?></a>
+					</div>
+				</div>
+				<p><?php _e( 'Congratulations! The plugin has been activated and your network is ready. Go back to your WordPress dashboard to make changes and modify any of the default content to suit your needs.', 'psts' ) ?></p>
+			</div>
+			<div class="wpsass-setup-wizard-subscribe-main">
+				<h3><?php _e( 'Subscribe to New Plugins Addons, News & updates', 'psts' ) ?></h3>
+			</div>
+			<div class="wpsass-setup-wizard-btn wpsass-setup-wizard-subscribe-btn">
+				<input type="submit" name="wpsass_setup_wizard_submit" class="next action-button" value="Done!" />
+			</div>
+		</div>
+		<div class="wpsass-setup-wizard-skip">
+			<a href="<?php echo admin_url()."network/admin.php?page=psts" ?>" ><?php _e( 'Skip This Step', 'psts' ) ?></a>
 		</div>
 	</form>
 	<?php
