@@ -865,7 +865,7 @@ class ProSites {
 		do_action( 'psts_page_after_coupons' );
 
 		//levels page
-		$psts_levels_page = add_submenu_page( 'psts', __( 'WPSAAS Levels', 'psts' ), __( 'Levels', 'psts' ), 'manage_network_options', 'psts-levels', array(
+		$psts_levels_page = add_submenu_page( 'psts', __( 'WPSAAS Levels', 'psts' ), __( 'Plans', 'psts' ), 'manage_network_options', 'psts-levels', array(
 			&$this,
 			'admin_levels',
 		) );
@@ -873,7 +873,7 @@ class ProSites {
 		do_action( 'psts_page_after_levels' );
 
 		//modules page
-		$psts_modules_page = add_submenu_page( 'psts', __( 'WPSAAS Modules', 'psts' ), __( 'Modules', 'psts' ), 'manage_network_options', 'psts-modules', array(
+		$psts_modules_page = add_submenu_page( 'psts', __( 'WPSAAS Modules', 'psts' ), __( 'Extensisons', 'psts' ), 'manage_network_options', 'psts-modules', array(
 			&$this,
 			'admin_modules',
 		) );
@@ -2691,6 +2691,7 @@ class ProSites {
 		$this->load_chosen();
 		wp_enqueue_style( 'setup-wizard-css', $this->plugin_url . 'css/setup-wizard.css', false, $this->version );
 		wp_enqueue_script( 'setup-wizard-js', $this->plugin_url . 'js/setup-wizard.js', false, $this->version );
+		wp_localize_script( 'setup-wizard-js', 'ajax_object', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );   
 	}
 
 	function load_levels_style() {
@@ -5655,8 +5656,18 @@ function setup_wizard() {
 
 	if( isset( $_POST['wpsass_setup_wizard_submit'] ) ) {
 		$psts->update_setting( 'gateways_enabled', @$_POST['gateway_active'] );
+		$psts->update_setting( 'offer_trial_check', @$_POST['offer_trial_check'] );
 		$psts->update_setting( 'offer_trial', @$_POST['offer_trial'] );
+		$psts->update_setting( 'setup_fee_check', @$_POST['setup_fee_check'] );
 		$psts->update_setting( 'setup_fee', @$_POST['setup_fee'] );
+		
+		$data = array(
+			'domain'       => get_network()->domain,
+			'path'         => get_network()->path . $_POST['network_site_name'],
+			'title'   		=> $_POST['network_site_name'],
+		);
+		
+		wp_insert_site( $data );
 		
 		wp_redirect(admin_url()."network/admin.php?page=psts");
 	}
@@ -5785,15 +5796,16 @@ function setup_wizard() {
 					</select>
 				</div>
 				<div class="wpsass-setup-wizard-plan col-4">
-					<label><?php _e( 'OFFER TRIAL', 'psts' ) ?><input type="checkbox" name="offer_trial" value="7 DAYS" checked /></label>
-					<p class="wpsass-setup-wizard-offer"><?php _e( '7 DAYS', 'psts' ) ?></p>
+					<label><?php _e( 'OFFER TRIAL', 'psts' ) ?><input type="checkbox" name="offer_trial_check" value="1" checked /></label>
+					<input type="text" name="offer_trial" class="wpsass-setup-wizard-offer" value="7 DAYS" />
 				</div>
 				<div class="wpsass-setup-wizard-plan col-4">
-					<label><?php _e( 'SETUP FEE', 'psts' ) ?><input type="checkbox" name="setup_fee" value="$99" checked /></label>
-					<p class="wpsass-setup-wizard-offer"><?php _e( '$99', 'psts' ) ?></p>
+					<label><?php _e( 'SETUP FEE', 'psts' ) ?><input type="checkbox" name="setup_fee_check" value="1" checked /></label>
+					<input type="text" name="setup_fee" class="wpsass-setup-wizard-offer" value="$99" />
 				</div>
 			</div>
 			<h3><?php _e( 'Create Plans', 'psts' ) ?></h3>
+			<div class="msg_wrap"></div>
 			<?php
 			$levels = get_site_option( 'psts_levels' );
 			//add level
@@ -5838,7 +5850,7 @@ function setup_wizard() {
 				$level_num = array_keys( $level_num );
 				$level_num = array_pop( $level_num );
 				$level_num = (int) $level_num;
-
+				
 				if( in_array( $level_num, array_keys( $levels ) ) ) {
 					unset( $levels[ $level_num] );
 
@@ -5877,7 +5889,7 @@ function setup_wizard() {
 				<tbody id="the-list">
 				<tr>
 					<td scope="row" style="padding-left: 20px;">
-						<strong><?php echo $last_level + 1; ?></strong>
+						<strong class="level-no"><?php echo $last_level + 1; ?></strong>
 					</td>
 					<td>
 						<input value="" size="50" maxlength="100" name="add_name" type="text"/>
@@ -5895,7 +5907,7 @@ function setup_wizard() {
 						<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-12" value="" size="4" name="add_price_12" type="text"/>
 					</td>
 					<td>
-						<input class="button" type="submit" name="add_level" value="<?php _e( 'Add &raquo;', 'psts' ) ?>"/>
+						<input class="button wizard-add-level" type="button" name="add_level" value="<?php _e( 'Add &raquo;', 'psts' ) ?>"/>
 					</td>
 				</tr>
 				</tbody>
@@ -5997,7 +6009,7 @@ function setup_wizard() {
 										<?php if ( count( $level_list ) > 1 ) {
 											//Display delete option for last level only
 											?>
-											<input class="button" type="submit" name="delete_level[<?php echo $level_code; ?>]" value="<?php _e( 'Delete &raquo;', 'psts' ) ?>"/>
+											<input class="button wizard-delete-level" type="button" data-id="<?php echo $level_code; ?>" name="delete_level[<?php echo $level_code; ?>]" value="<?php _e( 'Delete &raquo;', 'psts' ) ?>"/>
 										<?php } ?>
 									</td>
 									<?php
@@ -6073,6 +6085,7 @@ function setup_wizard() {
 			<h2 class="wpsass-setup-wizard-title"><?php _e( 'Boost your Platform using Extensions!', 'psts' ) ?></h2>
 			<?php wp_nonce_field( 'psts_modules' ) ?>
 			<div class="wpsass-setup-wizard-extensions-search">
+				<a href="#" class="action-button wpsass-setup-wizard-extensions-add-btn"><?php _e( 'Add', 'psts' ) ?></a>
 				<input type="text" placeholder="Filters" value="" />
 			</div>
 			<div class="wpsass-setup-wizard-extensions-wrap">
@@ -6159,4 +6172,239 @@ function wpsaas_plugin_redirect() {
 		delete_option('wpsaas_plugin_do_activation_redirect');
 		wp_redirect(admin_url()."network/admin.php?page=setup-wpsaas");
 	}
+}
+
+add_action( 'wp_ajax_add_level_fn', 'wpsass_add_level' );
+add_action( 'wp_ajax_nopriv_add_level_fn', 'wpsass_add_level' );
+function wpsass_add_level(){
+	$settings = get_site_option( 'psts_settings' );
+	$levels = get_site_option( 'psts_levels' );
+	$level_data = array(
+		'name'       => stripslashes( trim( wp_filter_nohtml_kses( $_POST['add_name'] ) ) ),
+		'price_1'    => round( $_POST['price_1'], 2 ),
+		'price_3'    => round( $_POST['price_3'], 2 ),
+		'price_12'   => round( $_POST['price_12'], 2 ),
+		'is_visible' => intval( $_POST['is_visible'] ),
+		//'setup_fee'  => round( @$_POST['add_setup_fee'], 2 ),
+	);
+
+	// Just in case something went wrong, make sure we start at 1.
+	if( 0 == count( $levels ) ){
+		$levels[1] = $level_data;
+	} else {
+		$levels[] = $level_data;
+	}
+	do_action( 'psts_add_level', $levels );
+
+	update_site_option( 'psts_levels', $levels );
+	/*display lavel*/
+	$level_list = get_site_option( 'psts_levels' );
+	$posts_columns = array(
+		'level'      => __( 'Level', 'psts' ),
+		'name'       => __( 'Name', 'psts' ),
+		'is_visible' => __( 'Is Visible', 'psts' ),
+		'price_1'    => __( '1 Month Price', 'psts' ),
+		'price_3'    => __( '3 Month Price', 'psts' ),
+		'price_12'   => __( '12 Month Price', 'psts' ),
+		'edit'       => '',
+	);
+	if ( is_array( $level_list ) && count( $level_list ) ) {
+		$bgcolor = $class = '';
+		foreach ( $level_list as $level_code => $level ) {
+			$class = ( 'alternate' == $class ) ? '' : 'alternate';
+			echo '<tr class="' . $class . ' blog-row">';
+
+			foreach ( $posts_columns as $column_name => $column_display_name ) {
+				switch ( $column_name ) {
+					case 'level':
+						?>
+						<td scope="row" style="padding-left: 20px;">
+							<strong><?php echo $level_code; ?></strong>
+						</td>
+						<?php
+						break;
+
+					case 'name':
+						?>
+						<td scope="row">
+							<input data-position="<?php echo esc_attr( (int) $level_code ); ?>" value="<?php echo esc_attr( $level['name'] ) ?>" size="50" maxlength="100" name="name[<?php echo $level_code; ?>]" type="text"/>
+						</td>
+						<?php
+						break;
+
+					case 'is_visible':
+						?>
+						<td scope="row">
+							<?php $is_visible = isset( $level['is_visible'] ) ? $level['is_visible'] : 1; ?>
+							<input value="1" name="is_visible[<?php echo $level_code; ?>]" type="checkbox" <?php echo checked( $is_visible, 1 ); ?> />
+						</td>
+						<?php
+						break;
+
+					case 'price_1':
+						?>
+						<td scope="row">
+							<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-1" value="<?php echo ( isset( $level['price_1'] ) ) ? number_format( (float) $level['price_1'], 2, '.', '' ) : ''; ?>" size="4" name="price_1[<?php echo $level_code; ?>]" type="text"/>
+						</td>
+						<?php
+						break;
+
+					case 'price_3':
+						?>
+						<td scope="row">
+							<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-3" value="<?php echo ( isset( $level['price_3'] ) ) ? number_format( (float) $level['price_3'], 2, '.', '' ) : ''; ?>" size="4" name="price_3[<?php echo $level_code; ?>]" type="text"/>
+						</td>
+						<?php
+						break;
+
+					case 'price_12':
+						?>
+						<td scope="row">
+							<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-12" value="<?php echo ( isset( $level['price_12'] ) ) ? number_format( (float) $level['price_12'], 2, '.', '' ) : ''; ?>" size="4" name="price_12[<?php echo $level_code; ?>]" type="text"/>
+						</td>
+						<?php
+						break;
+
+					case 'edit':
+						?>
+						<td scope="row">
+							<?php if ( count( $level_list ) > 1 ) {
+								//Display delete option for last level only
+								?>
+								<input class="button wizard-delete-level" type="button" data-id="<?php echo $level_code; ?>" name="delete_level[<?php echo $level_code; ?>]" value="<?php _e( 'Delete &raquo;', 'psts' ) ?>"/>
+							<?php } ?>
+						</td>
+						<?php
+						break;
+				}
+			}
+			?>
+			</tr>
+		<?php
+		}
+	} else {
+		$bgcolor = 'transparent';
+		?>
+		<tr style='background-color: <?php echo $bgcolor; ?>'>
+			<td colspan="6"><?php _e( 'No levels yet.', 'psts' ) ?></td>
+		</tr>
+	<?php
+	} // end if levels
+}
+
+add_action( 'wp_ajax_delete_level_fn', 'wpsass_delete_level' );
+add_action( 'wp_ajax_nopriv_delete_level_fn', 'wpsass_delete_level' );
+function wpsass_delete_level(){
+	$level_num = $_POST['delete_level_id'];
+	$levels = get_site_option( 'psts_levels' );
+	$settings = get_site_option( 'psts_settings' );
+	if( in_array( $level_num, array_keys( $levels ) ) ) {
+		unset( $levels[ $level_num] );
+
+		// Re-Index
+		$levels = array_merge( array('x'), array_values( $levels ) );
+		unset( $levels[0]);
+
+		do_action( 'psts_delete_level', $levels );
+
+		update_site_option( 'psts_levels', $levels );
+		//Update Pricing level order
+		ProSites_Helper_ProSite::update_level_order( $levels );
+		
+		/*display lavel*/
+		$level_list = get_site_option( 'psts_levels' );
+		$posts_columns = array(
+			'level'      => __( 'Level', 'psts' ),
+			'name'       => __( 'Name', 'psts' ),
+			'is_visible' => __( 'Is Visible', 'psts' ),
+			'price_1'    => __( '1 Month Price', 'psts' ),
+			'price_3'    => __( '3 Month Price', 'psts' ),
+			'price_12'   => __( '12 Month Price', 'psts' ),
+			'edit'       => '',
+		);
+		if ( is_array( $level_list ) && count( $level_list ) ) {
+			$bgcolor = $class = '';
+			foreach ( $level_list as $level_code => $level ) {
+				$class = ( 'alternate' == $class ) ? '' : 'alternate';
+				echo '<tr class="' . $class . ' blog-row">';
+
+				foreach ( $posts_columns as $column_name => $column_display_name ) {
+					switch ( $column_name ) {
+						case 'level':
+							?>
+							<td scope="row" style="padding-left: 20px;">
+								<strong><?php echo $level_code; ?></strong>
+							</td>
+							<?php
+							break;
+
+						case 'name':
+							?>
+							<td scope="row">
+								<input data-position="<?php echo esc_attr( (int) $level_code ); ?>" value="<?php echo esc_attr( $level['name'] ) ?>" size="50" maxlength="100" name="name[<?php echo $level_code; ?>]" type="text"/>
+							</td>
+							<?php
+							break;
+
+						case 'is_visible':
+							?>
+							<td scope="row">
+								<?php $is_visible = isset( $level['is_visible'] ) ? $level['is_visible'] : 1; ?>
+								<input value="1" name="is_visible[<?php echo $level_code; ?>]" type="checkbox" <?php echo checked( $is_visible, 1 ); ?> />
+							</td>
+							<?php
+							break;
+
+						case 'price_1':
+							?>
+							<td scope="row">
+								<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-1" value="<?php echo ( isset( $level['price_1'] ) ) ? number_format( (float) $level['price_1'], 2, '.', '' ) : ''; ?>" size="4" name="price_1[<?php echo $level_code; ?>]" type="text"/>
+							</td>
+							<?php
+							break;
+
+						case 'price_3':
+							?>
+							<td scope="row">
+								<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-3" value="<?php echo ( isset( $level['price_3'] ) ) ? number_format( (float) $level['price_3'], 2, '.', '' ) : ''; ?>" size="4" name="price_3[<?php echo $level_code; ?>]" type="text"/>
+							</td>
+							<?php
+							break;
+
+						case 'price_12':
+							?>
+							<td scope="row">
+								<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-12" value="<?php echo ( isset( $level['price_12'] ) ) ? number_format( (float) $level['price_12'], 2, '.', '' ) : ''; ?>" size="4" name="price_12[<?php echo $level_code; ?>]" type="text"/>
+							</td>
+							<?php
+							break;
+
+						case 'edit':
+							?>
+							<td scope="row">
+								<?php if ( count( $level_list ) > 1 ) {
+									//Display delete option for last level only
+									?>
+									<input class="button wizard-delete-level" type="button" data-id="<?php echo $level_code; ?>" name="delete_level[<?php echo $level_code; ?>]" value="<?php _e( 'Delete &raquo;', 'psts' ) ?>"/>
+								<?php } ?>
+							</td>
+							<?php
+							break;
+					}
+				}
+				?>
+				</tr>
+			<?php
+			}
+		} else {
+			$bgcolor = 'transparent';
+			?>
+			<tr style='background-color: <?php echo $bgcolor; ?>'>
+				<td colspan="6"><?php _e( 'No levels yet.', 'psts' ) ?></td>
+			</tr>
+		<?php
+		} // end if levels
+
+	}
+	
 }

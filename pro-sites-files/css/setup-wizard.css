@@ -115,7 +115,7 @@ body #wpcontent {
 	text-align: right;
 	padding-top: 30px;
 }
-.wpsass-setup-wizard-btn .action-button {
+.action-button {
 	background-color: #007cba;
 	box-shadow: 0 0 3px #999;
 	border: 0;
@@ -126,10 +126,16 @@ body #wpcontent {
 	padding: 11px 50px;
 	text-transform: uppercase;
 	cursor: pointer;
+	display: inline-block;
+	vertical-align: top;
+	text-decoration: none;
 }
 .wpsass-setup-wizard-btn .action-button.previous {
 	background-color: #ccc;
 	margin-right: 20px;
+}
+.action-button:hover {
+	color: #fff;
 }
 .wpsass-setup-wizard-content table {
 	box-shadow: 0 0 8px #ddd;
@@ -157,7 +163,7 @@ body #wpcontent {
 .wpsass-setup-wizard-plan label input[type="checkbox"] {
 	margin-left: 15px;
 }
-.wpsass-setup-wizard-offer {
+input[type="text"].wpsass-setup-wizard-offer {
 	display: inline-block;
 	vertical-align: top;
 	margin: 0;
@@ -165,7 +171,7 @@ body #wpcontent {
 	border-radius: 25px;
 	border: 1px solid #7e8993;
 	padding: 10px 10px;
-	min-width: 100px;
+	width: 100px;
 	text-align: center;
 	font-size: 16px;
 	color: #007cba;
@@ -337,4 +343,7 @@ body #wpcontent {
 	color: #999;
 	font-weight: bold;
 	font-size: 16px;
+}
+.msg_wrap > div {
+	margin: 0 0 20px;
 }

@@ -29,5 +29,78 @@ jQuery( document ).ready( function(){
 		  jQuery( this ).toggle( jQuery( this ).data( "search" ).toLowerCase().indexOf( search_value ) > -1 );
 		});
 	});
+	
+	/*Add level*/
+	jQuery( '.wizard-add-level' ).on( 'click', function(){
+		var add_name = jQuery( 'input[name="add_name"]' ).val();
+		var price_1 = jQuery( 'input[name="add_price_1"]' ).val();
+		var price_3 = jQuery( 'input[name="add_price_3"]' ).val();
+		var price_12 = jQuery( 'input[name="add_price_12"]' ).val();
+		var is_visible = jQuery( 'input[name="add_is_visible"]' ).val();
+		
+		var error = false;
+		var error_Text = '';
+		
+		if( add_name == '' ) {
+			error_Text += 'Please enter a valid level name.';
+			error = true;
+		}
+		if( price_1 == '' && price_3 == '' && price_12 == '' ) {
+			error_Text += '<br>You must enter a price for at least one payment period.';
+			error = true;
+		}
+		if ( ! error ) {
+			jQuery.ajax({
+				url: ajax_object.ajax_url,
+				type :'POST',
+				data : {
+					'action' : 'add_level_fn', // the php name function
+					'add_name' : add_name,
+					'price_1' : price_1,
+					'price_3' : price_3,
+					'price_12' : price_12,
+					'is_visible' : is_visible,
+				},
+				beforeSend : function() {
+					
+				},
+				success: function ( result ) {
+					var level_no = parseInt( jQuery( '.level-no' ).text() ) + 1;
+					jQuery( '.level-no' ).text( level_no );
+					jQuery( 'input[name="add_name"]' ).val('');
+					jQuery( 'input[name="add_price_1"]' ).val('');
+					jQuery( 'input[name="add_price_3"]' ).val('');
+					jQuery( 'input[name="add_price_12"]' ).val('');
+					jQuery( 'input[name="add_is_visible"]' ).prop('checked');
+					jQuery( '#prosites-level-list #the-list' ).html( result );
+				}
+			});
+			
+		} else {
+			jQuery( '.msg_wrap' ).html( '<div class="error"><p>'+ error_Text +'</p></div>' );
+		}
+	} );
+	
+	/*Delete level*/
+	jQuery( '#prosites-level-list' ).on( 'click', '.wizard-delete-level', function(){
+		var delete_level_id = jQuery( this ).data( 'id' );
+		jQuery.ajax({
+			url: ajax_object.ajax_url,
+			type :'POST',
+			data : {
+				'action' : 'delete_level_fn', // the php name function
+				'delete_level_id' : delete_level_id,
+			},
+			beforeSend : function() {
+				
+			},
+			success: function ( result ) {
+				jQuery( '#prosites-level-list #the-list' ).html( result );
+				var total_count = jQuery( '#prosites-level-list #the-list tr' ).length;
+				var level_no = parseInt( total_count ) + 1;
+				jQuery( '.level-no' ).text( level_no );
+			}
+		});
+	} );
 
 });
