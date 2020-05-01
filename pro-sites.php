@@ -75,9 +75,9 @@ class ProSites {
 				'pro-sites_page_psts-pricing-settings-network',
 			),
 		);
-		
+
 		if ( file_exists( $this->plugin_dir . 'dash-notice/wpmudev-dash-notification.php' ) ) {
-			include_once( $this->plugin_dir . 'dash-notice/wpmudev-dash-notification.php' );	
+			include_once( $this->plugin_dir . 'dash-notice/wpmudev-dash-notification.php' );
 		}
 
 		// Set global cache group.
@@ -334,7 +334,11 @@ class ProSites {
 			'gateways_enabled'         => array(),
 			'modules_enabled'          => array(),
 			'enabled_periods'          => array( 1, 3, 12 ),
-			'send_receipts'             => 1,
+			'offer_trial_check'        => 1,
+			'setup_fee_check'          => 1,
+			'offer_trial'          	   => 0,
+			'setup_fee'          	   => 99,
+			'send_receipts'            => 1,
 			'hide_adminmenu'           => 0,
 			'hide_adminbar'            => 0,
 			'hide_adminbar_super'      => 0,
@@ -865,7 +869,7 @@ class ProSites {
 		do_action( 'psts_page_after_coupons' );
 
 		//levels page
-		$psts_levels_page = add_submenu_page( 'psts', __( 'WPSAAS Levels', 'psts' ), __( 'Plans', 'psts' ), 'manage_network_options', 'psts-levels', array(
+		$psts_levels_page = add_submenu_page( 'psts', __( 'WPSAAS Plans', 'psts' ), __( 'Plans', 'psts' ), 'manage_network_options', 'psts-levels', array(
 			&$this,
 			'admin_levels',
 		) );
@@ -873,7 +877,7 @@ class ProSites {
 		do_action( 'psts_page_after_levels' );
 
 		//modules page
-		$psts_modules_page = add_submenu_page( 'psts', __( 'WPSAAS Modules', 'psts' ), __( 'Extensisons', 'psts' ), 'manage_network_options', 'psts-modules', array(
+		$psts_modules_page = add_submenu_page( 'psts', __( 'WPSAAS Extensions', 'psts' ), __( 'Extensions', 'psts' ), 'manage_network_options', 'psts-modules', array(
 			&$this,
 			'admin_modules',
 		) );
@@ -2685,13 +2689,13 @@ class ProSites {
 		$this->load_psts_style();
 		$this->load_chosen();
 	}
-	
+
 	function load_setup_style() {
 		$this->load_psts_style();
 		$this->load_chosen();
 		wp_enqueue_style( 'setup-wizard-css', $this->plugin_url . 'css/setup-wizard.css', false, $this->version );
 		wp_enqueue_script( 'setup-wizard-js', $this->plugin_url . 'js/setup-wizard.js', false, $this->version );
-		wp_localize_script( 'setup-wizard-js', 'ajax_object', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );   
+		wp_localize_script( 'setup-wizard-js', 'ajax_object', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
 	}
 
 	function load_levels_style() {
@@ -3826,7 +3830,7 @@ function admin_levels() {
 	?>
 	<div class="wrap">
 	<div class="icon32"><img src="<?php echo $this->plugin_url . 'images/levels.png'; ?>"/></div>
-	<h1><?php _e( 'WPSAAS Levels', 'psts' ); ?></h1>
+	<h1><?php _e( 'WPSAAS Plans', 'psts' ); ?></h1>
 	<?php
 
 	$levels = (array) get_site_option( 'psts_levels' );
@@ -3959,12 +3963,12 @@ function admin_levels() {
 			'edit'       => '',
 		);
 		?>
-		<h3><?php _e( 'Edit WPSAAS Levels', 'psts' ) ?></h3>
-		<span class="description"><?php _e( 'WPSAAS will have the features assigned to all level numbers at or less than their own. You can disable a subscription period by unchecking it. Modifying the prices of a level will not change the current subsciption rate or plan for existing sites in that level. When you delete a level, existing sites in that level will retain the features of all levels below their current level number.', 'psts' ) ?></span>
+		<h3><?php _e( 'Edit WPSAAS Plans', 'psts' ) ?></h3>
+		<span class="description"><?php _e( 'WPSAAS will have the features assigned to all level numbers at or less than their own. You can disable a subscription period by unchecking it. Modifying the prices of a Plan will not change the current subsciption rate or plan for existing sites in that plan. When you delete a plan, existing sites in that plan will retain the features of all plans below their current plan number.', 'psts' ) ?></span>
 		<table width="100%" cellpadding="3" cellspacing="3" class="widefat level-settings" id="prosites-level-list">
 			<thead>
 			<tr>
-				<th scope="col"><?php _e( 'Level', 'psts' ); ?></th>
+				<th scope="col"><?php _e( 'Plan', 'psts' ); ?></th>
 				<th scope="col"><?php _e( 'Name', 'psts' ); ?></th>
 				<th scope="col"><?php _e( 'Is Visible', 'psts' ); ?></th>
 				<th scope="col">
@@ -4070,16 +4074,16 @@ function admin_levels() {
 			</tbody>
 		</table>
 		<p class="submit">
-			<input type="submit" name="save_levels" class="button-primary" value="<?php _e( 'Save Levels', 'psts' ) ?>"/>
+			<input type="submit" name="save_levels" class="button-primary" value="<?php _e( 'Save Plans', 'psts' ) ?>"/>
 			<span class="save_levels_dirty" style="display:none;"><?php esc_html_e( 'Changes not saved.', 'psts' ); ?></span>
 		</p>
 
-		<h3><?php _e( 'Add New Level', 'psts' ) ?></h3>
-		<span class="description"><?php _e( 'You can add a new WPSAAS level here.', 'psts' ) ?></span>
+		<h3><?php _e( 'Add New Plan', 'psts' ) ?></h3>
+		<span class="description"><?php _e( 'You can add a new WPSAAS plan here.', 'psts' ) ?></span>
 		<table width="100%" cellpadding="3" cellspacing="3" class="widefat">
 			<thead>
 			<tr>
-				<th scope="col"><?php _e( 'Level', 'psts' ); ?></th>
+				<th scope="col"><?php _e( 'Plan', 'psts' ); ?></th>
 				<th scope="col"><?php _e( 'Name', 'psts' ); ?></th>
 				<th scope="col"><?php _e( 'Is Visible', 'psts' ); ?></th>
 				<th scope="col"><?php _e( '1 Month Price', 'psts' ); ?></th>
@@ -4133,23 +4137,23 @@ function admin_levels() {
 		}
 		if ( get_option( 'psts_module_settings_updated' ) ) {
 			delete_option( 'psts_module_settings_updated' );
-			echo '<div class="updated notice-info is-dismissible"><p>' . __( 'Modules Saved. Please visit <a href="admin.php?page=psts-settings">Settings</a> to configure them.', 'psts' ) . '</p></div>';
+			echo '<div class="updated notice-info is-dismissible"><p>' . __( 'Extensions Saved. Please visit <a href="admin.php?page=psts-settings">Settings</a> to configure them.', 'psts' ) . '</p></div>';
 		}
 		?>
 		<div class="wrap">
 			<div class="icon32" id="icon-plugins"></div>
-			<h1><?php _e( 'WPSAAS Modules', 'psts' ); ?></h1>
+			<h1><?php _e( 'WPSAAS Extensions', 'psts' ); ?></h1>
 
 			<form method="post" action="">
 				<?php wp_nonce_field( 'psts_modules' ) ?>
 
-				<h3><?php _e( 'Enable Modules', 'psts' ) ?></h3>
-				<span class="description"><?php _e( 'Select the modules you would like to use below. You can then configure their options on the settings page.', 'psts' ) ?></span>
+				<h3><?php _e( 'Enable Extensions', 'psts' ) ?></h3>
+				<span class="description"><?php _e( 'Select the extensions you would like to use below. You can then configure their options on the settings page.', 'psts' ) ?></span>
 				<table class="widefat">
 					<thead>
 						<tr>
 							<th style="width: 15px;"><?php _e( 'Enable', 'psts' ) ?></th>
-							<th><?php _e( 'Module Name', 'psts' ) ?></th>
+							<th><?php _e( 'Extension Name', 'psts' ) ?></th>
 							<th><?php _e( 'Description', 'psts' ) ?></th>
 						</tr>
 					</thead>
@@ -5650,31 +5654,51 @@ function setup_currency( $currency = '', $amount = false ) {
 	return $symbol;
 }
 //setup_wizard_content
-function setup_wizard() { 
+function setup_wizard() {
 	global $psts;
 	global $psts_modules;
+	$settings = get_site_option( 'psts_settings' );
+	
+ /*	if( $settings['setup_wizard'] == 1 ) {
+		wp_redirect(admin_url()."network/admin.php?page=psts");
+		exit;
+	}*/
 
 	if( isset( $_POST['wpsass_setup_wizard_submit'] ) ) {
-		$psts->update_setting( 'gateways_enabled', @$_POST['gateway_active'] );
+		$gateway_active = ( $_POST['gateway_active'] != '' ) ? $_POST['gateway_active'] : array() ;
+		
+		$psts->update_setting( 'gateways_enabled', @$gateway_active );
 		$psts->update_setting( 'offer_trial_check', @$_POST['offer_trial_check'] );
-		$psts->update_setting( 'offer_trial', @$_POST['offer_trial'] );
+		$psts->update_setting( 'trial_days', @$_POST['offer_trial'] );
 		$psts->update_setting( 'setup_fee_check', @$_POST['setup_fee_check'] );
 		$psts->update_setting( 'setup_fee', @$_POST['setup_fee'] );
-		
-		$data = array(
-			'domain'       => get_network()->domain,
-			'path'         => get_network()->path . $_POST['network_site_name'],
-			'title'   		=> $_POST['network_site_name'],
-		);
-		
-		wp_insert_site( $data );
-		
-		wp_redirect(admin_url()."network/admin.php?page=psts");
-	}
-	$settings = get_site_option( 'psts_settings' );
+		$psts->update_setting( 'setup_wizard', @$_POST['setup_wizard'] );
 
+		$network_site_name = ( isset( $_POST[ 'network_site_name' ] ) && $_POST[ 'network_site_name' ] != '' ) ? $_POST[ 'network_site_name' ] : 'wpsass';
+		$value = wp_unslash( $network_site_name );
+		update_site_option( 'site_name', $value );
+
+		if( isset( $_FILES['network_logo']['tmp_name'] ) && $_FILES['network_logo']['tmp_name'] != '' ) {
+			$wp_upload_dir = wp_upload_dir();
+			$path = $wp_upload_dir['basedir'] . '/wpsass-logo-image';
+			if ( ! is_dir( $path ) ) {
+				mkdir( $path );
+			}
+			$upload_path = $path . '/' . basename( $_FILES['network_logo']['name'] );
+			if( move_uploaded_file( $_FILES['network_logo']['tmp_name'], $upload_path ) ){
+				$attachment_url = $wp_upload_dir['baseurl'] . '/wpsass-logo-image/' . basename( $_FILES['network_logo']['name'] );
+				$psts->update_setting( 'network_logo', $attachment_url );
+			}
+		} else {
+			$psts->update_setting( 'network_logo', '' );
+		}
+
+		wp_redirect(admin_url()."network/admin.php?page=psts");
+		exit;
+	}
+	
 	?>
-	<form method="post" class="wpsass-setup-wizard-main">
+	<form method="post" class="wpsass-setup-wizard-main" enctype="multipart/form-data">
 		<!-- progressbar -->
 		<input type="hidden" name="setup_wizard" value="1" />
 		<div class="wpsass-setup-wizard-main-logo-wrap">
@@ -5683,67 +5707,37 @@ function setup_wizard() {
 			</div>
 		</div>
 		<ul id="progressbar" class="wpsass-setup-wizard-step">
-			<li id="setup-step" class="active"><?php _e( 'Setup', 'psts' ) ?></li>
+			<li id="setup-step" class="active"><?php _e( 'SAAS Platform Name', 'psts' ) ?></li>
 			<li id="plans-step"><?php _e( 'Plans', 'psts' ) ?></li>
 			<li id="payment-step"><?php _e( 'Payment Gateways', 'psts' ) ?></li>
 			<li id="extensions-step"><?php _e( 'Extensions', 'psts' ) ?></li>
 			<li id="ready-step"><?php _e( 'Ready !', 'psts' ) ?></li>
 		</ul>
-		<!-- fieldsets -->
+		<!-- SAAS Platform Name -->
 		<div class="wpsass-setup-wizard-content" data-id="setup-step">
 			<h2 class="wpsass-setup-wizard-title"><?php _e( 'Welcome!', 'psts' ) ?></h2>
 			<div class="wpsass-setup-wizard-subcontent">
 				<p><?php _e( 'Welcome to WPSAAS Pro', 'psts' ) ?></p>
 				<p><?php _e( 'An easy way to convert Wordpress into a Premium Website as a service platform or a SAAS boiler plate platform.<br>Bla Bla bla', 'psts' ) ?></p>
 			</div>
-			<?php
-			//update name logo 
-			if ( isset( $_POST['setup_first'] ) ) {
-				echo "new rtest";
-				$error = false;
-				if ( empty( $_POST['network_site_name'] ) ) {
-					$error[] = __( 'Please enter a valid site name.', 'psts' );
-				}
-				if ( empty( $_POST['network_logo'] ) ) {
-					$error[] = __( 'Please enter a valid logo image.', 'psts' );
-				}
-				
-				if ( ! $error ) {
-					$network_site_name = $_POST['network_site_name'];
-					$network_logo = $_POST['network_logo'];
-					update_site_option( 'network_site_name', $network_site_name );
-					update_site_option( 'network_logo', $network_logo );
-					if ( $_FILES['network_logo'] ) {
-						//~ if ( ! function_exists( 'wp_handle_upload' ) ) 
-						//~ {
-							//~ require_once( ABSPATH . 'wp-admin/includes/image.php' );
-							//~ require_once( ABSPATH . 'wp-admin/includes/file.php' );
-							//~ require_once( ABSPATH . 'wp-admin/includes/media.php' );
-						//~ }
-						//~ $uploaddir = wp_upload_dir();
-						//~ $files = $_FILES['network_logo'];
-					}
-					echo '<div class="updated fade"><p>' . __( 'Site name and logo added.', 'psts' ) . '</p></div>';
-				} else {
-					echo '<div class="error"><p>' . implode( '<br />', $error ) . '</p></div>';
-				}
-			}
-			?>
 			<div class="wpsass-setup-wizard-row">
 				<div class="wpsass-setup-wizard-block col-8">
-					<label><?php _e( 'Site Name', 'psts' ) ?></label>
+					<label><?php _e( 'SAAS Platform Name', 'psts' ) ?></label>
 					<input type="text" name="network_site_name" />
 				</div>
 				<div class="wpsass-setup-wizard-block col-4">
 					<label><?php _e( 'Logo', 'psts' ) ?></label>
 					<input type="file" name="network_logo" accept="image/*" />
+					<p class="wpsaas-desc"><?php _e( 'Logo height should be 100px', 'psts' ) ?></p>
 				</div>
 			</div>
 			<div class="wpsass-setup-wizard-btn">
+				<a href="javascript:void(0)" class="next wpsass-setup-wizard-skip" ><?php _e( 'Skip This Step', 'psts' ) ?></a>
 				<input type="button" name="setup_first" class="next action-button" value="Next" />
 			</div>
 		</div>
-		
+
+		<!-- Plans -->
 		<div class="wpsass-setup-wizard-content" data-id="plans-step" style="display:none">
 			<h2 class="wpsass-setup-wizard-title"><?php _e( 'Setup Plans', 'psts' ) ?></h2>
 			<div class="wpsass-setup-wizard-row">
@@ -5781,7 +5775,7 @@ function setup_wizard() {
 						$all_currencies = ProSites_Model_Data::$currencies;
 						ksort( $all_currencies );
 						foreach ( $all_currencies as $key => $currency ) {
-							
+
 							$supported_by = '';
 							foreach ( $gateways as $slug => $gateway ) {
 								if ( ProSites_Helper_Gateway::supports_currency( $key, $slug ) ) {
@@ -5796,19 +5790,29 @@ function setup_wizard() {
 					</select>
 				</div>
 				<div class="wpsass-setup-wizard-plan col-4">
-					<label><?php _e( 'OFFER TRIAL', 'psts' ) ?><input type="checkbox" name="offer_trial_check" value="1" checked /></label>
-					<input type="text" name="offer_trial" class="wpsass-setup-wizard-offer" value="7 DAYS" />
+					<label><?php _e( 'OFFER TRIAL', 'psts' ) ?><input type="checkbox" name="offer_trial_check" value="1" <?php checked( @$settings['offer_trial_check'], '1' );?> /></label>
+					<select name="offer_trial" class="chosen wpsass-setup-wizard-offer-trial" <?php echo ( $settings['offer_trial_check'] == '' ) ? 'disabled' : '' ; ?>>
+						<?php
+						$trial_days         = $psts->get_setting( 'trial_days' );
+						$trial_days_options = '';
+
+						for ( $counter = 0; $counter <= 365; $counter ++ ) {
+							$trial_days_options .= '<option value="' . $counter . '"' . ( $counter == $trial_days ? ' selected' : '' ) . '>' . ( ( $counter ) ? $counter : __( 'Disabled', 'psts' ) ) . '</option>' . "\n";
+						}
+						echo $trial_days_options;
+						?>
+					</select>
 				</div>
 				<div class="wpsass-setup-wizard-plan col-4">
-					<label><?php _e( 'SETUP FEE', 'psts' ) ?><input type="checkbox" name="setup_fee_check" value="1" checked /></label>
-					<input type="text" name="setup_fee" class="wpsass-setup-wizard-offer" value="$99" />
+					<label><?php _e( 'SETUP FEE', 'psts' ) ?><input type="checkbox" name="setup_fee_check" value="1" <?php checked( @$settings['setup_fee_check'], '1' );?> /></label>
+					<input type="number" name="setup_fee" class="wpsass-setup-wizard-offer wpsass-setup-wizard-offer-fee" value="99" <?php echo ( $settings['setup_fee_check'] == '' ) ? 'disabled' : '' ; ?> />
 				</div>
 			</div>
 			<h3><?php _e( 'Create Plans', 'psts' ) ?></h3>
 			<div class="msg_wrap"></div>
 			<?php
 			$levels = get_site_option( 'psts_levels' );
-			//add level
+			//add plan
 			if ( isset( $_POST['add_level'] ) ) {
 				$error = false;
 				if ( empty( $_POST['add_name'] ) ) {
@@ -5842,7 +5846,7 @@ function setup_wizard() {
 					echo '<div class="error"><p>' . implode( '<br />', $error ) . '</p></div>';
 				}
 			}
-			//delete checked levels
+			//delete checked plans
 			if ( isset( $_POST['delete_level'] ) ) {
 
 				// Get correct level
@@ -5850,7 +5854,7 @@ function setup_wizard() {
 				$level_num = array_keys( $level_num );
 				$level_num = array_pop( $level_num );
 				$level_num = (int) $level_num;
-				
+
 				if( in_array( $level_num, array_keys( $levels ) ) ) {
 					unset( $levels[ $level_num] );
 
@@ -5869,175 +5873,179 @@ function setup_wizard() {
 				}
 
 			}
-			
+
 			$level_list = get_site_option( 'psts_levels' );
 			$last_level = ( is_array( $level_list ) ) ? count( $level_list ) : 0;
 			$periods    = $settings[ 'enabled_periods' ];
 			?>
 			<table width="100%" cellpadding="3" cellspacing="3" class="widefat">
 				<thead>
-				<tr>
-					<th scope="col"><?php _e( 'Plan', 'psts' ); ?></th>
-					<th scope="col"><?php _e( 'Name', 'psts' ); ?></th>
-					<th scope="col"><?php _e( 'Is Visible', 'psts' ); ?></th>
-					<th scope="col"><?php _e( '1 Month Price', 'psts' ); ?></th>
-					<th scope="col"><?php _e( '3 Month Price', 'psts' ); ?></th>
-					<th scope="col"><?php _e( '12 Month Price', 'psts' ); ?></th>
-					<th scope="col"></th>
-				</tr>
+					<tr>
+						<th scope="col"><?php _e( 'Plan', 'psts' ); ?></th>
+						<th scope="col"><?php _e( 'Name', 'psts' ); ?></th>
+						<th scope="col"><?php _e( 'Is Visible', 'psts' ); ?></th>
+						<th scope="col"><?php _e( '1 Month Price', 'psts' ); ?></th>
+						<th scope="col"><?php _e( '3 Month Price', 'psts' ); ?></th>
+						<th scope="col"><?php _e( '12 Month Price', 'psts' ); ?></th>
+						<th scope="col"></th>
+					</tr>
 				</thead>
 				<tbody id="the-list">
-				<tr>
-					<td scope="row" style="padding-left: 20px;">
-						<strong class="level-no"><?php echo $last_level + 1; ?></strong>
-					</td>
-					<td>
-						<input value="" size="50" maxlength="100" name="add_name" type="text"/>
-					</td>
-					<td>
-						<input value="1" name="add_is_visible" type="checkbox" checked="checked"/>
-					</td>
-					<td>
-						<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-1" value="" size="4" name="add_price_1" type="text"/>
-					</td>
-					<td>
-						<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-3" value="" size="4" name="add_price_3" type="text"/>
-					</td>
-					<td>
-						<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-12" value="" size="4" name="add_price_12" type="text"/>
-					</td>
-					<td>
-						<input class="button wizard-add-level" type="button" name="add_level" value="<?php _e( 'Add &raquo;', 'psts' ) ?>"/>
-					</td>
-				</tr>
+					<tr>
+						<td scope="row" style="padding-left: 20px;">
+							<strong class="level-no"><?php echo $last_level + 1; ?></strong>
+						</td>
+						<td>
+							<input value="" size="50" maxlength="100" name="add_name" type="text"/>
+						</td>
+						<td>
+							<input value="1" name="add_is_visible" type="checkbox" checked="checked"/>
+						</td>
+						<td>
+							<label><?php echo setup_currency( $settings['currency'] ); ?></label>
+							<input class="price-1" value="" size="4" name="add_price_1" type="text"/>
+						</td>
+						<td>
+							<label><?php echo setup_currency( $settings['currency'] ); ?></label>
+							<input class="price-3" value="" size="4" name="add_price_3" type="text"/>
+						</td>
+						<td>
+							<label><?php echo setup_currency( $settings['currency'] ); ?></label>
+							<input class="price-12" value="" size="4" name="add_price_12" type="text"/>
+						</td>
+						<td>
+							<input class="button wizard-add-level" type="button" name="add_level" value="<?php _e( 'Add &raquo;', 'psts' ) ?>"/>
+						</td>
+					</tr>
 				</tbody>
 			</table>
-			<?php 
-				
-				$posts_columns = array(
-					'level'      => __( 'Level', 'psts' ),
-					'name'       => __( 'Name', 'psts' ),
-					'is_visible' => __( 'Is Visible', 'psts' ),
-					'price_1'    => __( '1 Month Price', 'psts' ),
-					'price_3'    => __( '3 Month Price', 'psts' ),
-					'price_12'   => __( '12 Month Price', 'psts' ),
-					'edit'       => '',
-				);
-				
-				
+			<?php
+			$posts_columns = array(
+				'level'      => __( 'Level', 'psts' ),
+				'name'       => __( 'Name', 'psts' ),
+				'is_visible' => __( 'Is Visible', 'psts' ),
+				'price_1'    => __( '1 Month Price', 'psts' ),
+				'price_3'    => __( '3 Month Price', 'psts' ),
+				'price_12'   => __( '12 Month Price', 'psts' ),
+				'edit'       => '',
+			);
 			?>
 			<table width="100%" cellpadding="3" cellspacing="3" class="widefat level-settings" id="prosites-level-list">
 				<thead>
-				<tr>
-					<th scope="col"><?php _e( 'Plan', 'psts' ); ?></th>
-					<th scope="col"><?php _e( 'Name', 'psts' ); ?></th>
-					<th scope="col"><?php _e( 'Is Visible', 'psts' ); ?></th>
-					<th scope="col">
-						<label><input name="enable_1" id="enable_1" value="1" title="<?php _e( 'Enable 1 Month Checkout', 'psts' ); ?>" type="checkbox"<?php checked( in_array( 1, $periods ) ); ?>> <?php _e( '1 Month Price', 'psts' ); ?>
-						</label></th>
-					<th scope="col">
-						<label><input name="enable_3" id="enable_3" value="1" title="<?php _e( 'Enable 3 Month Checkout', 'psts' ); ?>" type="checkbox"<?php checked( in_array( 3, $periods ) ); ?>> <?php _e( '3 Month Price', 'psts' ); ?>
-						</label></th>
-					<th scope="col">
-						<label><input name="enable_12" id="enable_12" value="1" title="<?php _e( 'Enable 12 Month Checkout', 'psts' ); ?>" type="checkbox"<?php checked( in_array( 12, $periods ) ); ?>> <?php _e( '12 Month Price', 'psts' ); ?>
-						</label></th>
-					<th scope="col"></th>
-				</tr>
+					<tr>
+						<th scope="col"><?php _e( 'Plan', 'psts' ); ?></th>
+						<th scope="col"><?php _e( 'Name', 'psts' ); ?></th>
+						<th scope="col"><?php _e( 'Is Visible', 'psts' ); ?></th>
+						<th scope="col">
+							<label>
+								<input name="enable_1" id="enable_1" value="1" title="<?php _e( 'Enable 1 Month Checkout', 'psts' ); ?>" type="checkbox" <?php checked( in_array( 1, $periods ) ); ?> /> <?php _e( '1 Month Price', 'psts' ); ?>
+							</label>
+						</th>
+						<th scope="col">
+							<label>
+								<input name="enable_3" id="enable_3" value="1" title="<?php _e( 'Enable 3 Month Checkout', 'psts' ); ?>" type="checkbox" <?php checked( in_array( 3, $periods ) ); ?> /> <?php _e( '3 Month Price', 'psts' ); ?>
+							</label>
+						</th>
+						<th scope="col">
+							<label>
+								<input name="enable_12" id="enable_12" value="1" title="<?php _e( 'Enable 12 Month Checkout', 'psts' ); ?>" type="checkbox" <?php checked( in_array( 12, $periods ) ); ?> /> <?php _e( '12 Month Price', 'psts' ); ?>
+							</label>
+						</th>
+						<th scope="col"></th>
+					</tr>
 				</thead>
 				<tbody id="the-list">
-				<?php
-				if ( is_array( $level_list ) && count( $level_list ) ) {
-					$bgcolor = $class = '';
-					foreach ( $level_list as $level_code => $level ) {
-						$class = ( 'alternate' == $class ) ? '' : 'alternate';
-						echo '<tr class="' . $class . ' blog-row">';
-
-						foreach ( $posts_columns as $column_name => $column_display_name ) {
-							switch ( $column_name ) {
-								case 'level':
-									?>
-									<td scope="row" style="padding-left: 20px;">
-										<strong><?php echo $level_code; ?></strong>
-									</td>
-									<?php
-									break;
-
-								case 'name':
-									?>
-									<td scope="row">
-										<input data-position="<?php echo esc_attr( (int) $level_code ); ?>" value="<?php echo esc_attr( $level['name'] ) ?>" size="50" maxlength="100" name="name[<?php echo $level_code; ?>]" type="text"/>
-									</td>
-									<?php
-									break;
-
-								case 'is_visible':
-									?>
-									<td scope="row">
-										<?php $is_visible = isset( $level['is_visible'] ) ? $level['is_visible'] : 1; ?>
-										<input value="1" name="is_visible[<?php echo $level_code; ?>]" type="checkbox" <?php echo checked( $is_visible, 1 ); ?> />
-									</td>
-									<?php
-									break;
-
-								case 'price_1':
-									?>
-									<td scope="row">
-										<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-1" value="<?php echo ( isset( $level['price_1'] ) ) ? number_format( (float) $level['price_1'], 2, '.', '' ) : ''; ?>" size="4" name="price_1[<?php echo $level_code; ?>]" type="text"/>
-									</td>
-									<?php
-									break;
-
-								case 'price_3':
-									?>
-									<td scope="row">
-										<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-3" value="<?php echo ( isset( $level['price_3'] ) ) ? number_format( (float) $level['price_3'], 2, '.', '' ) : ''; ?>" size="4" name="price_3[<?php echo $level_code; ?>]" type="text"/>
-									</td>
-									<?php
-									break;
-
-								case 'price_12':
-									?>
-									<td scope="row">
-										<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-12" value="<?php echo ( isset( $level['price_12'] ) ) ? number_format( (float) $level['price_12'], 2, '.', '' ) : ''; ?>" size="4" name="price_12[<?php echo $level_code; ?>]" type="text"/>
-									</td>
-									<?php
-									break;
-
-								case 'edit':
-									?>
-									<td scope="row">
-										<?php if ( count( $level_list ) > 1 ) {
-											//Display delete option for last level only
+					<?php
+					if ( is_array( $level_list ) && count( $level_list ) ) {
+						$bgcolor = $class = '';
+						foreach ( $level_list as $level_code => $level ) {
+							$class = ( 'alternate' == $class ) ? '' : 'alternate';
+							echo '<tr class="' . $class . ' blog-row">';
+								foreach ( $posts_columns as $column_name => $column_display_name ) {
+									switch ( $column_name ) {
+										case 'level':
 											?>
-											<input class="button wizard-delete-level" type="button" data-id="<?php echo $level_code; ?>" name="delete_level[<?php echo $level_code; ?>]" value="<?php _e( 'Delete &raquo;', 'psts' ) ?>"/>
-										<?php } ?>
-									</td>
-									<?php
-									break;
-							}
+											<td scope="row" style="padding-left: 20px;">
+												<strong><?php echo $level_code; ?></strong>
+											</td>
+											<?php
+											break;
+
+										case 'name':
+											?>
+											<td scope="row">
+												<input data-position="<?php echo esc_attr( (int) $level_code ); ?>" value="<?php echo esc_attr( $level['name'] ) ?>" size="50" maxlength="100" name="name[<?php echo $level_code; ?>]" type="text"/>
+											</td>
+											<?php
+											break;
+
+										case 'is_visible':
+											?>
+											<td scope="row">
+												<?php $is_visible = isset( $level['is_visible'] ) ? $level['is_visible'] : 1; ?>
+												<input value="1" name="is_visible[<?php echo $level_code; ?>]" type="checkbox" <?php echo checked( $is_visible, 1 ); ?> />
+											</td>
+											<?php
+											break;
+
+										case 'price_1':
+											?>
+											<td scope="row">
+												<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-1" value="<?php echo ( isset( $level['price_1'] ) ) ? number_format( (float) $level['price_1'], 2, '.', '' ) : ''; ?>" size="4" name="price_1[<?php echo $level_code; ?>]" type="text"/>
+											</td>
+											<?php
+											break;
+
+										case 'price_3':
+											?>
+											<td scope="row">
+												<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-3" value="<?php echo ( isset( $level['price_3'] ) ) ? number_format( (float) $level['price_3'], 2, '.', '' ) : ''; ?>" size="4" name="price_3[<?php echo $level_code; ?>]" type="text"/>
+											</td>
+											<?php
+											break;
+
+										case 'price_12':
+											?>
+											<td scope="row">
+												<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-12" value="<?php echo ( isset( $level['price_12'] ) ) ? number_format( (float) $level['price_12'], 2, '.', '' ) : ''; ?>" size="4" name="price_12[<?php echo $level_code; ?>]" type="text"/>
+											</td>
+											<?php
+											break;
+
+										case 'edit':
+											?>
+											<td scope="row">
+												<?php if ( count( $level_list ) > 1 ) {
+													//Display delete option for last level only
+													?>
+													<input class="button wizard-delete-level" type="button" data-id="<?php echo $level_code; ?>" name="delete_level[<?php echo $level_code; ?>]" value="<?php _e( 'Delete &raquo;', 'psts' ) ?>"/>
+												<?php } ?>
+											</td>
+											<?php
+											break;
+									}
+								}
+							echo '</tr>';
 						}
+					} else {
+						$bgcolor = 'transparent';
 						?>
+						<tr style='background-color: <?php echo $bgcolor; ?>'>
+							<td colspan="6"><?php _e( 'No levels yet.', 'psts' ) ?></td>
 						</tr>
 					<?php
-					}
-				} else {
-					$bgcolor = 'transparent';
+					} // end if levels
 					?>
-					<tr style='background-color: <?php echo $bgcolor; ?>'>
-						<td colspan="6"><?php _e( 'No levels yet.', 'psts' ) ?></td>
-					</tr>
-				<?php
-				} // end if levels
-				?>
-
 				</tbody>
 			</table>
 			<div class="wpsass-setup-wizard-btn">
+				<a href="javascript:void(0)" class="next wpsass-setup-wizard-skip" ><?php _e( 'Skip This Step', 'psts' ) ?></a>
 				<input type="button" name="previous" class="previous action-button" value="Previous" />
 				<input type="button" name="next" class="next action-button" value="Next" />
 			</div>
 		</div>
-		
+
+		<!-- Payment Gateways -->
 		<div class="wpsass-setup-wizard-content" data-id="payment-step" style="display: none;">
 			<h2 class="wpsass-setup-wizard-title"><?php _e( 'Payment Gateways', 'psts' ) ?></h2>
 			<div class="wpsass-setup-wizard-payment-wrap">
@@ -6076,17 +6084,51 @@ function setup_wizard() {
 				</div>
 			</div>
 			<div class="wpsass-setup-wizard-btn">
+				<a href="javascript:void(0)" class="next wpsass-setup-wizard-skip" ><?php _e( 'Skip This Step', 'psts' ) ?></a>
 				<input type="button" name="previous" class="previous action-button" value="Previous" />
 				<input type="button" name="next" class="next action-button" value="Next" />
 			</div>
 		</div>
-		
+
+		<!-- Extensions -->
 		<div class="wpsass-setup-wizard-content" data-id="extensions-step" style="display: none;">
 			<h2 class="wpsass-setup-wizard-title"><?php _e( 'Boost your Platform using Extensions!', 'psts' ) ?></h2>
 			<?php wp_nonce_field( 'psts_modules' ) ?>
 			<div class="wpsass-setup-wizard-extensions-search">
-				<a href="#" class="action-button wpsass-setup-wizard-extensions-add-btn"><?php _e( 'Add', 'psts' ) ?></a>
+				<!--<a href="#" class="action-button wpsass-setup-wizard-extensions-add-btn"><?php _e( 'Add', 'psts' ) ?></a>-->
 				<input type="text" placeholder="Filters" value="" />
+			</div>
+			<div class="wpsass-setup-wizard-extensions-wrap wpsass-setup-wizard-extensions-pro">
+				<div class="wpsass-setup-wizard-extensions-block" data-search="wpsaas pro site templates">
+					<div class="wpsass-setup-wizard-extensions-content">
+						<h3 class="wpsass-setup-wizard-extensions-title" for=""><?php echo _e( 'WPSAAS PRO SITE TEMPLATES', 'psts' ) ?></h3>
+						<p class="wpsass-setup-wizard-extensions-desc"><?php echo _e( 'CREATE READY MADE SITES USING TEMPLATES PLUGINS AND ALLOW THEM TO BE EASY DEPLOYED TO NEW SUBSITES', 'psts' ) ?></p>
+						<div class="wpsass-setup-wizard-extensions-enable">
+							<p><?php _e( '$99', 'psts' ) ?></p>
+							<label><?php _e( 'BUY', 'psts' ) ?> <input type="checkbox" id="psts_wpsaas_pro_site_templates" name="allowed_modules_pro[]" value="wpsaas_pro_site_templates" /></label>
+						</div>
+					</div>
+				</div>
+				<div class="wpsass-setup-wizard-extensions-block" data-search="WPSAAS Pro Domains">
+					<div class="wpsass-setup-wizard-extensions-content">
+						<h3 class="wpsass-setup-wizard-extensions-title" for=""><?php echo _e( 'WPSAAS Pro Domains', 'psts' ) ?></h3>
+						<p class="wpsass-setup-wizard-extensions-desc"><?php echo _e( 'Sell domains and allow subsites to have custom domains. Also resell using Enom', 'psts' ) ?></p>
+						<div class="wpsass-setup-wizard-extensions-enable">
+							<p><?php _e( '$99', 'psts' ) ?></p>
+							<label><?php _e( 'BUY', 'psts' ) ?> <input type="checkbox" id="psts_wpsaas_pro_domains" name="allowed_modules_pro[]" value="psts_wpsaas_pro_domains" /></label>
+						</div>
+					</div>
+				</div>
+				<div class="wpsass-setup-wizard-extensions-block" data-search="wpsaas admin themes">
+					<div class="wpsass-setup-wizard-extensions-content">
+						<h3 class="wpsass-setup-wizard-extensions-title" for=""><?php echo _e( 'WPSAAS ADMIN THEMES', 'psts' ) ?></h3>
+						<p class="wpsass-setup-wizard-extensions-desc"><?php echo _e( 'Turn your wordpress Dashbaord into a clean and user friendly dashboard', 'psts' ) ?></p>
+						<div class="wpsass-setup-wizard-extensions-enable">
+							<p><?php _e( '$30', 'psts' ) ?></p>
+							<label><?php _e( 'BUY', 'psts' ) ?> <input type="checkbox" id="psts_wpsaas_admin_themes" name="allowed_modules_pro[]" value="psts_wpsaas_admin_themes" /></label>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="wpsass-setup-wizard-extensions-wrap">
 				<?php
@@ -6110,14 +6152,7 @@ function setup_wizard() {
 							<h3 class="wpsass-setup-wizard-extensions-title" for="psts_<?php echo $class; ?>"><?php echo esc_attr( $plugin[0] ); ?></h3>
 							<p class="wpsass-setup-wizard-extensions-desc"><?php echo esc_attr( $plugin[1] ); ?></p>
 							<div class="wpsass-setup-wizard-extensions-enable">
-								<p>
-									<?php if ( $plugin[2] ) {
-										echo "$99";
-									} else {
-										echo "FREE BETA";
-									}								
-									?>
-								</p>
+								<p><?php _e( 'FREE BETA', 'psts' ) ?></p>
 								<label><?php _e( 'Enable', 'psts' ) ?> <input type="checkbox" id="psts_<?php echo $class; ?>" name="allowed_modules[]" value="<?php echo $class; ?>" /></label>
 							</div>
 						</div>
@@ -6128,11 +6163,13 @@ function setup_wizard() {
 			</div>
 			<?php do_action( 'psts_modules_page' ); ?>
 			<div class="wpsass-setup-wizard-btn">
+				<a href="javascript:void(0)" class="next wpsass-setup-wizard-skip extension-btn" ><?php _e( 'Skip This Step', 'psts' ) ?></a>
 				<input type="button" name="previous" class="previous action-button" value="Previous" />
-				<input type="button" name="next" class="next action-button" value="Next" />
+				<input type="button" name="next" class="next action-button extension-btn" value="Next" />
 			</div>
 		</div>
-		
+
+		<!-- Ready -->
 		<div class="wpsass-setup-wizard-content" data-id="extensions-step" style="display: none;">
 			<h2 class="wpsass-setup-wizard-title"><?php _e( 'Your Network is Ready!', 'psts' ) ?></h2>
 			<div class="wpsass-setup-wizard-ready-sec">
@@ -6143,37 +6180,63 @@ function setup_wizard() {
 					</div>
 				</div>
 				<p><?php _e( 'Congratulations! The plugin has been activated and your network is ready. Go back to your WordPress dashboard to make changes and modify any of the default content to suit your needs.', 'psts' ) ?></p>
+				<p class="payment-note-text" style="display: none;"><?php _e( '<strong>Note: </strong>After finish setup please enter your payment credentials on the payment gateway page.', 'psts' ) ?></p>
 			</div>
 			<div class="wpsass-setup-wizard-subscribe-main">
 				<h3><?php _e( 'Subscribe to New Plugins Addons, News & updates', 'psts' ) ?></h3>
+				<div class="wpsass-setup-wizard-newsletter-btn">
+					<a href="javascript:void(0);" ><?php _e( 'Subscribe Now', 'psts' ) ?></a>
+				</div>
+				<div class="wpsass-setup-wizard-subscribe-popup" style="display: none;">
+					<a href="javascript:void(0);" class="subscribe-popup-close">X</a>
+					<!-- Begin Mailchimp Signup Form -->
+					<div id="mc_embed_signup">
+					<form action="https://bulawebs.us8.list-manage.com/subscribe/post?u=ecc86204dd2d289e7b95ba326&amp;id=e7640531f7" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+						<div id="mc_embed_signup_scroll">
+						<h2>Subscribe</h2>
+					<div class="mc-field-group">
+						<label for="mce-EMAIL">Email Address </label>
+						<input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL">
+					</div>
+						<div id="mce-responses" class="clear">
+							<div class="response" id="mce-error-response" style="display:none"></div>
+							<div class="response" id="mce-success-response" style="display:none"></div>
+						</div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+						<div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_ecc86204dd2d289e7b95ba326_e7640531f7" tabindex="-1" value=""></div>
+						<div class="wpsaas-mailchimp-btn"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button action-button"></div>
+						</div>
+					</form>
+					</div>
+					<script type='text/javascript' src='//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js'></script><script type='text/javascript'>(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';fnames[3]='ADDRESS';ftypes[3]='address';fnames[4]='PHONE';ftypes[4]='phone';}(jQuery));var $mcj = jQuery.noConflict(true);</script>
+					<!--End mc_embed_signup-->
+				</div>
 			</div>
 			<div class="wpsass-setup-wizard-btn wpsass-setup-wizard-subscribe-btn">
-				<input type="submit" name="wpsass_setup_wizard_submit" class="next action-button" value="Done!" />
+				<a href="<?php echo admin_url()."network/admin.php?page=psts" ?>" class="wpsass-setup-wizard-skip" ><?php _e( 'Skip This Step', 'psts' ) ?></a>
+				<input type="submit" name="wpsass_setup_wizard_submit" class="next action-button" value="Finish Setup" />
 			</div>
-		</div>
-		<div class="wpsass-setup-wizard-skip">
-			<a href="<?php echo admin_url()."network/admin.php?page=psts" ?>" ><?php _e( 'Skip This Step', 'psts' ) ?></a>
 		</div>
 	</form>
 	<?php
 }
 
 //redirection-after-activation
-register_activation_hook(__FILE__, 'wpsaas_plugin_activate');
-add_action('admin_init', 'wpsaas_plugin_redirect');
+add_action('activated_plugin', 'wpsaas_plugin_redirect');
 
-function wpsaas_plugin_activate() {
-	add_option('wpsaas_plugin_do_activation_redirect', true);
-	update_option('setup_wizard', 0);
-}
-
-function wpsaas_plugin_redirect() {
-	if (get_option('wpsaas_plugin_do_activation_redirect', false)) {
-		delete_option('wpsaas_plugin_do_activation_redirect');
-		wp_redirect(admin_url()."network/admin.php?page=setup-wpsaas");
+function wpsaas_plugin_redirect( $plugin ) {
+	if( $plugin == plugin_basename( __FILE__ ) ) {
+		$settings = get_site_option( 'psts_settings' );
+		if ( isset( $settings['setup_wizard'] ) && $settings['setup_wizard'] == 1 ) {
+			wp_redirect(admin_url()."network/admin.php?page=psts");
+			exit;
+		} else {
+			wp_redirect(admin_url()."network/admin.php?page=setup-wpsaas");
+			exit;
+		}
 	}
 }
 
+/*add plan*/
 add_action( 'wp_ajax_add_level_fn', 'wpsass_add_level' );
 add_action( 'wp_ajax_nopriv_add_level_fn', 'wpsass_add_level' );
 function wpsass_add_level(){
@@ -6185,7 +6248,6 @@ function wpsass_add_level(){
 		'price_3'    => round( $_POST['price_3'], 2 ),
 		'price_12'   => round( $_POST['price_12'], 2 ),
 		'is_visible' => intval( $_POST['is_visible'] ),
-		//'setup_fee'  => round( @$_POST['add_setup_fee'], 2 ),
 	);
 
 	// Just in case something went wrong, make sure we start at 1.
@@ -6300,17 +6362,13 @@ function wpsass_delete_level(){
 	$settings = get_site_option( 'psts_settings' );
 	if( in_array( $level_num, array_keys( $levels ) ) ) {
 		unset( $levels[ $level_num] );
-
 		// Re-Index
 		$levels = array_merge( array('x'), array_values( $levels ) );
 		unset( $levels[0]);
-
 		do_action( 'psts_delete_level', $levels );
-
 		update_site_option( 'psts_levels', $levels );
 		//Update Pricing level order
 		ProSites_Helper_ProSite::update_level_order( $levels );
-		
 		/*display lavel*/
 		$level_list = get_site_option( 'psts_levels' );
 		$posts_columns = array(
@@ -6404,7 +6462,22 @@ function wpsass_delete_level(){
 			</tr>
 		<?php
 		} // end if levels
-
 	}
-	
 }
+
+function wpb_login_logo() {
+	$settings = get_site_option( 'psts_settings' );
+	if( $settings['network_logo'] != '' ) { ?>
+		<style type="text/css">
+			#login h1 a, .login h1 a {
+				background-image: url(<?php echo $settings['network_logo']; ?>);
+				height:100px;
+				width:300px;
+				background-position: center center;
+				background-size: contain;
+				background-repeat: no-repeat;
+			}
+		</style>
+	<?php }
+}
+add_action( 'login_enqueue_scripts', 'wpb_login_logo' );

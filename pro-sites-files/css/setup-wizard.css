@@ -1,3 +1,6 @@
+html.wp-toolbar {
+	padding-top: 0;
+}
 #adminmenumain, .update-nag, #wpadminbar, #wpfooter {
 	display: none;
 }
@@ -13,8 +16,24 @@ body #wpcontent {
 .wpsaas-pro_page_setup-wpsaas {
 	background-color: #fff;
 }
+.wpsaas-popup {
+	height: auto;
+	position: relative;
+	overflow-y: hidden;
+	margin-right: 17px;
+}
+.wpsaas-popup::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.6);
+}
 .wpsass-setup-wizard-main {
 	padding-top: 60px;
+	padding-bottom: 40px;
 }
 .wpsass-setup-wizard-main, .wpsass-setup-wizard-main * {
 	-webkit-box-sizing: border-box;
@@ -76,6 +95,7 @@ body #wpcontent {
 	text-align: center;
 	font-weight: bold;
 }
+.wpsass-setup-wizard-subscribe-popup .mc-field-group label,
 .wpsass-setup-wizard-block label {
 	display: block;
 	font-weight: bold;
@@ -83,6 +103,7 @@ body #wpcontent {
 	margin-bottom: 10px;
 	font-size: 16px;
 }
+.wpsass-setup-wizard-subscribe-popup #mc_embed_signup .mc-field-group input,
 .wpsass-setup-wizard-extensions-search input[type="text"], 
 .wpsass-setup-wizard-block input[type="text"], 
 .wpsass-setup-wizard-block input[type="file"], 
@@ -114,6 +135,7 @@ body #wpcontent {
 .wpsass-setup-wizard-btn {
 	text-align: right;
 	padding-top: 30px;
+	position: relative;
 }
 .action-button {
 	background-color: #007cba;
@@ -158,12 +180,13 @@ body #wpcontent {
 }
 .wpsass-setup-wizard-plan select {
 	margin-left: 30px;
-	width: 100px;
+	width: 120px;
 }
 .wpsass-setup-wizard-plan label input[type="checkbox"] {
 	margin-left: 15px;
 }
-input[type="text"].wpsass-setup-wizard-offer {
+input[type="text"].wpsass-setup-wizard-offer ,
+input[type="number"].wpsass-setup-wizard-offer {
 	display: inline-block;
 	vertical-align: top;
 	margin: 0;
@@ -241,17 +264,21 @@ input[type="text"].wpsass-setup-wizard-offer {
 	box-shadow: 0 0 5px #ccc;
 	height: 100%;
 }
+.wpsass-setup-wizard-extensions-pro .wpsass-setup-wizard-extensions-content {
+	box-shadow: 0 0 5px #007cba;
+}
 .wpsass-setup-wizard-extensions-title {
 	margin-top: 0;
-	margin-bottom: 50px;
+	margin-bottom: 30px;
 	font-size: 22px;
 	line-height: 1.2;
+	min-height: 60px;
 }
 .wpsass-setup-wizard-extensions-desc {
 	margin: 0 0 10px;
 	font-weight: bold;
 	line-height: 1.2;
-	min-height: 130px;
+	min-height: 100px;
 }
 .wpsass-setup-wizard-extensions-enable:after {
 	content: "";
@@ -265,6 +292,10 @@ input[type="text"].wpsass-setup-wizard-offer {
 	float: left;
 	font-weight: bold;
 	line-height: 1.2;
+}
+.wpsass-setup-wizard-extensions-pro .wpsass-setup-wizard-extensions-enable p {
+	color: #333;
+	font-size: 20px;
 }
 .wpsass-setup-wizard-extensions-enable label {
 	float: right;
@@ -333,17 +364,108 @@ input[type="text"].wpsass-setup-wizard-offer {
 	text-align: center;
 }
 .wpsass-setup-wizard-skip {
-	padding-top: 20px;
-	text-align: center;
-}
-.wpsass-setup-wizard-skip a {
 	display: inline-block;
 	vertical-align: top;
 	text-decoration: none;
 	color: #999;
 	font-weight: bold;
 	font-size: 16px;
+	position: absolute;
+	bottom: -50px;
+	left: 50%;
+	-webkit-transform: translateX(-50%);
+	-moz-transform: translateX(-50%);
+	transform: translateX(-50%);
 }
 .msg_wrap > div {
 	margin: 0 0 20px;
+}
+.wpsass-setup-wizard-subscribe-main {
+	padding-bottom: 30px;
+}
+.wpsass-setup-wizard-newsletter-btn {
+	text-align: center;
+}
+.wpsass-setup-wizard-newsletter-btn a {
+	display: inline-block;
+	vertical-align: top;
+	text-decoration: none;
+	background-color: #fff;
+	border: 2px solid #333;
+	border-radius: 10px;
+	padding: 10px 30px 12px;
+	font-size: 20px;
+	color: #333;
+	line-height: 1.2;
+}
+.wpsass-setup-wizard-newsletter-btn a:hover {
+	background-color: #007cba;
+	border-color: #007cba;
+	color: #fff;
+}
+.wpsass-setup-wizard-subscribe-popup {
+	position: fixed;
+	top: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	-moz-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	left: 50%;
+	width: 40%;
+	background-color: #fff;
+	padding: 30px;
+	box-shadow: 0 0 9px #ccc;
+	z-index: 9;
+}
+.subscribe-popup-close {
+	display: inline-block;
+	vertical-align: top;
+	text-decoration: none;
+	color: #fff;
+	font-size: 16px;
+	font-weight: bold;
+	background-color: #007cba;
+	width: 30px;
+	height: 30px;
+	text-align: center;
+	line-height: 30px;
+	border-radius: 50%;
+	position: absolute;
+	top: -15px;
+	right: -17px;
+}
+.wpsass-setup-wizard-subscribe-popup #mc_embed_signup h2 {
+	margin: 0 0 40px;
+	text-align: center;
+	font-size: 45px;
+	line-height: 1.2;
+	color: #666;
+	font-weight: 500;
+}
+.wpsass-setup-wizard-subscribe-popup #mc_embed_signup .button {
+	background-color: #007cba;
+	border: 0 none;
+	border-radius: 25px;
+	color: #FFFFFF;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 15px;
+	font-weight: normal;
+	padding: 12px 32px;
+	line-height: 1.2;
+	text-decoration: none;
+	vertical-align: top;
+}
+.wpsaas-mailchimp-btn {
+	text-align: center;
+	padding-top: 30px;
+}
+.wpsass-setup-wizard-ready-sec p.payment-note-text {
+	font-style: italic;
+	margin-top: 30px;
+	font-size: 16px;
+	font-weight: 400;
+}
+.wpsaas-desc {
+	font-style: italic;
+	font-size: 16px;
 }

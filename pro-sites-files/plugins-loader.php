@@ -61,7 +61,7 @@ class ProSites_PluginLoader {
 		ksort( $modules );
 
 		//Save the settings
-		if ( isset( $_POST['submit_module_settings'] ) ) {
+		if ( isset( $_POST['submit_module_settings'] ) || isset( $_POST['wpsass_setup_wizard_submit'] ) ) {
 			//check nonce
 			check_admin_referer( 'psts_modules' );
 

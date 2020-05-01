@@ -30,7 +30,7 @@ jQuery( document ).ready( function(){
 		});
 	});
 	
-	/*Add level*/
+	/*Add plan*/
 	jQuery( '.wizard-add-level' ).on( 'click', function(){
 		var add_name = jQuery( 'input[name="add_name"]' ).val();
 		var price_1 = jQuery( 'input[name="add_price_1"]' ).val();
@@ -81,7 +81,7 @@ jQuery( document ).ready( function(){
 		}
 	} );
 	
-	/*Delete level*/
+	/*Delete plan*/
 	jQuery( '#prosites-level-list' ).on( 'click', '.wizard-delete-level', function(){
 		var delete_level_id = jQuery( this ).data( 'id' );
 		jQuery.ajax({
@@ -102,5 +102,50 @@ jQuery( document ).ready( function(){
 			}
 		});
 	} );
-
+	
+	jQuery( 'input[name="offer_trial_check"]' ).on( 'click', function(){
+		if( jQuery( this ).prop( 'checked' ) == true ){
+			jQuery( '.wpsass-setup-wizard-offer-trial' ).prop( 'disabled', false );
+		} else {
+			jQuery( '.wpsass-setup-wizard-offer-trial' ).prop( 'disabled', true );
+			jQuery( '.wpsass-setup-wizard-offer-trial' ).val( '0' );
+		}
+	});
+	
+	jQuery( 'input[name="setup_fee_check"]' ).on( 'click', function(){
+		if( jQuery( this ).prop( 'checked' ) == true ){
+			jQuery( '.wpsass-setup-wizard-offer-fee' ).prop( 'disabled', false );
+		} else {
+			jQuery( '.wpsass-setup-wizard-offer-fee' ).prop( 'disabled', true );
+			jQuery( '.wpsass-setup-wizard-offer-fee' ).val( '0' );
+		}
+	});
+	
+	jQuery( 'input[name="wpsass_setup_wizard_submit"]' ).on( 'click', function(){
+		jQuery( '.wpsass-setup-wizard-extensions-pro .wpsass-setup-wizard-extensions-block input[type="checkbox"]' ).each( function(){
+			if( jQuery( this ).prop( 'checked' ) == true ){
+				window.open( 'https://wpsaas.pro', '_blank' );
+				return false;
+			}
+		} );
+	} );
+	
+	jQuery( '.extension-btn' ).on( 'click', function(){
+		jQuery( '.wpsass-setup-wizard-payment-wrap .wpsass-setup-wizard-payment-block input[type="checkbox"]' ).each( function(){
+			if( jQuery( this ).prop( 'checked' ) == true ){
+				jQuery( '.payment-note-text' ).show();
+				return false;
+			}
+		} );
+	} );
+	
+	jQuery( '.wpsass-setup-wizard-newsletter-btn a' ).on( 'click', function(){
+		jQuery( '.wpsass-setup-wizard-subscribe-popup' ).show();
+		jQuery( 'body' ).addClass( 'wpsaas-popup' );
+	} );
+	
+	jQuery( '.subscribe-popup-close' ).on( 'click', function(){
+		jQuery( '.wpsass-setup-wizard-subscribe-popup' ).hide();
+		jQuery( 'body' ).removeClass( 'wpsaas-popup' );
+	} );
 });
