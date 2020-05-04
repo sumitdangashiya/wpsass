@@ -2690,6 +2690,9 @@ class ProSites {
 		$this->load_chosen();
 	}
 
+	/**
+	* Load wizard style and script
+	*/
 	function load_setup_style() {
 		$this->load_psts_style();
 		$this->load_chosen();
@@ -5625,7 +5628,14 @@ function psts_text_body($phpmailer) {
 	$phpmailer->AltBody = strip_tags($phpmailer->Body);
 }
 
-//setup_currency
+/*
+ * function setup_currency
+ * Get symbol of currency
+ *
+ * @param string $currency Name of the currency
+ *
+ * @return symbol of currency
+ */
 function setup_currency( $currency = '', $amount = false ) {
 	global $psts;
 	$settings = get_site_option( 'psts_settings' );
@@ -5653,7 +5663,11 @@ function setup_currency( $currency = '', $amount = false ) {
 	$symbol = apply_filters( 'prosite_currency_symbol', $symbol, $currency );
 	return $symbol;
 }
-//setup_wizard_content
+/*
+ * function setup_wizard
+ * Set up wizard Page
+ *
+ */
 function setup_wizard() {
 	global $psts;
 	global $psts_modules;
@@ -5663,7 +5677,8 @@ function setup_wizard() {
 		wp_redirect(admin_url()."network/admin.php?page=psts");
 		exit;
 	}*/
-
+	
+	// Submit wizard setting
 	if( isset( $_POST['wpsass_setup_wizard_submit'] ) ) {
 		$gateway_active = ( $_POST['gateway_active'] != '' ) ? $_POST['gateway_active'] : array() ;
 		
@@ -5699,13 +5714,13 @@ function setup_wizard() {
 	
 	?>
 	<form method="post" class="wpsass-setup-wizard-main" enctype="multipart/form-data">
-		<!-- progressbar -->
 		<input type="hidden" name="setup_wizard" value="1" />
 		<div class="wpsass-setup-wizard-main-logo-wrap">
 			<div class="wpsass-setup-wizard-main-logo">
 				<img src="<?php echo $psts->plugin_url . 'images/wpsaaspro.png'; ?>" alt="wpsass" width="353" height="342" />
 			</div>
 		</div>
+		<!-- progressbar -->
 		<ul id="progressbar" class="wpsass-setup-wizard-step">
 			<li id="setup-step" class="active"><?php _e( 'SAAS Platform Name', 'psts' ) ?></li>
 			<li id="plans-step"><?php _e( 'Plans', 'psts' ) ?></li>
@@ -5770,8 +5785,7 @@ function setup_wizard() {
 							$supported_key .= '<sup>' . $count . ' - ' . $gateway['name'] . '</sup>';
 
 						}
-						//supports_currency
-						//foreach ( $psts->currencies as $key => $value ) {
+						//Display currency
 						$all_currencies = ProSites_Model_Data::$currencies;
 						ksort( $all_currencies );
 						foreach ( $all_currencies as $key => $currency ) {
@@ -5846,7 +5860,7 @@ function setup_wizard() {
 					echo '<div class="error"><p>' . implode( '<br />', $error ) . '</p></div>';
 				}
 			}
-			//delete checked plans
+			//delete plans
 			if ( isset( $_POST['delete_level'] ) ) {
 
 				// Get correct level
@@ -6236,7 +6250,9 @@ function wpsaas_plugin_redirect( $plugin ) {
 	}
 }
 
-/*add plan*/
+/**
+* Add plan ajax function
+*/
 add_action( 'wp_ajax_add_level_fn', 'wpsass_add_level' );
 add_action( 'wp_ajax_nopriv_add_level_fn', 'wpsass_add_level' );
 function wpsass_add_level(){
@@ -6354,6 +6370,9 @@ function wpsass_add_level(){
 	} // end if levels
 }
 
+/**
+* Delete plan ajax function
+*/
 add_action( 'wp_ajax_delete_level_fn', 'wpsass_delete_level' );
 add_action( 'wp_ajax_nopriv_delete_level_fn', 'wpsass_delete_level' );
 function wpsass_delete_level(){
@@ -6465,6 +6484,9 @@ function wpsass_delete_level(){
 	}
 }
 
+/**
+* Change login page wordpress logo
+*/
 function wpb_login_logo() {
 	$settings = get_site_option( 'psts_settings' );
 	if( $settings['network_logo'] != '' ) { ?>
