@@ -5,7 +5,6 @@ jQuery( document ).ready( function(){
 		current_fs = jQuery( this ).parent().parent();
 		next_fs = jQuery( this ).parent().parent().next();
 
-		jQuery( '#progressbar li' ).removeClass( 'active' );
 		jQuery( '#progressbar li' ).eq( jQuery( '.wpsass-setup-wizard-content' ).index( next_fs ) ).addClass( 'active' );
 
 		next_fs.show();
@@ -16,20 +15,18 @@ jQuery( document ).ready( function(){
 		current_fs = jQuery( this ).parent().parent();
 		previous_fs = jQuery( this ).parent().parent().prev();
 
-		jQuery( '#progressbar li' ).removeClass( 'active' );
-		jQuery( '#progressbar li' ).eq( jQuery( '.wpsass-setup-wizard-content' ).index( previous_fs ) ).addClass( 'active' );
+		jQuery( '#progressbar li' ).eq( jQuery( '.wpsass-setup-wizard-content' ).index( current_fs ) ).removeClass( 'active' );
 
 		previous_fs.show();
 		current_fs.hide();
 	});
-	
+	/* Search Extensions */
 	jQuery( ".wpsass-setup-wizard-extensions-search input" ).on( "keyup", function() {
 		var search_value = jQuery( this ).val().toLowerCase();
 		jQuery( ".wpsass-setup-wizard-extensions-block" ).filter(function() {
 		  jQuery( this ).toggle( jQuery( this ).data( "search" ).toLowerCase().indexOf( search_value ) > -1 );
 		});
-	});
-	
+	});	
 	/*Add plan*/
 	jQuery( '.wizard-add-level' ).on( 'click', function(){
 		var add_name = jQuery( 'input[name="add_name"]' ).val();
@@ -79,8 +76,7 @@ jQuery( document ).ready( function(){
 		} else {
 			jQuery( '.msg_wrap' ).html( '<div class="error"><p>'+ error_Text +'</p></div>' );
 		}
-	} );
-	
+	} );	
 	/*Delete plan*/
 	jQuery( '#prosites-level-list' ).on( 'click', '.wizard-delete-level', function(){
 		var delete_level_id = jQuery( this ).data( 'id' );
@@ -138,7 +134,7 @@ jQuery( document ).ready( function(){
 			}
 		} );
 	} );
-	
+	/* Subscribe Popup */
 	jQuery( '.wpsass-setup-wizard-newsletter-btn a' ).on( 'click', function(){
 		jQuery( '.wpsass-setup-wizard-subscribe-popup' ).show();
 		jQuery( 'body' ).addClass( 'wpsaas-popup' );

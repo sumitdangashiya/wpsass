@@ -6096,7 +6096,7 @@ function setup_wizard() {
 			<?php wp_nonce_field( 'psts_modules' ) ?>
 			<div class="wpsass-setup-wizard-extensions-search">
 				<!--<a href="#" class="action-button wpsass-setup-wizard-extensions-add-btn"><?php _e( 'Add', 'psts' ) ?></a>-->
-				<input type="text" placeholder="Filters" value="" />
+				<input type="text" placeholder="Search" value="" />
 			</div>
 			<div class="wpsass-setup-wizard-extensions-wrap wpsass-setup-wizard-extensions-pro">
 				<div class="wpsass-setup-wizard-extensions-block" data-search="wpsaas pro site templates">
@@ -6193,9 +6193,9 @@ function setup_wizard() {
 					<div id="mc_embed_signup">
 					<form action="https://bulawebs.us8.list-manage.com/subscribe/post?u=ecc86204dd2d289e7b95ba326&amp;id=e7640531f7" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
 						<div id="mc_embed_signup_scroll">
-						<h2>Subscribe</h2>
+						<h2><?php _e( 'Subscribe', 'psts' ) ?></h2>
 					<div class="mc-field-group">
-						<label for="mce-EMAIL">Email Address </label>
+						<label for="mce-EMAIL"><?php _e( 'Email Address', 'psts' ) ?></label>
 						<input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL">
 					</div>
 						<div id="mce-responses" class="clear">
@@ -6212,7 +6212,7 @@ function setup_wizard() {
 				</div>
 			</div>
 			<div class="wpsass-setup-wizard-btn wpsass-setup-wizard-subscribe-btn">
-				<a href="<?php echo admin_url()."network/admin.php?page=psts" ?>" class="wpsass-setup-wizard-skip" ><?php _e( 'Skip This Step', 'psts' ) ?></a>
+				<a href="<?php echo admin_url()."network/admin.php?page=psts" ?>" class="wpsass-setup-wizard-skip" ><?php _e( 'Return to the WordPress Dashboard', 'psts' ) ?></a>
 				<input type="submit" name="wpsass_setup_wizard_submit" class="next action-button" value="Finish Setup" />
 			</div>
 		</div>
