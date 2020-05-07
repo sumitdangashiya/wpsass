@@ -6503,3 +6503,282 @@ function wpb_login_logo() {
 	<?php }
 }
 add_action( 'login_enqueue_scripts', 'wpb_login_logo' );
+
+function prefix_register_resources() {
+	global $psts;
+	wp_enqueue_script("psts-script-checkout", $psts->plugin_url . 'js/plan-checkout.js', array( 'jquery' ), $psts->version);
+	wp_localize_script( 'psts-script-checkout', 'ajax_checkout', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+	wp_enqueue_style("psts-style-checkout", $psts->plugin_url . 'css/plan-checkout.css', array(), $psts->version);
+	wp_enqueue_script( 'jquery-ui-tabs' );
+}
+add_action( 'wp_enqueue_scripts', 'prefix_register_resources' );
+function wpsaas_plan_func(){
+	global $psts;	
+	$settings = get_site_option( 'psts_settings' );
+	$plan_list = get_site_option( 'psts_levels' );
+	?>
+	<div id="wpsaas-plan-checkout-main">
+		<form method="post" class="wpsaas-plan-checkout-main" enctype="multipart/form-data">
+			<!-- progressbar -->
+			<ul id="plan_progressbar" class="wpsaas-plan-checkout-step">
+				<li id="pricing-step" class="active"><?php _e( 'Pricing', 'psts' ) ?></li>
+				<li id="sitesetup-step"><?php _e( 'Site Setup', 'psts' ) ?></li>
+				<li id="planpayment-step"><?php _e( 'Payment', 'psts' ) ?></li>
+			</ul>
+			<div class="wpsaas-plan-checkout-content" id="pricing-step">
+					<div id="wpsaas_plan_tabs" class="wpsaas-plan-tabs">
+						<ul>
+							<li><a href="#monthly-tabs"><?php _e( 'MONTHLY', 'psts' ) ?></a></li>
+							<li><a href="#quarterly-tabs"><?php _e( 'QUARTERLY', 'psts' ) ?></a></li>
+							<li><a href="#annually-tabs"><?php _e( 'ANNUALLY', 'psts' ) ?></a></li>
+						</ul>
+						<div id="monthly-tabs" class="wpsaas-plan-tabs">
+							<div class="wpsaas-plan-tabs-wrap">
+								<?php
+								foreach($plan_list as $plan) { ?>
+									<div class="wpsaas-single-plan">
+										<div class="wpsaas-single-plan-wrap">
+											<div class="wpsaas-plan-name">
+												<h5><?php _e( $plan['name'], 'psts' ) ?></h5>
+											</div>
+											<div class="wpsaas-plan-price"><?php _e( setup_currency( $settings['currency'] ).number_format($plan['price_1'],2), 'psts' ) ?></div>
+											<div class="wpsaas-plan-note">
+												<p><i><?php _e( 'every monthly', 'psts' ) ?></i></p>
+												<p><?php _e( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ) ?></p>
+											</div>
+											<div class="wpsaas-sign-up-btn">
+												<input type="button" class="wpsaas-sign-up" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_1'],2) ?>" data-length="<?php _e( 'Per Month', 'psts' ) ?>" name="monthly_submit" value="Sign Up" />
+											</div>									
+										</div>
+									</div>
+									<?php
+								}
+								?>
+							</div>
+						</div>
+						<div id="quarterly-tabs">
+							<div class="wpsaas-plan-tabs-wrap">
+								<?php
+								foreach( $plan_list as $plan ) { ?>
+									<div class="wpsaas-single-plan">
+										<div class="wpsaas-single-plan-wrap">
+											<div class="wpsaas-plan-name">
+												<h5><?php _e( $plan['name'], 'psts' ) ?></h5>
+											</div>
+											<div class="wpsaas-plan-price"><?php _e( setup_currency( $settings['currency'] ).number_format($plan['price_3'],2), 'psts' ) ?></div>
+											<div class="wpsaas-plan-note">
+												<p><i><?php _e( 'every quarterly', 'psts' ) ?></i></p>
+												<p><?php _e( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ) ?></p>
+											</div>
+											<div class="wpsaas-sign-up-btn">
+												<input type="button" class="wpsaas-sign-up" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_3'],2) ?>" data-length="<?php _e( 'Per Quarter', 'psts' ) ?>" name="quarterly_submit" value="Sign Up" />
+											</div>
+										</div>
+									</div>
+								<?php
+								}
+								?>
+							</div>
+						</div>
+						<div id="annually-tabs">
+							<div class="wpsaas-plan-tabs-wrap">
+								<?php
+								foreach($plan_list as $plan) { ?>
+									<div class="wpsaas-single-plan">
+										<div class="wpsaas-single-plan-wrap">
+											<div class="wpsaas-plan-name">
+												<h5><?php _e( $plan['name'], 'psts' ) ?></h5>
+											</div>
+											<div class="wpsaas-plan-price"><?php _e( setup_currency( $settings['currency'] ).number_format($plan['price_12'],2), 'psts' ) ?></div>
+											<div class="wpsaas-plan-note">
+												<p><i><?php _e( 'every annually', 'psts' ) ?></i></p>
+												<p><?php _e( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ) ?></p>
+											</div>
+											<div class="wpsaas-sign-up-btn">
+												<input type="button" class="wpsaas-sign-up" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_12'],2) ?>" data-length="<?php _e( 'Per Year', 'psts' ) ?>" name="annually_submit" value="Sign Up" />
+											</div>
+										</div>
+									</div>
+								<?php
+								}
+								?>
+							</div>
+						</div>
+					</div>
+					<input type="hidden" name="plan_name_select" class="plan_name_select" value="" />
+					<input type="hidden" name="plan_price_select" class="plan_price_select" value="" />
+					<input type="hidden" name="plan_length_select" class="plan_length_select" value="" />
+				</div>
+			<div class="wpsaas-plan-checkout-content" id="sitesetup-step" style="display:none">
+				<div class="wpsaas-site-setup-title">
+					<h2><?php _e( 'Setup your site', 'psts' ) ?></h2>
+				</div>
+				<div class="wpsaas-site-setup-wrap">
+					<div class="wpsaas-field-wrap">
+						<input type="email" placeholder="Email" name="site_email" class="site_email"/>
+					</div>
+					<div class="wpsaas-field-wrap">
+						<input type="password" placeholder="Password" name="site_password" class="site_password"/>
+					</div>
+					<div class="wpsaas-field-wrap">
+						<label><?php _e( 'Your Site:', 'psts' ) ?></label>
+						<div class="wpsaas-domain-wrap-field">
+						<?php 
+						if ( is_subdomain_install() ) { ?>
+							<input type="text" name="your_site" class="your_site"/><span class="wpsaas-domain-prefix">.<?php echo preg_replace( '|^www\.|', '', get_network()->domain ); ?></span>
+							<?php
+						} else { ?>
+							<span class="wpsaas-domain-prefix"><?php echo get_network()->domain . get_network()->path; ?></span>
+							<input type="text" name="your_site" class="your_site"/>
+						<?php
+						}
+						?>
+						</div>
+					</div>
+					<div class="wpsaas-field-wrap">
+						<label><?php _e( 'Site Title:', 'psts' ) ?></label>
+						<input type="text" name="site_title" class="site_title" />
+					</div>
+					<div class="wpsaas-field-wrap">
+						<label><?php _e( 'Privacy: Allow search engines to index this site.', 'psts' ) ?></label>
+						<div class="wpsaas-radio-wrap">
+							<label><input type="radio" name="index_site" class="index_site" value="1" checked /><?php _e( 'Yes', 'psts' ) ?></label>
+							<label><input type="radio" name="index_site" class="index_site" value="0"/><?php _e( 'No', 'psts' ) ?></label>
+						</div>
+					</div>
+				</div>
+				<div class="wpsaas-site-setup-btn">
+					<input type="button" class="wpsaas-sign-up wpsaas-site-setup" name="site_setup_submit" value="Reserve your site" />
+				</div>
+				<div class="wrong_wrap"></div>
+				<div class="msg_wrap"></div>
+			</div>
+			<div class="wpsaas-plan-checkout-content" id="planpayment-step" style="display:none">
+				<div class="wpsaas-payment-setup-wrap">
+					<div class="wpsaas-payment-note">
+						<?php if ( is_subdomain_install() ) { ?>
+							<p><?php _e( 'Congrats Your site (<span class="wpsaas-site-name"></span><span class="wpsaas-domain-prefix">.'.preg_replace( "|^www\.|", '', get_network()->domain ).')</span> has been reserved,<br/>Your are one step away', 'psts' ) ?></p>
+						<?php } else { ?>
+							<p><?php _e( 'Congrats Your site <span class="wpsaas-domain-prefix">('.get_network()->domain . get_network()->path.'</span><span class="wpsaas-site-name"></span>) has been reserved,<br/>Your are one step away', 'psts' ) ?></p>
+						<?php } ?>
+					</div>
+					<div class="wpsaas-payment-blocks">
+						<div class="wpsaas-left-block">
+							<?php if ( is_subdomain_install() ) { ?>
+								<h2><span class="wpsaas-site-name"></span><span class="wpsaas-domain-prefix">.<?php echo preg_replace( '|^www\.|', '', get_network()->domain ); ?></span></h2>
+							<?php } else { ?>
+								<h2><span class="wpsaas-domain-prefix"><?php echo get_network()->domain . get_network()->path; ?></span><span class="wpsaas-site-name"></span></h2>
+							<?php } ?>
+							<div class="wpsaas-site-email-wrap"><?php _e( 'Email: ', 'psts' ) ?><span class="wpsaas-site-email"></span></div>
+							<div class="wpsaas-plan-detail-wrap"><?php _e( 'Plan Details: ', 'psts' ) ?><span class="wpsaas-plan-detail"><?php _e( setup_currency( $settings['currency'] ).'<span class="wpsaas-plan-value"></span>'.' <span class="wpsaas-plan-length"></span>'); ?></span></div>
+						</div>
+						<div class="wpsaas-right-block"></div>
+					</div>
+				</div>
+			</div>
+			<input type="submit" name="checkout_submit" value="SUBMIT" />
+		</form>
+	</div>
+	<?php
+	return ob_get_clean();
+}
+add_shortcode( 'wpsaas_plan', 'wpsaas_plan_func' );
+
+add_action( 'wp_ajax_check_email_blog', 'wpsaas_check_email_blog' );
+add_action( 'wp_ajax_nopriv_check_email_blog', 'wpsaas_check_email_blog' );
+function wpsaas_check_email_blog(){
+	$your_site = trim($_POST['your_site']);
+	$site_email = trim($_POST['site_email']);
+	
+	//~ if ( ! is_subdomain_install() ) {
+		//~ $subdirectory_reserved_names = get_subdirectory_reserved_names();
+		//~ if ( in_array( $your_site, $subdirectory_reserved_names ) ) {
+			//~ return 'This site name is reserved for use by WordPress functions and cannot be used as blog names.';
+		//~ }
+	//~ }
+	if ( ! is_email( $site_email ) ) {
+        echo json_encode(array('validate'=>false, 'message'=>'Invalid email address.'));
+    }
+    else if ( email_exists( $site_email ) ) {
+		echo json_encode(array('validate'=>false, 'message'=>'Email already exist.'));
+    }
+	else {	
+		echo json_encode(array('validate'=>true, 'message'=>'Unique Email'));
+	}
+	wp_die();
+}
+
+add_action( 'wp_ajax_insert_site_user', 'wpsaas_insert_site_user' );
+add_action( 'wp_ajax_nopriv_insert_site_user', 'wpsaas_insert_site_user' );
+function wpsaas_insert_site_user(){
+	$site_password = trim($_POST['site_password']);
+	$site_email = trim($_POST['site_email']);
+	$site_title = trim($_POST['site_title']);
+	$your_site = trim($_POST['your_site']);
+	
+	if ( preg_match( '|^([a-zA-Z0-9-])+$|', $your_site ) ) {
+		$your_site = strtolower( $your_site );
+	}
+	
+	$user_id  = wpmu_create_user( $your_site, $site_password, $site_email );
+	
+	if ( is_subdomain_install() ) {
+		$newdomain = $your_site . '.' . preg_replace( '|^www\.|', '', get_network()->domain );
+		$path      = get_network()->path;
+	} else {
+		$newdomain = get_network()->domain;
+		$path      = get_network()->path . $your_site . '/';
+	}
+	$meta = array(
+		'public' => 1,
+	);
+	$id = wpmu_create_blog( $newdomain, $path, $site_title, $user_id, $meta, get_current_network_id() ); 
+	
+	if ( ! is_wp_error( $id ) ) {
+		if ( ! is_super_admin( $user_id ) && ! get_user_option( 'primary_blog', $user_id ) ) {
+			update_user_option( $user_id, 'primary_blog', $id, true );
+		}
+
+		wp_mail(
+			get_site_option( 'admin_email' ),
+			sprintf(
+				/* translators: %s: network name */
+				__( '[%s] New Site Created' ),
+				get_network()->site_name
+			),
+			sprintf(
+				/* translators: 1: user login, 2: site url, 3: site name/title */
+				__(
+					'New site created by %1$s
+
+Address: %2$s
+Name: %3$s'
+				),
+				$current_user->user_login,
+				get_site_url( $id ),
+				wp_unslash( $site_title )
+			),
+			sprintf(
+				'From: "%1$s" <%2$s>',
+				_x( 'Site Admin', 'email "From" field' ),
+				get_site_option( 'admin_email' )
+			)
+		);
+		wpmu_welcome_notification( $id, $user_id, $site_password, $site_title, array( 'public' => 1 ) );
+		
+		//~ if ( is_subdomain_install() ) {
+			//~ wp_redirect(
+				//~ $your_site . '.' . preg_replace( '|^www\.|', '', get_network()->domain )
+			//~ );
+		//~ } else {
+			//~ wp_redirect(
+				//~ get_network()->domain . get_network()->path . $your_site . '/'
+			//~ );
+		//~ }
+		//~ exit;
+	} else {
+		wp_die( $id->get_error_message() );
+	}
+	
+	wp_die();
+}
