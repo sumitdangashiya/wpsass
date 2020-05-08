@@ -19,19 +19,19 @@ jQuery( document ).ready( function(){
 		var error = false;
 		var error_Text = '';
 		if( site_email == '' ) {
-			error_Text += '<br>Please enter a valid email address.';
+			error_Text += '<p>Please enter a valid email address.</p>';
 			error = true;
 		}
 		if( site_password == '' ) {
-			error_Text += '<br>Please enter a valid password.';
+			error_Text += '<p>Please enter a valid password.</p>';
 			error = true;
 		}
 		if( your_site == '' ) {
-			error_Text += '<br>Please enter a valid site name.';
+			error_Text += '<p>Please enter a valid site name.</p>';
 			error = true;
 		}
 		if( site_title == '' ) {
-			error_Text += '<br>Please enter a valid site title.';
+			error_Text += '<p>Please enter a valid site title.</p>';
 			error = true;
 		}if ( ! error ) {
 			jQuery.ajax({
@@ -45,7 +45,6 @@ jQuery( document ).ready( function(){
 					'site_title' : site_title,
 				},
 				success: function (data) {
-					console.log(data.validate);
 					if(data.validate == 'wrong'){
 						jQuery( '.wrong_wrap' ).html( '<div class="error"><p>'+ data.message +'</p></div>' );
 						return false;
@@ -67,7 +66,7 @@ jQuery( document ).ready( function(){
 			});
 			
 		} else {
-			jQuery( '.msg_wrap' ).html( '<div class="error"><p>'+ error_Text +'</p></div>' );
+			jQuery( '.msg_wrap' ).html( '<div class="error">'+ error_Text +'</div>' );
 		}
 	});
 	jQuery('.wpsaas-plan-checkout-main').on("submit",function(){
@@ -75,18 +74,21 @@ jQuery( document ).ready( function(){
 		var site_password = jQuery( 'input[name="site_password"]' ).val();
 		var your_site = jQuery( 'input[name="your_site"]' ).val();
 		var site_title = jQuery( 'input[name="site_title"]' ).val();
+		var index_site = jQuery( 'input[name="index_site"]:checked' ).val();
 		jQuery.ajax({
 			url: ajax_checkout.ajax_url,
 			type :'POST',
+			dataType: 'json',
 			data : {
 				'action' : 'insert_site_user', // the php name function
 				'site_email' : site_email,
 				'site_password' : site_password,
 				'your_site' : your_site,
 				'site_title' : site_title,
+				'index_site' : index_site,
 			},
 			success: function (data) {
-				
+				window.location.href = data.redirect;
 			}
 		});
 		return false;

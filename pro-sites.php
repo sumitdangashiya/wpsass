@@ -6514,6 +6514,7 @@ function prefix_register_resources() {
 add_action( 'wp_enqueue_scripts', 'prefix_register_resources' );
 function wpsaas_plan_func(){
 	global $psts;	
+	
 	$settings = get_site_option( 'psts_settings' );
 	$plan_list = get_site_option( 'psts_levels' );
 	?>
@@ -6625,10 +6626,10 @@ function wpsaas_plan_func(){
 						<div class="wpsaas-domain-wrap-field">
 						<?php 
 						if ( is_subdomain_install() ) { ?>
-							<input type="text" name="your_site" class="your_site"/><span class="wpsaas-domain-prefix">.<?php echo preg_replace( '|^www\.|', '', get_network()->domain ); ?></span>
+							<input type="text" name="your_site" class="your_site"/><span class="wpsaas-domain-prefix wpsaas-domain-after">.<?php echo preg_replace( '|^www\.|', '', get_network()->domain ); ?></span>
 							<?php
 						} else { ?>
-							<span class="wpsaas-domain-prefix"><?php echo get_network()->domain . get_network()->path; ?></span>
+							<span class="wpsaas-domain-prefix wpsaas-domain-before"><?php echo get_network()->domain . get_network()->path; ?></span>
 							<input type="text" name="your_site" class="your_site"/>
 						<?php
 						}
@@ -6647,7 +6648,7 @@ function wpsaas_plan_func(){
 						</div>
 					</div>
 				</div>
-				<div class="wpsaas-site-setup-btn">
+				<div class="wpsaas-site-setup-btn wpsaas-sign-up-btn">
 					<input type="button" class="wpsaas-sign-up wpsaas-site-setup" name="site_setup_submit" value="Reserve your site" />
 				</div>
 				<div class="wrong_wrap"></div>
@@ -6665,18 +6666,46 @@ function wpsaas_plan_func(){
 					<div class="wpsaas-payment-blocks">
 						<div class="wpsaas-left-block">
 							<?php if ( is_subdomain_install() ) { ?>
-								<h2><span class="wpsaas-site-name"></span><span class="wpsaas-domain-prefix">.<?php echo preg_replace( '|^www\.|', '', get_network()->domain ); ?></span></h2>
+								<h2><span class="wpsaas-site-name"></span><span class="wpsaas-sitedomain-prefix">.<?php echo preg_replace( '|^www\.|', '', get_network()->domain ); ?></span></h2>
 							<?php } else { ?>
-								<h2><span class="wpsaas-domain-prefix"><?php echo get_network()->domain . get_network()->path; ?></span><span class="wpsaas-site-name"></span></h2>
+								<h2><span class="wpsaas-sitedomain-prefix"><?php echo get_network()->domain . get_network()->path; ?></span><span class="wpsaas-site-name"></span></h2>
 							<?php } ?>
-							<div class="wpsaas-site-email-wrap"><?php _e( 'Email: ', 'psts' ) ?><span class="wpsaas-site-email"></span></div>
-							<div class="wpsaas-plan-detail-wrap"><?php _e( 'Plan Details: ', 'psts' ) ?><span class="wpsaas-plan-detail"><?php _e( setup_currency( $settings['currency'] ).'<span class="wpsaas-plan-value"></span>'.' <span class="wpsaas-plan-length"></span>'); ?></span></div>
+							<div class="wpsaas-plan-detail-wrap">
+								<p><?php _e( 'Email: ', 'psts' ) ?><span class="wpsaas-site-email"></span></p>
+								<p><?php _e( 'Plan Details: ', 'psts' ) ?><span class="wpsaas-plan-detail"><?php _e( setup_currency( $settings['currency'] ).'<span class="wpsaas-plan-value"></span>'.' <span class="wpsaas-plan-length"></span>'); ?></span></p>
+							</div>
 						</div>
-						<div class="wpsaas-right-block"></div>
+						<div class="wpsaas-right-block">
+							<div class="wpsaas-stripe-price-info">
+								<div class="wpsaas-price"><?php _e( setup_currency( $settings['currency'] ).'<span class="wpsaas-plan-value"></span>', 'psts' ) ?></div>
+								<div class="wpsaas-length"><span class="wpsaas-plan-length"></span></div>
+							</div>
+							<div class="wpsaas-stripe-wrap">
+								<div class="form-group">
+									<input name="holdername" id="name" class="form-input" type="text" placeholder="Card Holder Name"  style="display:none" />
+								</div>               
+								<div class="form-group">
+									<input name="email" id="email" class="form-input" type="email" placeholder="Email" style="display:none" />
+								</div>         
+								<div class="form-group">
+									<input name="cardnumber" id="card" class="form-input" type="text" maxlength="16" placeholder="Card Number" data-stripe="number" />
+								</div>
+								<div class="form-group2">
+									<input name="cardnumber" id="card" class="form-input" type="text" maxlength="16" placeholder="MM/YY" data-stripe="number" />
+									<input name="cvv" id="cvv" class="form-input2" type="text" placeholder="CVC" data-stripe="cvc" />
+								</div>
+								<div class="form-group">
+									<div class="payment-errors"></div>
+								</div>
+								<div class="button-style">
+									<button class="button login submit">Pay</button>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
-			<input type="submit" name="checkout_submit" value="SUBMIT" />
+			<input type="submit" value="submit" />
 		</form>
 	</div>
 	<?php
@@ -6730,8 +6759,9 @@ function wpsaas_insert_site_user(){
 		$path      = get_network()->path . $your_site . '/';
 	}
 	$meta = array(
-		'public' => 1,
+		'public' => (int) trim($_POST['index_site']),
 	);
+	
 	$id = wpmu_create_blog( $newdomain, $path, $site_title, $user_id, $meta, get_current_network_id() ); 
 	
 	if ( ! is_wp_error( $id ) ) {
@@ -6764,18 +6794,18 @@ Name: %3$s'
 				get_site_option( 'admin_email' )
 			)
 		);
-		wpmu_welcome_notification( $id, $user_id, $site_password, $site_title, array( 'public' => 1 ) );
+		wpmu_welcome_notification( $id, $user_id, $site_password, $site_title, array( 'public' => (int) trim($_POST['index_site']) ) );
 		
-		//~ if ( is_subdomain_install() ) {
-			//~ wp_redirect(
-				//~ $your_site . '.' . preg_replace( '|^www\.|', '', get_network()->domain )
-			//~ );
-		//~ } else {
-			//~ wp_redirect(
-				//~ get_network()->domain . get_network()->path . $your_site . '/'
-			//~ );
-		//~ }
-		//~ exit;
+		$info = array();
+    	$info['user_login'] = $site_email;
+    	$info['user_password'] = $site_password;
+    	$user_signon = wp_signon( $info, false );
+    	
+		if ( is_subdomain_install() ) {
+			echo json_encode(array('redirect'=>get_admin_url($id)));
+		} else {
+			echo json_encode(array('redirect'=>get_admin_url($id)));
+		}
 	} else {
 		wp_die( $id->get_error_message() );
 	}

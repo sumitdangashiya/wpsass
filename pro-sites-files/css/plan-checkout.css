@@ -157,7 +157,7 @@
 	text-align: center;
 	display: block;
 	font-size: 18px;
-	color: #666;
+	color: #999;
 	line-height: 1.2;
 }
 #wpsaas-plan-checkout-main .wpsaas-field-wrap .wpsaas-domain-wrap-field input {
@@ -173,11 +173,84 @@
 	text-align: left;
 	display: flex;
 	flex-wrap: wrap;
+	align-items: center;
 }
 .wpsaas-domain-prefix {
 	width: 50%;
-	padding-top: 8px;
 }
 #wpsaas-plan-checkout-main .wpsaas-field-wrap .wpsaas-domain-wrap-field .wpsaas-domain-prefix + input {
 	text-align: left;
+}
+.wpsaas-domain-prefix.wpsaas-domain-before {
+	text-align: right;
+}
+.wpsaas-radio-wrap {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+#wpsaas-plan-checkout-main .wpsaas-field-wrap input[type="radio"] {
+	height: auto;
+	width: auto;
+	margin-bottom: 0 !important;
+	margin-right: 10px;
+}
+.wpsaas-radio-wrap label + label {
+	padding-left: 20px;
+}
+.wpsaas-site-setup-btn.wpsaas-sign-up-btn {
+	padding-top: 40px;
+}
+.wpsaas-site-setup-btn .wpsaas-sign-up {
+	padding: 10px 30px;
+}
+.msg_wrap {
+	max-width: 600px;
+	margin: 0 auto;
+}
+.error p {
+	margin: 10px 0 0;
+	color: #f00;
+	font-size: 16px;
+	line-height: 1.2;
+}
+.wpsaas-payment-note p {
+	margin: 0 0 0px;
+	text-align: center;
+	font-size: 27px;
+	line-height: 1.5;
+	color: #89c094;
+}
+.wpsaas-payment-note {
+	padding-bottom: 20px;
+}
+.wpsaas-left-block h2 {
+	color: #707070;
+	font-size: 38px;
+	line-height: 1.5;
+	margin: 0 0 20px;
+	text-transform: none;
+}
+.wpsaas-plan-detail-wrap p {
+	font-size: 22px;
+	margin-bottom: 10px;
+	line-height: 1.5;
+	color: #707070;
+	display: block;
+}
+.wpsaas-payment-blocks {
+	display: flex;
+	flex-wrap: wrap;
+	margin-left: -15px;
+	margin-right: -15px;
+}
+.wpsaas-left-block {
+	width: 60%;
+	padding-left: 15px;
+	padding-right: 15px;
+}
+.wpsaas-right-block {
+	width: 40%;
+	padding-left: 15px;
+	padding-right: 15px;
 }
