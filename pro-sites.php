@@ -6513,10 +6513,11 @@ function prefix_register_resources() {
 }
 add_action( 'wp_enqueue_scripts', 'prefix_register_resources' );
 function wpsaas_plan_func(){
+	ob_start();
 	global $psts;	
-	
 	$settings = get_site_option( 'psts_settings' );
 	$plan_list = get_site_option( 'psts_levels' );
+	
 	?>
 	<div id="wpsaas-plan-checkout-main">
 		<form method="post" class="wpsaas-plan-checkout-main" enctype="multipart/form-data">
@@ -6548,7 +6549,7 @@ function wpsaas_plan_func(){
 												<p><?php _e( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ) ?></p>
 											</div>
 											<div class="wpsaas-sign-up-btn">
-												<input type="button" class="wpsaas-sign-up" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_1'],2) ?>" data-length="<?php _e( 'Per Month', 'psts' ) ?>" name="monthly_submit" value="Sign Up" />
+												<input type="button" class="wpsaas-sign-up" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_1'],2) ?>" data-length="<?php _e( 'Per Month', 'psts' ) ?>" data-period="<?php _e( 1, 'psts' ) ?>" name="monthly_submit" value="Sign Up" />
 											</div>									
 										</div>
 									</div>
@@ -6572,7 +6573,7 @@ function wpsaas_plan_func(){
 												<p><?php _e( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ) ?></p>
 											</div>
 											<div class="wpsaas-sign-up-btn">
-												<input type="button" class="wpsaas-sign-up" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_3'],2) ?>" data-length="<?php _e( 'Per Quarter', 'psts' ) ?>" name="quarterly_submit" value="Sign Up" />
+												<input type="button" class="wpsaas-sign-up" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_3'],2) ?>" data-length="<?php _e( 'Per Quarter', 'psts' ) ?>" data-period="<?php _e( 3, 'psts' ) ?>" name="quarterly_submit" value="Sign Up" />
 											</div>
 										</div>
 									</div>
@@ -6596,7 +6597,7 @@ function wpsaas_plan_func(){
 												<p><?php _e( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ) ?></p>
 											</div>
 											<div class="wpsaas-sign-up-btn">
-												<input type="button" class="wpsaas-sign-up" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_12'],2) ?>" data-length="<?php _e( 'Per Year', 'psts' ) ?>" name="annually_submit" value="Sign Up" />
+												<input type="button" class="wpsaas-sign-up" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_12'],2) ?>" data-length="<?php _e( 'Per Year', 'psts' ) ?>" data-period="<?php _e( 12, 'psts' ) ?>" name="annually_submit" value="Sign Up" />
 											</div>
 										</div>
 									</div>
@@ -6606,9 +6607,38 @@ function wpsaas_plan_func(){
 							</div>
 						</div>
 					</div>
+					<div class="wpsaas-coupon-wrap">
+						<div class="wpsaas-coupon-field">
+							<input type="text" class="coupon_code" name="apply-coupon" placeholder="ENTER COUPON CODE" />
+							<input type="button" class="apply_code" name="apply-coupon-link" value="Apply Coupon" />
+						</div>
+					</div>
+					<?php if ( !is_user_logged_in() ) { ?>
+						<div class="wpsaas-login-wrap">
+							<div class="wpsaas-login-field">
+								<p><?php _e( 'Already have a site?', 'psts' ) ?></p><a class="login-toggle" href="javascript:void(0);"><?php _e( 'Login now', 'psts' ) ?></a>.
+							</div>
+							<div class="wpsaas-login-form" style="display:none">
+								<p class="login-username">
+									<label for="user_login">Email Address</label>
+									<input type="text" name="log" id="user_login" class="input" value="" size="20">
+								</p>
+								<p class="login-password">
+									<label for="user_pass">Password</label>
+									<input type="password" name="pwd" id="user_pass" class="input" value="" size="20">
+								</p>
+								<p class="login-remember"><label><input name="rememberme" type="checkbox" id="rememberme" value="forever"> Remember Me</label></p>
+								<p class="login-submit">
+									<input type="button" name="wp-submit" id="wp-submit" class="button button-primary" value="Log In">
+								</p>	
+								<div id="login-error"></div>
+							</div>
+						</div>
+					<?php } ?>
 					<input type="hidden" name="plan_name_select" class="plan_name_select" value="" />
 					<input type="hidden" name="plan_price_select" class="plan_price_select" value="" />
 					<input type="hidden" name="plan_length_select" class="plan_length_select" value="" />
+					<input type="hidden" name="plan_period_select" class="plan_period_select" value="" />
 				</div>
 			<div class="wpsaas-plan-checkout-content" id="sitesetup-step" style="display:none">
 				<div class="wpsaas-site-setup-title">
@@ -6676,36 +6706,38 @@ function wpsaas_plan_func(){
 							</div>
 						</div>
 						<div class="wpsaas-right-block">
-							<div class="wpsaas-stripe-price-info">
-								<div class="wpsaas-price"><?php _e( setup_currency( $settings['currency'] ).'<span class="wpsaas-plan-value"></span>', 'psts' ) ?></div>
-								<div class="wpsaas-length"><span class="wpsaas-plan-length"></span></div>
-							</div>
-							<div class="wpsaas-stripe-wrap">
-								<div class="form-group">
-									<input name="holdername" id="name" class="form-input" type="text" placeholder="Card Holder Name"  style="display:none" />
-								</div>               
-								<div class="form-group">
-									<input name="email" id="email" class="form-input" type="email" placeholder="Email" style="display:none" />
-								</div>         
-								<div class="form-group">
-									<input name="cardnumber" id="card" class="form-input" type="text" maxlength="16" placeholder="Card Number" data-stripe="number" />
+							<div class="wpsaas-payment-stripe-wrap">
+								<div class="wpsaas-stripe-price-info">
+									<div class="wpsaas-price"><?php _e( setup_currency( $settings['currency'] ).'<span class="wpsaas-plan-value"></span>', 'psts' ) ?></div>
+									<div class="wpsaas-length"><span class="wpsaas-plan-length"></span></div>
 								</div>
-								<div class="form-group2">
-									<input name="cardnumber" id="card" class="form-input" type="text" maxlength="16" placeholder="MM/YY" data-stripe="number" />
-									<input name="cvv" id="cvv" class="form-input2" type="text" placeholder="CVC" data-stripe="cvc" />
-								</div>
-								<div class="form-group">
-									<div class="payment-errors"></div>
-								</div>
-								<div class="button-style">
-									<button class="button login submit">Pay</button>
+								<div class="wpsaas-stripe-wrap">
+									<div class="form-group">
+										<input name="holdername" id="name" class="form-input" type="text" placeholder="Card Holder Name"  style="display:none" />
+									</div>               
+									<div class="form-group">
+										<input name="email" id="email" class="form-input" type="email" placeholder="Email" style="display:none" />
+									</div>         
+									<div class="form-group">
+										<input name="cardnumber" id="card" class="form-input" type="text" maxlength="16" placeholder="Card Number" data-stripe="number" />
+									</div>
+									<div class="form-group form-group-half">
+										<input name="cardnumber" id="card" class="form-input" type="text" maxlength="16" placeholder="MM/YY" data-stripe="number" />
+										<input name="cvv" id="cvv" class="form-input2" type="text" placeholder="CVC" data-stripe="cvc" />
+									</div>
+									<div class="form-group">
+										<div class="payment-errors"></div>
+									</div>
+									<div class="wpsaas-stripe-button-wrap">
+										<button class="wpsaas-stripe-button login submit">Pay</button>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+				<input type="button" value="submit" class="submit" />
 			</div>
-			<input type="submit" value="submit" />
 		</form>
 	</div>
 	<?php
@@ -6728,7 +6760,7 @@ function wpsaas_check_email_blog(){
 	if ( ! is_email( $site_email ) ) {
         echo json_encode(array('validate'=>false, 'message'=>'Invalid email address.'));
     }
-    else if ( email_exists( $site_email ) ) {
+    else if ( email_exists( $site_email ) && !is_user_logged_in() ) {
 		echo json_encode(array('validate'=>false, 'message'=>'Email already exist.'));
     }
 	else {	
@@ -6740,16 +6772,36 @@ function wpsaas_check_email_blog(){
 add_action( 'wp_ajax_insert_site_user', 'wpsaas_insert_site_user' );
 add_action( 'wp_ajax_nopriv_insert_site_user', 'wpsaas_insert_site_user' );
 function wpsaas_insert_site_user(){
+	global $wpdb;
+	
 	$site_password = trim($_POST['site_password']);
 	$site_email = trim($_POST['site_email']);
 	$site_title = trim($_POST['site_title']);
 	$your_site = trim($_POST['your_site']);
+	$name_select = trim($_POST['name_select']);
+	$period_select = trim($_POST['period_select']);
+	
+	$levels = get_site_option( 'psts_levels' );
+	foreach($levels as $i => $level) {
+		if($levels[$i]['name']==$name_select) {
+			$level = $i;
+		}
+	}
+	
+	$today = date("Y-m-d");
+	$next_month = date("Y-m-d", strtotime("$today +$period_select month"));
+	$expire_date = strtotime('-1 second',strtotime($next_month));
 	
 	if ( preg_match( '|^([a-zA-Z0-9-])+$|', $your_site ) ) {
 		$your_site = strtolower( $your_site );
 	}
+	$your_site = str_replace(' ', '', strtolower( $your_site ));
 	
-	$user_id  = wpmu_create_user( $your_site, $site_password, $site_email );
+	if ( !is_user_logged_in() ) {
+		$user_id  = wpmu_create_user( $your_site, $site_password, $site_email );
+	} else {
+		$user_id = get_current_user_id();
+	}
 	
 	if ( is_subdomain_install() ) {
 		$newdomain = $your_site . '.' . preg_replace( '|^www\.|', '', get_network()->domain );
@@ -6768,7 +6820,10 @@ function wpsaas_insert_site_user(){
 		if ( ! is_super_admin( $user_id ) && ! get_user_option( 'primary_blog', $user_id ) ) {
 			update_user_option( $user_id, 'primary_blog', $id, true );
 		}
-
+		//plan update on registration
+		$wpdb->query( "INSERT INTO {$wpdb->base_prefix}pro_sites ( blog_ID, level, expire, gateway, is_recurring)
+									 VALUES ( $id, $level, $expire_date, 'stripe', 1 )" );
+									 
 		wp_mail(
 			get_site_option( 'admin_email' ),
 			sprintf(
@@ -6781,8 +6836,8 @@ function wpsaas_insert_site_user(){
 				__(
 					'New site created by %1$s
 
-Address: %2$s
-Name: %3$s'
+					Address: %2$s
+					Name: %3$s'
 				),
 				$current_user->user_login,
 				get_site_url( $id ),
@@ -6811,4 +6866,136 @@ Name: %3$s'
 	}
 	
 	wp_die();
+}
+
+add_action( 'wp_ajax_member_login_fun', 'wpsaas_member_login_fun' );
+add_action( 'wp_ajax_nopriv_member_login_fun', 'wpsaas_member_login_fun' );
+function wpsaas_member_login_fun()
+{
+	$info = array();
+    $info['user_login'] = $_POST['username'];
+    $info['user_password'] = $_POST['password'];
+    $info['remember'] = $_POST['rememberme'];
+  
+	$user_signon = wp_signon( $info, false );
+	if ( ! is_email( $_POST['username'] ) ) {
+        echo json_encode(array('loggedin'=>false, 'message'=>'Invalid email address.'));
+    }
+    else {
+		if ( is_wp_error($user_signon) )
+		{
+			echo json_encode(array('loggedin'=>false, 'username'=>$_POST['username'],'message'=>__('Wrong username or password.')));
+		} 
+		else 
+		{
+			echo json_encode(array('loggedin'=>true, 'message'=>__('Login Successful!')));	
+		}
+	}
+	wp_die();
+}
+
+add_action( 'wp_ajax_checkout_coupon', 'checkout_coupon' );
+add_action( 'wp_ajax_nopriv_checkout_coupon', 'checkout_coupon' );
+function checkout_coupon()
+{
+	$doing_ajax    = defined( 'DOING_AJAX' ) && DOING_AJAX ? true : false;
+	$ajax_response = array();
+
+	if ( $doing_ajax ) {
+
+		$coupon_code = sanitize_text_field( $_POST['coupon_code'] );
+
+		$valid_coupon = ProSites_Helper_Coupons::check_coupon( $coupon_code );
+
+		if( ! empty( $valid_coupon ) ) {
+			$ajax_response['valid'] = true;
+			ProSites_Helper_Session::session( 'COUPON_CODE', $coupon_code );
+		} else {
+			$ajax_response['valid'] = false;
+			ProSites_Helper_Session::unset_session( 'COUPON_CODE' );
+		}
+
+//				$ajax_response['value'] = self::coupon_value( $coupon_code, '200' );
+		$first_periods = array(
+			'price_1' => __('first month only', 'psts' ),
+			'price_3' => __('first 3 months only', 'psts' ),
+			'price_12' => __('first 12 months only', 'psts' ),
+		);
+
+		// New pricing
+		if( $valid_coupon ) {
+			$original_levels = get_site_option( 'psts_levels' );
+			$level_list      = ProSites_Helper_Coupons::get_adjusted_level_amounts( $coupon_code );
+			$coupon_obj = ProSites_Helper_Coupons::get_coupon( $coupon_code );
+			foreach ( $level_list as $key => $level ) {
+				unset( $level_list[ $key ]['is_visible'] );
+				unset( $level_list[ $key ]['name'] );
+				unset( $level_list[ $key ]['setup_fee'] );
+
+				if ( $original_levels[ $key ]['price_1'] == $level['price_1'] ) {
+					$level_list[ $key ]['price_1_adjust'] = false;
+					unset( $level_list[ $key ]['price_1'] );
+				} else {
+					$level_list[ $key ]['price_1']        = '<div class="plan-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $level['price_1'] ) . '</div>';
+					if( 'first' == $coupon_obj['lifetime'] ) {
+						$level_list[ $key ]['price_1_period'] = '<div class="period coupon-period">' . $first_periods['price_1'] . '</div>';
+					} else {
+						$level_list[ $key ]['price_1_period'] = '';
+					}
+					$level_list[ $key ]['price_1_adjust'] = true;
+				}
+				if ( $original_levels[ $key ]['price_3'] == $level['price_3'] ) {
+					$level_list[ $key ]['price_3_adjust'] = false;
+					unset( $level_list[ $key ]['price_3'] );
+				} else {
+					$level_list[ $key ]['price_3']        = '<div class="plan-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $level['price_3'] ) . '</div>';
+					$total_1 = $original_levels[ $key ]['price_1'] * 3;
+					$total_3 = $level['price_3'];
+					$monthly = $level['price_3'] / 3;
+					$saving = $total_1 - $total_3;
+					$level_list[ $key ]['price_3_monthly'] = '<div class="monthly-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $monthly ) . '</div>';
+					$level_list[ $key ]['price_3_savings'] = '<div class="savings-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $saving ) . '</div>';
+					if( 'first' == $coupon_obj['lifetime'] ) {
+						$level_list[ $key ]['price_3_period'] = '<div class="period coupon-period">' . $first_periods['price_3'] . '</div>';
+					} else {
+						$level_list[ $key ]['price_3_period'] = '';
+					}
+					$level_list[ $key ]['price_3_adjust'] = true;
+				}
+				if ( $original_levels[ $key ]['price_12'] == $level['price_12'] ) {
+					$level_list[ $key ]['price_12_adjust'] = false;
+					unset( $level_list[ $key ]['price_12'] );
+				} else {
+					$level_list[ $key ]['price_12']        = '<div class="plan-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $level['price_12'] ) . '</div>';
+					$total_1 = $original_levels[ $key ]['price_1'] * 12;
+					$total_12 = $level['price_12'];
+					$monthly = $level['price_12'] / 12;
+					$saving = $total_1 - $total_12;
+					$level_list[ $key ]['price_12_monthly'] = '<div class="monthly-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $monthly ) . '</div>';
+					$level_list[ $key ]['price_12_savings'] = '<div class="savings-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $saving ) . '</div>';
+					if( 'first' == $coupon_obj['lifetime'] ) {
+						$level_list[ $key ]['price_12_period'] = '<div class="period coupon-period">' . $first_periods['price_12'] . '</div>';
+					} else {
+						$level_list[ $key ]['price_12_period'] = '';
+					}
+					$level_list[ $key ]['price_12_adjust'] = true;
+				}
+			}
+			$ajax_response['levels'] = $level_list;
+		}
+
+		$response = array(
+			'what'   => 'response',
+			'action' => 'apply_coupon_to_checkout',
+			'id'     => 1, // success status
+			'data'   => json_encode( $ajax_response ),
+		);
+
+		// Buffer used to isolate AJAX response from unexpected output
+		@ob_end_clean();
+		ob_start();
+		$xmlResponse = new WP_Ajax_Response( $response );
+		$xmlResponse->send();
+		ob_end_flush();
+	}
 }

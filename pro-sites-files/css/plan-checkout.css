@@ -1,3 +1,13 @@
+.wpsaas-coupon-wrap .wpsaas-coupon-field {
+    text-align: center;
+    margin-top: 30px;
+}
+.wpsaas-coupon-wrap .coupon_code {
+    width: 50%;
+}
+.wpsaas-coupon-wrap .apply_code {
+	margin-left: -10px;
+}
 .wpsaas-plan-checkout-main, .wpsaas-plan-checkout-main * {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -245,12 +255,80 @@
 	margin-right: -15px;
 }
 .wpsaas-left-block {
-	width: 60%;
+	width: 65%;
 	padding-left: 15px;
 	padding-right: 15px;
 }
 .wpsaas-right-block {
-	width: 40%;
+	width: 35%;
 	padding-left: 15px;
 	padding-right: 15px;
+}
+.wpsaas-payment-stripe-wrap {
+	background-color: #f7f7f7;
+	padding: 40px 50px;
+}
+.wpsaas-stripe-price-info {
+	text-align: center;
+	padding-bottom: 20px;
+}
+.wpsaas-stripe-price-info .wpsaas-price {
+	color: #000;
+	font-size: 30px;
+	line-height: 1.5;
+}
+.wpsaas-length .wpsaas-plan-length {
+	color: #707070;
+	font-size: 27px;
+	line-height: 1.5;
+	display: block;
+}
+.wpsaas-stripe-wrap .form-group input {
+	width: 100%;
+	background-color: #fff;
+	height: 40px;
+	padding: 0 10px;
+	font-size: 17px;
+	color: #666;
+	border: 1px solid #ccc;
+	margin-top: -1px;
+}
+.wpsaas-stripe-wrap .form-group input::-webkit-input-placeholder {
+  color: #ccc;
+  opacity: 1;
+}
+.wpsaas-stripe-wrap .form-group input::-moz-placeholder {
+  color: #ccc;
+  opacity: 1;
+}
+.wpsaas-stripe-wrap .form-group input:-ms-input-placeholder {
+  color: #ccc;
+  opacity: 1;
+}
+.wpsaas-stripe-wrap .form-group input:-moz-placeholder {
+  color: #ccc;
+  opacity: 1;
+}
+.wpsaas-stripe-wrap .form-group-half {
+	display: flex;
+	flex-wrap: wrap;
+}
+.wpsaas-stripe-wrap .form-group-half input {
+	width: 50%;
+}
+.wpsaas-stripe-wrap .form-group-half input + input {
+	border-left: 0;
+}
+.wpsaas-stripe-button-wrap {
+	padding-top: 30px;
+}
+.wpsaas-stripe-button-wrap .wpsaas-stripe-button {
+	width: 100%;
+	background-color: #3ba6e4;
+	color: #fff;
+	font-size: 23px;
+	line-height: 1.2;
+	padding: 11px 10px;
+	border-radius: 5px;
+	text-transform: none;
 }
