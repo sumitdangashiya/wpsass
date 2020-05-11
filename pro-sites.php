@@ -4223,7 +4223,7 @@ function admin_levels() {
 
 	function checkout_redirect_page() {
 		//This page should never be shown
-		global $blog_id;
+		global $blog_id,$wpdb;
 
 		/*
 		if( !current_user_can('edit_pages') ) {
@@ -4233,8 +4233,65 @@ function admin_levels() {
 		*/
 
 		echo '<div class="wrap">';
-		echo "<script type='text/javascript'>window.location='" . $this->checkout_url( $blog_id ) . "';</script>";
-		echo '<a href="' . $this->checkout_url( $blog_id ) . '">Go Here</a>';
+		//~ echo "<script type='text/javascript'>window.location='" . $this->checkout_url( $blog_id ) . "';</script>";
+		$levels        = (array) get_site_option( 'psts_levels' );
+		echo '<a href="' . $this->checkout_url( $blog_id ) . '"></a>';
+		$current_level = $this->get_level( $blog_id );
+		$expire        = $this->get_expire( $blog_id );
+		$result        = $wpdb->get_row( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
+		
+		if ( $result ) {
+				if ( $result->term == 1 || $result->term == 3 || $result->term == 12 ) {
+					$term = sprintf( _n( '%s Month','%s Months', $result->term, 'psts' ), $result->term );
+				} else {
+					$term = $result->term;
+				}
+			} else {
+				$term = 0;
+			}
+
+			if ( $expire && $expire > time() ) {
+				echo '<p><strong>' . __( 'Current WPSAAS', 'psts' ) . '</strong></p>';
+
+				echo '<ul>';
+				if ( $expire > 2147483647 ) {
+					echo '<li>' . __( 'WPSAAS privileges will expire: <strong>Never</strong>', 'psts' ) . '</li>';
+				} else {
+					$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
+					$active_trial = $trialing ? __( '(Active trial)', 'psts') : '';
+
+					echo '<li>' . sprintf( __( 'WPSAAS privileges will expire on: <strong>%s</strong>', 'psts' ), date_i18n( get_option( 'date_format' ), $expire ) ) . ' ' . $active_trial . '</li>';
+				}
+
+				echo '<li>' . sprintf( __( 'Level: <strong>%s</strong>', 'psts' ), $current_level . ' - ' . @$levels[ $current_level ]['name'] ) . '</li>';
+				if ( $result->gateway ) {
+					$nicename = ProSites_Helper_Gateway::get_nice_name( $result->gateway );
+					echo '<li>' . sprintf( __( 'Payment Gateway: <strong>%s</strong>', 'psts' ), $nicename ) . '</li>';
+				}
+				if ( $term ) {
+					echo '<li>' . sprintf( __( 'Payment Term: <strong>%s</strong>', 'psts' ), $term ) . '</li>';
+				}
+				echo '</ul>';
+
+			} else if ( $expire && $expire <= time() ) {
+				echo '<p><strong>' . __( 'Expired WPSAAS', 'psts' ) . '</strong></p>';
+
+				echo '<ul>';
+				echo '<li>' . sprintf( __( 'WPSAAS privileges expired on: <strong>%s</strong>', 'psts' ), date_i18n( get_option( 'date_format' ), $expire ) ) . '</li>';
+
+				echo '<li>' . sprintf( __( 'Previous Level: <strong>%s</strong>', 'psts' ), $current_level . ' - ' . @$levels[ $current_level ]['name'] ) . '</li>';
+				if ( $result->gateway ) {
+					$nicename = ProSites_Helper_Gateway::get_nice_name( $result->gateway );
+					echo '<li>' . sprintf( __( 'Previous Payment Gateway: <strong>%s</strong>', 'psts' ), $nicename ) . '</li>';
+				}
+				if ( $term ) {
+					echo '<li>' . sprintf( __( 'Previous Payment Term: <strong>%s</strong>', 'psts' ), $term ) . '</li>';
+				}
+				echo '</ul>';
+
+			} else {
+				echo '<p><strong>"' . get_blog_option( $blog_id, 'blogname' ) . '" ' . __( 'has never been a WPSAAS.', 'psts' ) . '</strong></p>';
+			}
 		echo '</div>'; //div wrap
 	}
 
@@ -6236,7 +6293,6 @@ function setup_wizard() {
 
 //redirection-after-activation
 add_action('activated_plugin', 'wpsaas_plugin_redirect');
-
 function wpsaas_plugin_redirect( $plugin ) {
 	if( $plugin == plugin_basename( __FILE__ ) ) {
 		$settings = get_site_option( 'psts_settings' );
@@ -6517,7 +6573,7 @@ function wpsaas_plan_func(){
 	global $psts;	
 	$settings = get_site_option( 'psts_settings' );
 	$plan_list = get_site_option( 'psts_levels' );
-	
+	$current_user = wp_get_current_user();
 	?>
 	<div id="wpsaas-plan-checkout-main">
 		<form method="post" class="wpsaas-plan-checkout-main" enctype="multipart/form-data">
@@ -6537,19 +6593,19 @@ function wpsaas_plan_func(){
 						<div id="monthly-tabs" class="wpsaas-plan-tabs">
 							<div class="wpsaas-plan-tabs-wrap">
 								<?php
-								foreach($plan_list as $plan) { ?>
+								foreach($plan_list as $i => $plan) { ?>
 									<div class="wpsaas-single-plan">
-										<div class="wpsaas-single-plan-wrap">
+										<div class="wpsaas-single-plan-wrap wpsaas-plan-<?php echo $i; ?>">
 											<div class="wpsaas-plan-name">
 												<h5><?php _e( $plan['name'], 'psts' ) ?></h5>
 											</div>
-											<div class="wpsaas-plan-price"><?php _e( setup_currency( $settings['currency'] ).number_format($plan['price_1'],2), 'psts' ) ?></div>
+											<div class="wpsaas-plan-price wpsaas-price-1"><?php _e( setup_currency( $settings['currency'] ).'<span>'.number_format($plan['price_1'],2).'</span>', 'psts' ) ?></div>
 											<div class="wpsaas-plan-note">
 												<p><i><?php _e( 'every monthly', 'psts' ) ?></i></p>
 												<p><?php _e( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ) ?></p>
 											</div>
 											<div class="wpsaas-sign-up-btn">
-												<input type="button" class="wpsaas-sign-up" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_1'],2) ?>" data-length="<?php _e( 'Per Month', 'psts' ) ?>" data-period="<?php _e( 1, 'psts' ) ?>" name="monthly_submit" value="Sign Up" />
+												<input type="button" class="wpsaas-sign-up wpsaas-price-1" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_1'],2) ?>" data-length="<?php _e( 'Per Month', 'psts' ) ?>" data-period="<?php _e( 1, 'psts' ) ?>" name="monthly_submit" value="Sign Up" />
 											</div>									
 										</div>
 									</div>
@@ -6561,19 +6617,19 @@ function wpsaas_plan_func(){
 						<div id="quarterly-tabs">
 							<div class="wpsaas-plan-tabs-wrap">
 								<?php
-								foreach( $plan_list as $plan ) { ?>
+								foreach( $plan_list as $i => $plan ) { ?>
 									<div class="wpsaas-single-plan">
-										<div class="wpsaas-single-plan-wrap">
+										<div class="wpsaas-single-plan-wrap wpsaas-plan-<?php echo $i; ?>">
 											<div class="wpsaas-plan-name">
 												<h5><?php _e( $plan['name'], 'psts' ) ?></h5>
 											</div>
-											<div class="wpsaas-plan-price"><?php _e( setup_currency( $settings['currency'] ).number_format($plan['price_3'],2), 'psts' ) ?></div>
+											<div class="wpsaas-plan-price wpsaas-price-3"><?php _e( setup_currency( $settings['currency'] ).'<span>'.number_format($plan['price_3'],2).'</span>', 'psts' ) ?></div>
 											<div class="wpsaas-plan-note">
 												<p><i><?php _e( 'every quarterly', 'psts' ) ?></i></p>
 												<p><?php _e( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ) ?></p>
 											</div>
 											<div class="wpsaas-sign-up-btn">
-												<input type="button" class="wpsaas-sign-up" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_3'],2) ?>" data-length="<?php _e( 'Per Quarter', 'psts' ) ?>" data-period="<?php _e( 3, 'psts' ) ?>" name="quarterly_submit" value="Sign Up" />
+												<input type="button" class="wpsaas-sign-up wpsaas-price-3" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_3'],2) ?>" data-length="<?php _e( 'Per Quarter', 'psts' ) ?>" data-period="<?php _e( 3, 'psts' ) ?>" name="quarterly_submit" value="Sign Up" />
 											</div>
 										</div>
 									</div>
@@ -6585,19 +6641,19 @@ function wpsaas_plan_func(){
 						<div id="annually-tabs">
 							<div class="wpsaas-plan-tabs-wrap">
 								<?php
-								foreach($plan_list as $plan) { ?>
+								foreach($plan_list as $i => $plan) { ?>
 									<div class="wpsaas-single-plan">
-										<div class="wpsaas-single-plan-wrap">
+										<div class="wpsaas-single-plan-wrap wpsaas-plan-<?php echo $i; ?>">
 											<div class="wpsaas-plan-name">
 												<h5><?php _e( $plan['name'], 'psts' ) ?></h5>
 											</div>
-											<div class="wpsaas-plan-price"><?php _e( setup_currency( $settings['currency'] ).number_format($plan['price_12'],2), 'psts' ) ?></div>
+											<div class="wpsaas-plan-price wpsaas-price-12"><?php _e( setup_currency( $settings['currency'] ).'<span>'.number_format($plan['price_12'],2).'</span>', 'psts' ) ?></div>
 											<div class="wpsaas-plan-note">
 												<p><i><?php _e( 'every annually', 'psts' ) ?></i></p>
 												<p><?php _e( 'Take advantage of <strong>extra savings</strong> by paying in advance.', 'psts' ) ?></p>
 											</div>
 											<div class="wpsaas-sign-up-btn">
-												<input type="button" class="wpsaas-sign-up" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_12'],2) ?>" data-length="<?php _e( 'Per Year', 'psts' ) ?>" data-period="<?php _e( 12, 'psts' ) ?>" name="annually_submit" value="Sign Up" />
+												<input type="button" class="wpsaas-sign-up wpsaas-price-12" data-name="<?php _e( $plan['name'], 'psts' ) ?>" data-price="<?php echo number_format($plan['price_12'],2) ?>" data-length="<?php _e( 'Per Year', 'psts' ) ?>" data-period="<?php _e( 12, 'psts' ) ?>" name="annually_submit" value="Sign Up" />
 											</div>
 										</div>
 									</div>
@@ -6646,10 +6702,18 @@ function wpsaas_plan_func(){
 				</div>
 				<div class="wpsaas-site-setup-wrap">
 					<div class="wpsaas-field-wrap">
-						<input type="email" placeholder="Email" name="site_email" class="site_email"/>
+						<?php if(!is_user_logged_in()) { ?> 
+							<input type="email" placeholder="Email" name="site_email" class="site_email"/> 
+						<?php } else { ?>
+						     <input type="email" placeholder="Email" name="site_email" class="site_email" value="<?php echo $current_user->user_email; ?>" readonly /> 
+						<?php } ?>
 					</div>
 					<div class="wpsaas-field-wrap">
-						<input type="password" placeholder="Password" name="site_password" class="site_password"/>
+						<?php if(!is_user_logged_in()) { ?> 
+							<input type="password" placeholder="Password" name="site_password" class="site_password"/>
+						<?php } else { ?>
+						     <input type="password" placeholder="Password" name="site_password" class="site_password" value="<?php echo $current_user->user_pass; ?>" readonly /> 
+						<?php } ?>
 					</div>
 					<div class="wpsaas-field-wrap">
 						<label><?php _e( 'Your Site:', 'psts' ) ?></label>
@@ -6751,12 +6815,6 @@ function wpsaas_check_email_blog(){
 	$your_site = trim($_POST['your_site']);
 	$site_email = trim($_POST['site_email']);
 	
-	//~ if ( ! is_subdomain_install() ) {
-		//~ $subdirectory_reserved_names = get_subdirectory_reserved_names();
-		//~ if ( in_array( $your_site, $subdirectory_reserved_names ) ) {
-			//~ return 'This site name is reserved for use by WordPress functions and cannot be used as blog names.';
-		//~ }
-	//~ }
 	if ( ! is_email( $site_email ) ) {
         echo json_encode(array('validate'=>false, 'message'=>'Invalid email address.'));
     }
@@ -6784,7 +6842,7 @@ function wpsaas_insert_site_user(){
 	$levels = get_site_option( 'psts_levels' );
 	foreach($levels as $i => $level) {
 		if($levels[$i]['name']==$name_select) {
-			$level = $i;
+			$level_num = $i;
 		}
 	}
 	
@@ -6822,7 +6880,7 @@ function wpsaas_insert_site_user(){
 		}
 		//plan update on registration
 		$wpdb->query( "INSERT INTO {$wpdb->base_prefix}pro_sites ( blog_ID, level, expire, gateway, is_recurring)
-									 VALUES ( $id, $level, $expire_date, 'stripe', 1 )" );
+									 VALUES ( $id, $level_num, $expire_date, 'stripe', 1 )" );
 									 
 		wp_mail(
 			get_site_option( 'admin_email' ),
@@ -6906,7 +6964,7 @@ function checkout_coupon()
 		$coupon_code = sanitize_text_field( $_POST['coupon_code'] );
 
 		$valid_coupon = ProSites_Helper_Coupons::check_coupon( $coupon_code );
-
+		
 		if( ! empty( $valid_coupon ) ) {
 			$ajax_response['valid'] = true;
 			ProSites_Helper_Session::session( 'COUPON_CODE', $coupon_code );
@@ -6936,48 +6994,21 @@ function checkout_coupon()
 					$level_list[ $key ]['price_1_adjust'] = false;
 					unset( $level_list[ $key ]['price_1'] );
 				} else {
-					$level_list[ $key ]['price_1']        = '<div class="plan-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $level['price_1'] ) . '</div>';
-					if( 'first' == $coupon_obj['lifetime'] ) {
-						$level_list[ $key ]['price_1_period'] = '<div class="period coupon-period">' . $first_periods['price_1'] . '</div>';
-					} else {
-						$level_list[ $key ]['price_1_period'] = '';
-					}
+					$level_list[ $key ]['price_1']        = number_format($level['price_1'],2);
 					$level_list[ $key ]['price_1_adjust'] = true;
 				}
 				if ( $original_levels[ $key ]['price_3'] == $level['price_3'] ) {
 					$level_list[ $key ]['price_3_adjust'] = false;
 					unset( $level_list[ $key ]['price_3'] );
 				} else {
-					$level_list[ $key ]['price_3']        = '<div class="plan-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $level['price_3'] ) . '</div>';
-					$total_1 = $original_levels[ $key ]['price_1'] * 3;
-					$total_3 = $level['price_3'];
-					$monthly = $level['price_3'] / 3;
-					$saving = $total_1 - $total_3;
-					$level_list[ $key ]['price_3_monthly'] = '<div class="monthly-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $monthly ) . '</div>';
-					$level_list[ $key ]['price_3_savings'] = '<div class="savings-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $saving ) . '</div>';
-					if( 'first' == $coupon_obj['lifetime'] ) {
-						$level_list[ $key ]['price_3_period'] = '<div class="period coupon-period">' . $first_periods['price_3'] . '</div>';
-					} else {
-						$level_list[ $key ]['price_3_period'] = '';
-					}
+					$level_list[ $key ]['price_3']        = number_format($level['price_3'],2);
 					$level_list[ $key ]['price_3_adjust'] = true;
 				}
 				if ( $original_levels[ $key ]['price_12'] == $level['price_12'] ) {
 					$level_list[ $key ]['price_12_adjust'] = false;
 					unset( $level_list[ $key ]['price_12'] );
 				} else {
-					$level_list[ $key ]['price_12']        = '<div class="plan-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $level['price_12'] ) . '</div>';
-					$total_1 = $original_levels[ $key ]['price_1'] * 12;
-					$total_12 = $level['price_12'];
-					$monthly = $level['price_12'] / 12;
-					$saving = $total_1 - $total_12;
-					$level_list[ $key ]['price_12_monthly'] = '<div class="monthly-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $monthly ) . '</div>';
-					$level_list[ $key ]['price_12_savings'] = '<div class="savings-price coupon-amount">' . ProSites_Helper_UI::rich_currency_format( $saving ) . '</div>';
-					if( 'first' == $coupon_obj['lifetime'] ) {
-						$level_list[ $key ]['price_12_period'] = '<div class="period coupon-period">' . $first_periods['price_12'] . '</div>';
-					} else {
-						$level_list[ $key ]['price_12_period'] = '';
-					}
+					$level_list[ $key ]['price_12']        =  number_format($level['price_12'],2);
 					$level_list[ $key ]['price_12_adjust'] = true;
 				}
 			}
@@ -6986,7 +7017,7 @@ function checkout_coupon()
 
 		$response = array(
 			'what'   => 'response',
-			'action' => 'apply_coupon_to_checkout',
+			'action' => 'checkout_coupon',
 			'id'     => 1, // success status
 			'data'   => json_encode( $ajax_response ),
 		);

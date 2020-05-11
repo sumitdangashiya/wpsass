@@ -1,12 +1,86 @@
 .wpsaas-coupon-wrap .wpsaas-coupon-field {
     text-align: center;
-    margin-top: 30px;
+    max-width: 500px;
+    margin: 30px auto 0;
+    position: relative;
 }
-.wpsaas-coupon-wrap .coupon_code {
-    width: 50%;
+.wpsaas-coupon-wrap input[type="text"] {
+	width: 100%;
+	height: 66px;
+	background-color: #f9f9f9;
+	border: 1px solid #eee;
+	border-radius: 10px;
+	font-weight: 300;
+	font-size: 17px;
+	padding: 0 120px 0 20px;
+	color: #4e4e4e;
 }
 .wpsaas-coupon-wrap .apply_code {
-	margin-left: -10px;
+	background-color: #74c5d4;
+	color: #eee;
+	font-size: 12px !important;
+	text-transform: none;
+	font-weight: 700;
+	border-radius: 2px 10px 10px 2px;
+	padding: 0 10px;
+	min-height: 66px;
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+.wpsaas-login-wrap {
+	max-width: 550px;
+	margin: 50px auto 0;
+	background-color: #f9f9f9;
+	padding: 40px;
+	text-align: center;
+}
+.wpsaas-login-field p {
+	font-size: 18px;
+	display: inline-block;
+	vertical-align: top;
+	color: #666;
+	line-height: 1.2;
+	margin: 0;
+}
+.wpsaas-login-field a.login-toggle {
+	font-size: 18px;
+	line-height: 1.2;
+	display: inline-block;
+	vertical-align: top;
+	color: #74c5d4;
+	margin-left: 10px;
+}
+.wpsaas-login-form {
+	padding-top: 20px;
+}
+.wpsaas-login-form input[type="text"], .wpsaas-login-form input[type="password"] {
+	width: 100%;
+	height: 61px;
+	border: 1px solid #eee;
+	background-color: #fff;
+	color: #e4e4e4;
+	font-size: 20px;
+	border-radius: 3px;
+}
+.wpsaas-login-form label {
+	color: #261f26;
+	display: block;
+	width: 100%;
+	font-weight: 300;
+	font-size: 18px;
+	line-height: 1.2;
+}
+.wpsaas-login-form .login-submit input {
+	width: 100%;
+	font-size: 16px;
+	text-transform: none;
+	line-height: 1.2;
+	padding: 16px 10px;
+	border: 1px solid #eee;
+	border-radius: 3px;
+	background-color: #74C5CA;
+	color: #fff;
 }
 .wpsaas-plan-checkout-main, .wpsaas-plan-checkout-main * {
 	-webkit-box-sizing: border-box;
@@ -45,12 +119,12 @@
 	transform: translateX(-50%);
 }
 .wpsaas-plan-checkout-step li.active {
-	border-bottom-color: #007cba;
-	color: #007cba;
+	border-bottom-color: #74c5d4;
+	color: #74c5d4;
 	font-weight: bold;
 }
 .wpsaas-plan-checkout-step li.active::before {
-	border-color: #007cba;
+	border-color: #74c5d4;
 }
 .wpsaas-plan-tabs ul.ui-tabs-nav {
 	text-align: center;
@@ -77,7 +151,7 @@
 	text-decoration: none;
 }
 .wpsaas-plan-tabs ul.ui-tabs-nav li.ui-tabs-active a {
-	background-color: #007cba;
+	background-color: #74c5d4;
 }
 .wpsaas-plan-tabs-wrap {
 	display: flex;
@@ -134,7 +208,7 @@
 	font-size: 16px;
 	border-radius: 25px;
 	padding: 10px 70px;
-	background-color: #007cba;
+	background-color: #74c5d4;
 	color: #fff;
 	cursor: pointer;
 	font-weight: 400;
@@ -331,4 +405,36 @@
 	padding: 11px 10px;
 	border-radius: 5px;
 	text-transform: none;
+}
+@media only screen and (max-width: 991px){
+	.wpsaas-sign-up-btn .wpsaas-sign-up {
+	    padding: 10px 30px;
+	}
+}
+@media only screen and (max-width: 480px){
+	.wpsaas-plan-tabs ul.ui-tabs-nav li {
+	    padding-right: 0;
+	    margin: 0 0 10px;
+	    width: 100%;
+	}
+	.wpsaas-plan-tabs ul.ui-tabs-nav li a {
+	    display: block;
+	}
+	.wpsaas-plan-tabs-wrap .wpsaas-single-plan {
+	    width: 100%;
+	    padding-bottom: 15px;
+	}
+	.wpsaas-left-block {
+	    width: 100%;
+	    padding-bottom: 20px;
+	}
+	.wpsaas-right-block {
+	    width: 100%;
+	}
+	#wpsaas-plan-checkout-main .wpsaas-field-wrap input, .wpsaas-domain-wrap-field {
+	    font-size: 15px;
+	}
+	.wpsaas-login-wrap {
+		padding: 20px;
+	}
 }

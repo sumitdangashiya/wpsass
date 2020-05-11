@@ -495,6 +495,11 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 					.pricing-column .sub-title,
 					.pricing-column .summary,
 					.pricing-column .button-box,
+					.wpsaas-single-plan-wrap .wpsaas-plan-name,
+					.wpsaas-single-plan-wrap .wpsaas-plan-price,
+					.wpsaas-single-plan-wrap .wpsaas-plan-note,
+					.wpsaas-single-plan-wrap .wpsaas-sign-up-btn,
+					.wpsaas-single-plan-wrap,
 					#prosites-checkout-table .coupon-wrapper .coupon-box,
 					.pricing-column li ul.feature-section,
 					.pricing-column .feature,
@@ -506,11 +511,12 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$extra_style = "
 					.pricing-column .button-box.no-button,
 					.pricing-column:first-child .title,
-					.pricing-column:first-child .summary {
+					.pricing-column:first-child .summary,
+					{
 						background: none;
 					}
-					.pricing-column:first-child .summary .period-selector {
-						background: XXX;
+					.wpsaas-plan-tabs ul.ui-tabs-nav li a {
+						background: XXX !important;
 					}
 				";
 
@@ -543,15 +549,16 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 				.pricing-column .button-box,
 				#prosites-checkout-table .coupon-wrapper .coupon-box,
 				.period-selector-container label > input + .period-option,
-				.pricing-column.featured .sub-title.no-title {
-				    border-color: XXX;
+				.pricing-column.featured .sub-title.no-title,
+				.wpsaas-single-plan-wrap {
+				    border-color: XXX !important;
 				}
 			";
 
 			if( 'option1' == $layout ) {
 				$the_css .= "
-					.pricing-column .title:after {
-						border-bottom-color: XXX;
+					.pricing-column .title:after,.wpsaas-single-plan-wrap .wpsaas-plan-name h5,.wpsaas-single-plan-wrap .wpsaas-plan-note {
+						border-bottom-color: XXX !important;
 					}
 				";
 			}
@@ -572,8 +579,9 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 				.pricing-column .feature-section,
 				.pricing-column:first-child .feature-section,
 				.pricing-column .button-box,
-				#prosites-checkout-table .coupon-wrapper .coupon-box {
-				    border-width: XXXpx;
+				#prosites-checkout-table .coupon-wrapper .coupon-box,
+				.wpsaas-single-plan-wrap {
+				    border-width: XXXpx !important;
 				}
 			";
 
@@ -590,8 +598,9 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 
 			$the_css = "
 				.period-selector-container label > input + .period-option,
-				.pricing-column .title {
-				    color: XXX;
+				.pricing-column .title,
+				.wpsaas-single-plan-wrap .wpsaas-plan-name h5 {
+				    color: XXX !important;
 				}
 			";
 
@@ -601,7 +610,8 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 
 			$the_css = "
 				.period-selector-container label > input + .period-option,
-				.pricing-column .title {
+				.pricing-column .title,
+				.wpsaas-single-plan-wrap .wpsaas-plan-name {
 				    background: XXX;
 				}
 			";
@@ -632,7 +642,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style = '';
 
 			$the_css = "
-				.pricing-column .price {
+				.pricing-column .price,.wpsaas-single-plan-wrap .wpsaas-plan-price {
 				    color: XXX;
 				}
 			";
@@ -642,7 +652,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style .= self::convert_css_from_setting( 'pricing_style_price_color_selected', $options, $the_css, 'selected' );
 
 			$the_css = "
-				.pricing-column .price {
+				.pricing-column .price,.wpsaas-single-plan-wrap .wpsaas-plan-price  {
 				    background: XXX !important;
 				}
 			";
@@ -660,8 +670,8 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style = '';
 
 			$the_css = "
-				.pricing-column .level-summary {
-				    color: XXX;
+				.pricing-column .level-summary,.wpsaas-single-plan-wrap .wpsaas-plan-note p {
+				    color: XXX !important;
 				}
 			";
 
@@ -670,7 +680,7 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style .= self::convert_css_from_setting( 'pricing_style_price_summary_color_selected', $options, $the_css, 'selected' );
 
 			$the_css = "
-				.pricing-column .level-summary {
+				.pricing-column .level-summary,.wpsaas-single-plan-wrap .wpsaas-plan-note p {
 				    background: XXX !important;
 				}
 			";
@@ -774,8 +784,8 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style = '';
 
 			$the_css = "
-				.pricing-column .button-box {
-					background: XXX;
+				.pricing-column .button-box,.wpsaas-single-plan-wrap .wpsaas-sign-up-btn {
+					background: XXX !important;
 				}
 				.pricing-column .button-box.no-button {
 					background: none;
@@ -798,7 +808,8 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$the_css = "
 				.period-selector-container label > input:checked + .period-option,
 				#prosites-checkout-table .coupon-wrapper .coupon-box button,
-				.pricing-column .button-box button {
+				.pricing-column .button-box button,
+				.wpsaas-single-plan-wrap .wpsaas-sign-up-btn .wpsaas-sign-up {
 					color: XXX;
 				}
 			";
@@ -810,7 +821,8 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$the_css = "
 				.period-selector-container label > input:checked + .period-option,
 				#prosites-checkout-table .coupon-wrapper .coupon-box button,
-				.pricing-column .button-box button {
+				.pricing-column .button-box button,
+				.wpsaas-single-plan-wrap .wpsaas-sign-up-btn .wpsaas-sign-up {
 					background: XXX;
 				}
 			";
@@ -830,7 +842,8 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$the_css = "
 				.period-selector-container label > input + .period-option:hover,
 				#prosites-checkout-table .coupon-wrapper .coupon-box button:hover,
-				.pricing-column .button-box button:hover {
+				.pricing-column .button-box button:hover,
+				.wpsaas-single-plan-wrap .wpsaas-sign-up-btn .wpsaas-sign-up:hover {
 					color: XXX;
 				}
 			";
@@ -842,7 +855,8 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$the_css = "
 				.period-selector-container label > input + .period-option:hover,
 				#prosites-checkout-table .coupon-wrapper .coupon-box button:hover,
-				.pricing-column .button-box button:hover {
+				.pricing-column .button-box button:hover,
+				.wpsaas-single-plan-wrap .wpsaas-sign-up-btn .wpsaas-sign-up:hover {
 					background: XXX;
 				}
 			";
@@ -886,7 +900,8 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 
 
 			$the_css = "
-				#prosites-checkout-table .coupon-wrapper .coupon-box button {
+				#prosites-checkout-table .coupon-wrapper .coupon-box button,
+				.wpsaas-coupon-wrap .wpsaas-coupon-field .apply_code {
 				    color: XXX;
 				}
 			";
@@ -894,7 +909,8 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style .= self::convert_css_from_setting( 'pricing_style_coupon_button_text_color', $options, $the_css );
 
 			$the_css = "
-				#prosites-checkout-table .coupon-wrapper .coupon-box button {
+				#prosites-checkout-table .coupon-wrapper .coupon-box button,
+				.wpsaas-coupon-wrap .wpsaas-coupon-field .apply_code {
 				    background: XXX;
 				}
 			";
@@ -903,7 +919,8 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 
 
 			$the_css = "
-				#prosites-checkout-table .coupon-wrapper .coupon-box button:hover {
+				#prosites-checkout-table .coupon-wrapper .coupon-box button:hover,
+				.wpsaas-coupon-wrap .wpsaas-coupon-field .apply_code:hover {
 				    color: XXX;
 				}
 			";
@@ -911,7 +928,8 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style .= self::convert_css_from_setting( 'pricing_style_coupon_button_hover_text_color', $options, $the_css );
 
 			$the_css = "
-				#prosites-checkout-table .coupon-wrapper .coupon-box button:hover {
+				#prosites-checkout-table .coupon-wrapper .coupon-box button:hover,
+				.wpsaas-coupon-wrap .wpsaas-coupon-field .apply_code:hover {
 				    background: XXX;
 				}
 			";
@@ -933,8 +951,10 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style = '';
 
 			$the_css = "
-				.period-selector-container label > input + .period-option {
-				    border-color: XXX;
+				.period-selector-container label > input + .period-option,
+				.wpsaas-plan-tabs ul.ui-tabs-nav li a {
+				    border-color: XXX !important;
+				    border: 1px solid;
 				}
 			";
 
@@ -943,8 +963,9 @@ if ( ! class_exists( 'ProSites_View_Pricing_Styling' ) ) {
 			$style .= self::convert_css_from_setting( 'pricing_style_period_border_color_hover', $options, $the_css, 'period_hover' );
 
 			$the_css = "
-				.period-selector-container label > input + .period-option {
-				    color: XXX;
+				.period-selector-container label > input + .period-option,
+				.wpsaas-plan-tabs ul.ui-tabs-nav li a {
+				    color: XXX !important;
 				}
 			";
 

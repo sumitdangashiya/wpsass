@@ -176,157 +176,49 @@ jQuery( document ).ready( function(){
 	jQuery( '.wpsaas-coupon-wrap [name=apply-coupon-link]' ).unbind( 'click' );
     jQuery( '.wpsaas-coupon-wrap [name=apply-coupon-link]' ).click( function ( e ) {
         var input_box = jQuery( '.wpsaas-coupon-wrap .wpsaas-coupon-field input' );
-        var icon = jQuery( '.wpsaas-coupon-wrap .coupon .coupon-status' );
-        var pos = input_box.position();
 
         jQuery( '.wpsaas-coupon-wrap .wpsaas-coupon-field' ).removeClass( 'coupon-valid' );
         jQuery( '.wpsaas-coupon-wrap .wpsaas-coupon-field' ).removeClass( 'coupon-invalid' );
 
         var code = jQuery( input_box ).val();
 
-        /* Reset */
-        jQuery( '.original-amount' ).removeClass( 'scratch' );
-        jQuery( '.coupon-amount' ).remove();
-        jQuery( '.original-period' ).removeClass( 'hidden' );
-        jQuery( '.coupon-period' ).remove();
-
         /* Check Coupon AJAX */
         jQuery.post(
-            prosites_checkout.ajax_url, {
-                action: 'member_coupon',
+            ajax_checkout.ajax_url, {
+                action: 'checkout_coupon',
                 'coupon_code': code
             }
         ).done( function ( data, status ) {
 
-                var response = jQuery.parseJSON( jQuery( data ).find( 'response_data' ).text() );
+			var response = jQuery.parseJSON( jQuery( data ).find( 'response_data' ).text() );
 
-                if ( response.valid ) {
-                    jQuery( 'wpsaas-coupon-wrap .wpsaas-coupon-field' ).addClass( 'coupon-valid' );
-                } else {
-                    jQuery( 'wpsaas-coupon-wrap .wpsaas-coupon-field' ).addClass( 'coupon-invalid' );
-                }
+			if ( response.valid ) {
+				jQuery( '.wpsaas-coupon-wrap .wpsaas-coupon-field' ).addClass( 'coupon-valid' );
+				jQuery( '.wpsaas-coupon-wrap .wpsaas-coupon-field input' ).attr('readonly',true);
+			} else {
+				jQuery( '.wpsaas-coupon-wrap .wpsaas-coupon-field' ).addClass( 'coupon-invalid' );
+			}
 
-                // Handle empty returns
-                var levels = response.levels;
-                if ( typeof levels != 'undefined' ) {
+			// Handle empty returns
+			var levels = response.levels;
+			if ( typeof levels != 'undefined' ) {
 
-                    jQuery.each( levels, function ( level_id, level ) {
+				jQuery.each( levels, function ( level_id, level ) {
 
-                        if ( level.price_1_adjust ) {
-                            var plan_original = jQuery( 'ul.psts-level-' + level_id + ' .price.price_1 plan-price.original-amount' );
-
-                            var original = jQuery( 'ul.psts-level-' + level_id + ' .price.price_1 .original-amount' );
-
-                            if ( original.length == 0 ) {
-                                original = jQuery( 'tr.level-' + level_id + ' .price.price_1 .original-amount' );
-                            }
-
-                            jQuery( original ).after( level.price_1 );
-                            jQuery( original ).addClass( 'scratch' );
-
-                            // Period display needs adjusting
-                            if ( level.price_1_period != '' ) {
-                                var period_original = jQuery( 'ul.psts-level-' + level_id + ' .price.price_1 .period.original-period' );
-                                if ( period_original.length == 0 ) {
-                                    period_original = jQuery( 'tr.level-' + level_id + ' .price.price_1 .original-period' );
-                                }
-                                jQuery( period_original ).addClass( 'hidden' );
-                                jQuery( period_original ).after( level.price_1_period );
-                            }
-
-                        }
-                        if ( level.price_3_adjust ) {
-                            var original = jQuery( 'ul.psts-level-' + level_id + ' .price.price_3 .original-amount' );
-                            if ( original.length == 0 ) {
-                                original = jQuery( 'tr.level-' + level_id + ' .price.price_3 .original-amount' );
-                            }
-
-                            var monthly_original = jQuery( 'ul.psts-level-' + level_id + ' .price_3 .monthly-price.original-amount' );
-                            var savings_original = jQuery( 'ul.psts-level-' + level_id + ' .price_3 .savings-price.original-amount' );
-                            if ( monthly_original.length == 0 ) {
-                                monthly_original = jQuery( 'tr.level-' + level_id + ' .level-summary.price_3 .monthly-price.original-amount' );
-                            }
-                            if ( savings_original.length == 0 ) {
-                                savings_original = jQuery( 'tr.level-' + level_id + ' .level-summary.price_3 .savings-price.original-amount' );
-                            }
-
-                            jQuery( original ).after( level.price_3 );
-                            jQuery( monthly_original ).after( level.price_3_monthly );
-                            jQuery( savings_original ).after( level.price_3_savings );
-                            jQuery( original ).addClass( 'scratch' );
-                            jQuery( monthly_original ).addClass( 'scratch' );
-                            jQuery( savings_original ).addClass( 'scratch' );
-
-                            // Period display needs adjusting
-                            if ( level.price_3_period != '' ) {
-                                var period_original = jQuery( 'ul.psts-level-' + level_id + ' .price.price_3 .period.original-period' );
-                                if ( period_original.length == 0 ) {
-                                    period_original = jQuery( 'tr.level-' + level_id + ' .price.price_3 .period.original-period' );
-                                }
-                                jQuery( period_original ).addClass( 'hidden' );
-                                jQuery( period_original ).after( level.price_3_period );
-                            }
-
-                        }
-                        if ( level.price_12_adjust ) {
-                            var original = jQuery( 'ul.psts-level-' + level_id + ' .price.price_12 .original-amount' );
-                            if ( original.length == 0 ) {
-                                original = jQuery( 'tr.level-' + level_id + ' .price.price_12 .original-amount' );
-                            }
-
-                            var monthly_original = jQuery( 'ul.psts-level-' + level_id + ' .price_12 .monthly-price.original-amount' );
-                            var savings_original = jQuery( 'ul.psts-level-' + level_id + ' .price_12 .savings-price.original-amount' );
-                            if ( monthly_original.length == 0 ) {
-                                monthly_original = jQuery( 'tr.level-' + level_id + ' .level-summary.price_12 .monthly-price.original-amount' );
-                            }
-                            if ( savings_original.length == 0 ) {
-                                savings_original = jQuery( 'tr.level-' + level_id + ' .level-summary.price_12 .savings-price.original-amount' );
-                            }
-
-                            jQuery( original ).after( level.price_12 );
-                            jQuery( monthly_original ).after( level.price_12_monthly );
-                            jQuery( savings_original ).after( level.price_12_savings );
-                            jQuery( original ).addClass( 'scratch' );
-                            jQuery( monthly_original ).addClass( 'scratch' );
-                            jQuery( savings_original ).addClass( 'scratch' );
-
-                            // Period display needs adjusting
-                            if ( level.price_12_period != '' ) {
-                                var period_original = jQuery( 'ul.psts-level-' + level_id + ' .price.price_12 .period.original-period' );
-                                if ( period_original.length == 0 ) {
-                                    period_original = jQuery( 'tr.level-' + level_id + ' .price.price_12 .period.original-period' );
-                                }
-                                jQuery( period_original ).addClass( 'hidden' );
-                                jQuery( period_original ).after( level.price_12_period );
-                            }
-                        }
-
-                    } );
-                }
-
-            } );
-
-    } );
-    jQuery('#stripe-button').on('click', function(event) {
-
-              event.preventDefault();
-
-              var jQuerybutton = jQuery(this);
-
-              var opts = jQuery.extend({}, jQuerybutton.data(), {
-                token: function(result) {
-
-                  // console.log(result); return;
-
-                  jQuery.redirectPost(jQuerybutton.attr('href'), {
-                    stripeEmail: result.email,
-                    stripeToken: result.id,
-                  });
-                  
-                }
-              });
-
-              StripeCheckout.open(opts);
-
-            });
+					if ( level.price_1_adjust ) {
+						jQuery( '.wpsaas-single-plan-wrap.wpsaas-plan-' + level_id + ' .wpsaas-price-1 span' ).text(level.price_1);
+						jQuery( '.wpsaas-single-plan-wrap.wpsaas-plan-' + level_id + ' .wpsaas-sign-up-btn input.wpsaas-price-1' ).attr('data-price',level.price_1);
+					}
+					if ( level.price_3_adjust ) {
+						jQuery( '.wpsaas-single-plan-wrap.wpsaas-plan-' + level_id + ' .wpsaas-price-3 span' ).text(level.price_3);
+						jQuery( '.wpsaas-single-plan-wrap.wpsaas-plan-' + level_id + ' .wpsaas-sign-up-btn input.wpsaas-price-3' ).attr('data-price',level.price_3);
+					}
+					if ( level.price_12_adjust ) {
+						jQuery( '.wpsaas-single-plan-wrap.wpsaas-plan-' + level_id + ' .wpsaas-price-12 span' ).text(level.price_12);
+						jQuery( '.wpsaas-single-plan-wrap.wpsaas-plan-' + level_id + ' .wpsaas-sign-up-btn input.wpsaas-price-12' ).attr('data-price',level.price_12);						
+					}
+				});
+			}
+		});
+    });
 });
