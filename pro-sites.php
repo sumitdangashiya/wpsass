@@ -4223,7 +4223,7 @@ function admin_levels() {
 
 	function checkout_redirect_page() {
 		//This page should never be shown
-		global $blog_id,$wpdb;
+		global $blog_id,$wpdb,$psts, $wpdb, $current_site, $current_prosite_blog;
 
 		/*
 		if( !current_user_can('edit_pages') ) {
@@ -4239,7 +4239,6 @@ function admin_levels() {
 		$current_level = $this->get_level( $blog_id );
 		$expire        = $this->get_expire( $blog_id );
 		$result        = $wpdb->get_row( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
-		
 		if ( $result ) {
 				if ( $result->term == 1 || $result->term == 3 || $result->term == 12 ) {
 					$term = sprintf( _n( '%s Month','%s Months', $result->term, 'psts' ), $result->term );
@@ -4251,48 +4250,43 @@ function admin_levels() {
 			}
 
 			if ( $expire && $expire > time() ) {
-				echo '<p><strong>' . __( 'Current WPSAAS', 'psts' ) . '</strong></p>';
+				echo '<h2>' . __( 'Your current plan', 'psts' ) . '</h2>';
 
 				echo '<ul>';
+				
+				echo '<li>' . sprintf( __( 'Level: <strong>%s</strong>', 'psts' ), $levels[ $current_level ]['name'] ) . '</li>';
 				if ( $expire > 2147483647 ) {
 					echo '<li>' . __( 'WPSAAS privileges will expire: <strong>Never</strong>', 'psts' ) . '</li>';
 				} else {
 					$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
 					$active_trial = $trialing ? __( '(Active trial)', 'psts') : '';
 
-					echo '<li>' . sprintf( __( 'WPSAAS privileges will expire on: <strong>%s</strong>', 'psts' ), date_i18n( get_option( 'date_format' ), $expire ) ) . ' ' . $active_trial . '</li>';
-				}
-
-				echo '<li>' . sprintf( __( 'Level: <strong>%s</strong>', 'psts' ), $current_level . ' - ' . @$levels[ $current_level ]['name'] ) . '</li>';
-				if ( $result->gateway ) {
-					$nicename = ProSites_Helper_Gateway::get_nice_name( $result->gateway );
-					echo '<li>' . sprintf( __( 'Payment Gateway: <strong>%s</strong>', 'psts' ), $nicename ) . '</li>';
-				}
-				if ( $term ) {
-					echo '<li>' . sprintf( __( 'Payment Term: <strong>%s</strong>', 'psts' ), $term ) . '</li>';
+					echo '<li>' . sprintf( __( 'Renewal due on: <strong>%s</strong>', 'psts' ), date_i18n( get_option( 'date_format' ), $expire ) ) . ' ' . $active_trial . '</li>';
 				}
 				echo '</ul>';
 
-			} else if ( $expire && $expire <= time() ) {
-				echo '<p><strong>' . __( 'Expired WPSAAS', 'psts' ) . '</strong></p>';
-
-				echo '<ul>';
-				echo '<li>' . sprintf( __( 'WPSAAS privileges expired on: <strong>%s</strong>', 'psts' ), date_i18n( get_option( 'date_format' ), $expire ) ) . '</li>';
-
-				echo '<li>' . sprintf( __( 'Previous Level: <strong>%s</strong>', 'psts' ), $current_level . ' - ' . @$levels[ $current_level ]['name'] ) . '</li>';
-				if ( $result->gateway ) {
-					$nicename = ProSites_Helper_Gateway::get_nice_name( $result->gateway );
-					echo '<li>' . sprintf( __( 'Previous Payment Gateway: <strong>%s</strong>', 'psts' ), $nicename ) . '</li>';
-				}
-				if ( $term ) {
-					echo '<li>' . sprintf( __( 'Previous Payment Term: <strong>%s</strong>', 'psts' ), $term ) . '</li>';
-				}
-				echo '</ul>';
-
-			} else {
-				echo '<p><strong>"' . get_blog_option( $blog_id, 'blogname' ) . '" ' . __( 'has never been a WPSAAS.', 'psts' ) . '</strong></p>';
 			}
 		echo '</div>'; //div wrap
+		$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
+		$level_id = $psts->get_level( $blog_id );
+		$level    = $psts->get_level_setting( $level_id, 'name' );
+		$cancel_label        = __( 'Cancel Your Subscription', 'psts' );
+		
+		$canceled = get_blog_option( $blog_id, 'psts_is_canceled' );
+		if(isset($_POST['action_cancel'])) {
+			update_blog_option( $blog_id, 'psts_is_canceled', 1 );
+			echo '<script>location.reload();</script>';
+		}
+		if($canceled == '') {
+			echo '<form action="" method="post">';
+			echo '<input style="background-color:#74c5d4;color:#fff;padding:0px 70px;border-radius:25px;font-size:14px" type="submit" class="cancel-prosites-plan button" name="action_cancel" title="' . esc_attr( $cancel_label ) . '" value="' . esc_html( $cancel_label ) . '" />';
+			echo '</form>';
+			echo '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
+		} else {
+			 echo '<div id="message" style="background-color:#fcf5b9;border:1px solid #e8d004;border-radius:3px;padding:5px 10px;margin:5px 0px 10px;width:50%;"><p style="font-size: 16px;">' . sprintf( __( 'Your subscription has been canceled. You should continue to have access until %1$s.', 'psts' ), $end_date ) . '</p></div>';
+		}
+		echo '<h2>'.__( 'Change your plan', 'psts' ) . '</h2>';
+		echo do_shortcode('[wpsaas_plan]');
 	}
 
 	function checkout_grid( $blog_id, $domain = '' ) {
@@ -6545,7 +6539,7 @@ function wpsass_delete_level(){
 */
 function wpb_login_logo() {
 	$settings = get_site_option( 'psts_settings' );
-	if( $settings['network_logo'] != '' ) { ?>
+	if( isset($settings['network_logo']) && $settings['network_logo'] != '' ) { ?>
 		<style type="text/css">
 			#login h1 a, .login h1 a {
 				background-image: url(<?php echo $settings['network_logo']; ?>);
@@ -6562,21 +6556,39 @@ add_action( 'login_enqueue_scripts', 'wpb_login_logo' );
 
 function prefix_register_resources() {
 	global $psts;
-	wp_enqueue_script("psts-script-checkout", $psts->plugin_url . 'js/plan-checkout.js', array( 'jquery' ), $psts->version);
+	wp_register_script("psts-script-checkout", $psts->plugin_url . 'js/plan-checkout.js', array( 'jquery' ), $psts->version);
 	wp_localize_script( 'psts-script-checkout', 'ajax_checkout', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
-	wp_enqueue_style("psts-style-checkout", $psts->plugin_url . 'css/plan-checkout.css', array(), $psts->version);
+	wp_register_style("psts-style-checkout", $psts->plugin_url . 'css/plan-checkout.css', array(), $psts->version);
 	wp_enqueue_script( 'jquery-ui-tabs' );
 }
 add_action( 'wp_enqueue_scripts', 'prefix_register_resources' );
+add_action( 'admin_enqueue_scripts', 'prefix_register_resources' );
 function wpsaas_plan_func(){
 	ob_start();
-	global $psts;	
+	global $psts;
+	wp_enqueue_script("psts-script-checkout");
+	wp_enqueue_style("psts-style-checkout");	
+	if ( ! current_theme_supports( 'psts_style' ) ) {
+		wp_enqueue_style( 'dashicons' ); // in case it hasn't been loaded yet
+
+		/* Checkout layout */
+		$layout_option = $psts->get_setting( 'pricing_table_layout', 'option1' );
+		$checkout_layout = apply_filters( 'prosites_checkout_css', $psts->plugin_url . 'css/pricing-tables/' . $layout_option . '.css' );
+		wp_enqueue_style( 'psts-checkout-layout', $checkout_layout, false, $psts->version );
+
+		/* Apply styles from options */
+		$checkout_style = ProSites_View_Pricing_Styling::get_styles_from_options();
+		if( ! empty( $checkout_style ) ) {
+			wp_add_inline_style( 'psts-checkout-layout', $checkout_style );
+		};
+	}
 	$settings = get_site_option( 'psts_settings' );
 	$plan_list = get_site_option( 'psts_levels' );
 	$current_user = wp_get_current_user();
+	
 	?>
 	<div id="wpsaas-plan-checkout-main">
-		<form method="post" class="wpsaas-plan-checkout-main" enctype="multipart/form-data">
+		<form method="post" class="wpsaas-plan-checkout-main" id="payment-form" enctype="multipart/form-data">
 			<!-- progressbar -->
 			<ul id="plan_progressbar" class="wpsaas-plan-checkout-step">
 				<li id="pricing-step" class="active"><?php _e( 'Pricing', 'psts' ) ?></li>
@@ -6672,18 +6684,18 @@ function wpsaas_plan_func(){
 					<?php if ( !is_user_logged_in() ) { ?>
 						<div class="wpsaas-login-wrap">
 							<div class="wpsaas-login-field">
-								<p><?php _e( 'Already have a site?', 'psts' ) ?></p><a class="login-toggle" href="javascript:void(0);"><?php _e( 'Login now', 'psts' ) ?></a>.
+								<p><?php _e( 'Already have a site?', 'psts' ) ?></p><a class="login-toggle" href="javascript:void(0);"><?php _e( 'Login now.', 'psts' ) ?></a>
 							</div>
 							<div class="wpsaas-login-form" style="display:none">
 								<p class="login-username">
-									<label for="user_login">Email Address</label>
+									<label for="user_login"><?php _e( 'Email Address', 'psts' ) ?></label>
 									<input type="text" name="log" id="user_login" class="input" value="" size="20">
 								</p>
 								<p class="login-password">
-									<label for="user_pass">Password</label>
+									<label for="user_pass"><?php _e( 'Password', 'psts' ) ?></label>
 									<input type="password" name="pwd" id="user_pass" class="input" value="" size="20">
 								</p>
-								<p class="login-remember"><label><input name="rememberme" type="checkbox" id="rememberme" value="forever"> Remember Me</label></p>
+								<p class="login-remember"><label><input name="rememberme" type="checkbox" id="rememberme" value="forever"><?php _e( ' Remember Me', 'psts' ) ?></label></p>
 								<p class="login-submit">
 									<input type="button" name="wp-submit" id="wp-submit" class="button button-primary" value="Log In">
 								</p>	
@@ -6783,26 +6795,32 @@ function wpsaas_plan_func(){
 										<input name="email" id="email" class="form-input" type="email" placeholder="Email" style="display:none" />
 									</div>         
 									<div class="form-group">
-										<input name="cardnumber" id="card" class="form-input" type="text" maxlength="16" placeholder="Card Number" data-stripe="number" />
+										<div id="wpsaas-stripe-card-number" class="input empty"></div>
 									</div>
 									<div class="form-group form-group-half">
-										<input name="cardnumber" id="card" class="form-input" type="text" maxlength="16" placeholder="MM/YY" data-stripe="number" />
-										<input name="cvv" id="cvv" class="form-input2" type="text" placeholder="CVC" data-stripe="cvc" />
+										<div id="wpsaas-stripe-card-expiry" class="input empty"></div>
+										<div id="wpsaas-stripe-card-cvc" class="input empty"></div>
 									</div>
 									<div class="form-group">
 										<div class="payment-errors"></div>
 									</div>
 									<div class="wpsaas-stripe-button-wrap">
-										<button class="wpsaas-stripe-button login submit">Pay</button>
+										<div id="card-errors" role="alert"></div>
+										<button id="btnSubmit" class="btn wpsaas-stripe-button"><?php _e( 'Pay', 'psts' ) ?></button>
+										<div class="payment_processing" style="display: none;"><?php _e( 'Processing.... Please Wait', 'psts' ) ?></div>
+									</div>
+									<div class="error payment-error" role="alert">
+										<span class="message"></span>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<input type="button" value="submit" class="submit" />
+				<!--<input type="button" value="submit" class="submit" />-->
 			</div>
 		</form>
+		<script src="https://js.stripe.com/v3/"></script>
 	</div>
 	<?php
 	return ob_get_clean();

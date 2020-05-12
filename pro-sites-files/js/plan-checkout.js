@@ -221,4 +221,112 @@ jQuery( document ).ready( function(){
 			}
 		});
     });
+	
+	/*stripe*/
+	var stripe = Stripe('pk_test_x8EWmWMbRKHTm38ThxGlIP39');
+	var elements = stripe.elements();
+	var style = {
+		base: {
+			// color: '#32325d',
+			lineHeight: '18px',
+			fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+			fontSmoothing: 'antialiased',
+			fontSize: '16px',
+			'::placeholder': {
+				color: '#aab7c4'
+			},
+			border: '1px solid #c2cad8'
+		},
+		invalid: {
+			color: '#fa755a',
+			iconColor: '#fa755a'
+		}
+	};
+	
+	var cardNumber = elements.create('cardNumber', {
+		style: style,
+	});
+	cardNumber.mount('#wpsaas-stripe-card-number');
+
+	var cardExpiry = elements.create('cardExpiry', {
+		style: style,
+	});
+	cardExpiry.mount('#wpsaas-stripe-card-expiry');
+
+	var cardCvc = elements.create('cardCvc', {
+		style: style,
+	});
+	cardCvc.mount('#wpsaas-stripe-card-cvc');
+	
+	var form = document.getElementById('payment-form');
+	form.addEventListener('submit', function (event) {
+		event.preventDefault();
+		stripe.createToken(cardNumber).then(function (result) {
+			if (result.error) {
+				// Inform the customer that there was an error.
+				jQuery( '#card-errors' ).text(result.error.message);
+			} else {
+				var token_id = result.token.id;
+				var plan_price = jQuery('#pricing-step .plan_price_select').val();
+				var final_price = parseFloat(plan_price) * 100;
+				jQuery.ajax({
+					url: 'https://api.stripe.com/v1/charges',
+					type :'POST',
+					dataType: 'json',
+					headers : {
+						Authorization : 'Bearer sk_test_ngCw3XFvLAJwykafqoi0iXJd'
+					},
+					beforeSend: function() {
+						jQuery( '.wpsaas-stripe-button' ).prop( "disabled", true );
+						jQuery( '.payment_processing' ).show();
+					},
+					data : {
+						'amount' : final_price, // the php name function
+						'currency' : 'usd',
+						'description' : 'wpsaas plan charge',
+						'source' : token_id,
+					},
+					success: function (data) {
+						//console.log(data);
+						if( data.id != '' ) {
+							var site_email 	  = jQuery( 'input[name="site_email"]' ).val();
+							var site_password = jQuery( 'input[name="site_password"]' ).val();
+							var your_site 	  = jQuery( 'input[name="your_site"]' ).val();
+							var site_title 	  = jQuery( 'input[name="site_title"]' ).val();
+							var index_site 	  = jQuery( 'input[name="index_site"]:checked' ).val();
+							var name_select   = jQuery( 'input[name="plan_name_select"]' ).val();
+							var period_select = jQuery( 'input[name="plan_period_select"]' ).val();
+							jQuery.ajax({
+								url: ajax_checkout.ajax_url,
+								type :'POST',
+								dataType: 'json',
+								data : {
+									'action' : 'insert_site_user', // the php name function
+									'site_email' : site_email,
+									'site_password' : site_password,
+									'your_site' : your_site,
+									'site_title' : site_title,
+									'index_site' : index_site,
+									'name_select' : name_select,
+									'period_select' : period_select,
+								},
+								beforeSend: function() {
+									jQuery( '.wpsaas-stripe-button' ).prop( "disabled", true );
+									jQuery( '.payment_processing' ).show();
+								},
+								success: function (data) {
+									jQuery( '.wpsaas-stripe-button' ).prop( "disabled", false );
+									jQuery( '.payment_processing' ).hide();
+									window.location.href = data.redirect;
+								}
+							});
+							return false;
+						} else {
+							jQuery( '.payment-error .message' ).text( 'Error in Payment' );
+						}
+					}
+				});
+			}
+		});
+	});
 });
