@@ -223,7 +223,19 @@ jQuery( document ).ready( function(){
     });
 	
 	/*stripe*/
-	var stripe = Stripe('pk_test_x8EWmWMbRKHTm38ThxGlIP39');
+	var plan_stripe_public_key = jQuery( '.plan_stripe_public_key' ).val(); 
+	var plan_stripe_secret_key = jQuery( '.plan_stripe_secret_key' ).val(); 
+	if( plan_stripe_public_key != '' ) {
+		var stripe_public_key = plan_stripe_public_key;
+	} else {
+		var stripe_public_key = 'pk_test_x8EWmWMbRKHTm38ThxGlIP39';
+	}
+	if( plan_stripe_secret_key != '' ) {
+		var stripe_secret_key = plan_stripe_secret_key;
+	} else {
+		var stripe_secret_key = 'sk_test_ngCw3XFvLAJwykafqoi0iXJd';
+	}
+	var stripe = Stripe( stripe_public_key );
 	var elements = stripe.elements();
 	var style = {
 		base: {
@@ -269,12 +281,13 @@ jQuery( document ).ready( function(){
 				var token_id = result.token.id;
 				var plan_price = jQuery('#pricing-step .plan_price_select').val();
 				var final_price = parseFloat(plan_price) * 100;
+				var plan_currency = jQuery( '.plan_currency_select' ).val();
 				jQuery.ajax({
 					url: 'https://api.stripe.com/v1/charges',
 					type :'POST',
 					dataType: 'json',
 					headers : {
-						Authorization : 'Bearer sk_test_ngCw3XFvLAJwykafqoi0iXJd'
+						Authorization : 'Bearer ' + stripe_secret_key
 					},
 					beforeSend: function() {
 						jQuery( '.wpsaas-stripe-button' ).prop( "disabled", true );
@@ -282,7 +295,7 @@ jQuery( document ).ready( function(){
 					},
 					data : {
 						'amount' : final_price, // the php name function
-						'currency' : 'usd',
+						'currency' : plan_currency,
 						'description' : 'wpsaas plan charge',
 						'source' : token_id,
 					},
