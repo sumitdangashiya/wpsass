@@ -58,8 +58,9 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 
 			if ( $doing_ajax ) {
 
-				$user_name  = sanitize_text_field( $_POST['user_name'] );
+				$user_name  = sanitize_text_field( $_POST['blogname'] );
 				$user_email = sanitize_email( $_POST['user_email'] );
+				$user_password  = sanitize_text_field( $_POST['user_password'] );
 
 				$blogname   = sanitize_text_field( $_POST['blogname'] );
 				$blog_title = sanitize_text_field( urldecode( $_POST['blog_title'] ) );
@@ -117,12 +118,12 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 						$errors     = $blog['errors'];
 
 						// Privacy setting
-						$public      = (int) $_POST['blog_public'];
+						$public      = 1;
 						$signup_meta = array( 'lang_id' => 1, 'public' => $public );
 
 						// Create the signup
 						$meta                        = apply_filters( 'add_signup_meta', $signup_meta );
-						$result                      = ProSites_Helper_Registration::signup_blog( $domain, $path, $blog_title, $user_name, $user_email, $meta );
+						$result                      = ProSites_Helper_Registration::signup_blog( $domain, $path, $blog_title, $user_name, $user_email, $user_password, $meta );
 						$blog_data['activation_key'] = $result['activation_key'];
 
 						if ( isset( $result['user_pass'] ) && ! empty( $result['user_pass'] ) ) {
@@ -156,7 +157,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 						if ( $trial_active ) {
 
 							if ( $recurring ) {
-								$blog_data['new_blog_details']['reserved_message'] = sprintf( '<div class="reserved_msg"><h2>' . __( 'Activate your site', 'psts' ) . '</h2>' . __( '<p>Your site <strong>(%s)</strong> has been reserved but is not yet activated.</p><p>Once payment information has been verified your trial period will begin. When your trial ends you will be automatically upgraded to your chosen plan. Your reservation only last for 48 hours upon which your site name will become available again.</p><p>Please use the form below to setup your payment information.</p>', 'psts' ) . '</div>', $site_name );
+								$blog_data['new_blog_details']['reserved_message'] = sprintf( '<div class="reserved_msg">' . __( '<p>Congrats Your site (%s) has been reserved, <br> Your are one step away</p>', 'psts' ) . '</div>', $site_name );
 							} else {
 								// Non-recurring sites really should not do anything at checkout other than activate.
 								$result  = ProSites_Helper_Registration::activate_blog( $blog_data, true, $period, $level, false, true, false );
@@ -201,7 +202,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 							$ajax_response['show_finish']    = true;
 
 						} else {
-							$blog_data['new_blog_details']['reserved_message'] = sprintf( '<div class="reserved_msg"><h2>' . __( 'Activate your site', 'psts' ) . '</h2>' . __( '<p>Your site <strong>(%s)</strong> has been reserved but is not yet activated.</p><p>Once payment has been processed your site will become active with your chosen plan. Your reservation only last for 48 hours upon which your site name will become available again.</p><p>Please use the form below to setup your payment information.</p>', 'psts' ) . '</div>', $site_name );
+							$blog_data['new_blog_details']['reserved_message'] = sprintf( '<div class="reserved_msg">' . __( '<p>Congrats Your site (%s) has been reserved, <br>Your are one step away</p>', 'psts' ) . '</div>', $site_name );
 						}
 
 						// FREE basic site
@@ -209,7 +210,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 							if ( isset( $blog_data['new_blog_details']['reserved_message'] ) ) {
 								unset( $blog_data['new_blog_details']['reserved_message'] );
 							}
-							$result                                   = ProSites_Helper_Registration::activate_blog( $blog_data, false, false, false );
+							$result = ProSites_Helper_Registration::activate_blog( $blog_data, false, false, false );
 							$blog_data['new_blog_details']['blog_id'] = $result['blog_id'];
 							if ( isset( $result['password'] ) ) {
 								$blog_data['new_blog_details']['user_pass'] = $result['password'];

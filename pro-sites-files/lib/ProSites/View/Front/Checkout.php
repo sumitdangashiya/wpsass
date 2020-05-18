@@ -83,7 +83,13 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			self::$selected_level = apply_filters( 'prosites_render_checkout_page_level', $selected_level, $blog_id );
 
 			$columns = self::get_pricing_columns( true, $features_table_enabled );
-
+			
+			$content .= "<div id='wpsaas-plan-checkout-main'>";
+			$content .= '<ul id="plan_progressbar" class="wpsaas-plan-checkout-step">
+				<li id="pricing-step" class="active">Pricing</li>
+				<li id="sitesetup-step">Site Setup</li>
+				<li id="planpayment-step">Payment</li>
+			</ul>';
 			$content .= apply_filters( 'prosites_inner_pricing_table_pre', self::render_tables_wrapper( 'pre' ), $blog_id );
 			if ( $plans_table_enabled ) {
 				$content .= self::render_pricing_columns( $columns, $blog_id );
@@ -101,6 +107,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			$content .= ProSites_View_Front_Registration::render_signup_form();
 
 			$content .= ProSites_View_Front_Gateway::render_checkout( array(), $blog_id, $domain );
+			
+			$content .= "</div>";
 
 			return apply_filters( 'prosites_render_checkout_page', $content, $blog_id, $domain );
 
@@ -716,8 +724,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		}
 
 		public static function render_login() {
-			$content = sprintf( '<div class="login-existing">
-					%s <a class="login-toggle" href="%s" title="%s">%s</a>
+			$content = sprintf( '<div class="login-existing"><div class="wpsaas-login-field">
+					<p>%s</p> <a class="login-toggle" href="%s" title="%s">%s</a></div>
 					<!-- Login Form -->
 					%s
 				</div>',
@@ -916,10 +924,10 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 		public static function render_standalone_coupon( $content ) {
 
 			$content = '
-			<div class="coupon-wrapper">
-				<div class="coupon-box post-table">
+			<div class="coupon-wrapper wpsaas-coupon-wrap">
+				<div class="coupon-box post-table wpsaas-coupon-field">
 					<span><input type="text" name="apply-coupon" placeholder="' . esc_attr__( 'Enter Coupon Code', 'psts' ) . '" /></span>
-					<button name="apply-coupon-link" class="apply-coupon-link">' . esc_html__( 'Apply Coupon', 'psts' ) . '</button>
+					<button name="apply-coupon-link" class="apply-coupon-link apply_code">' . esc_html__( 'Apply Coupon', 'psts' ) . '</button>
 				</div>
 			</div>
 			' . $content;

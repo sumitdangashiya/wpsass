@@ -466,12 +466,15 @@ jQuery( document ).ready( function ( $ ) {
         if ( prosites_checkout.logged_in && !new_blog ) {
             var gateways =  $( '.checkout-gateways.hidden' );
             gateways.removeClass( 'hidden' );
-            scroll_top(gateways);
+			$( '#planpayment-step' ).addClass( 'active' );
+            //scroll_top(gateways);
         } else {
             var checkout_form = $( '#prosites-signup-form-checkout' );
             checkout_form.removeClass( 'hidden' );
-            scroll_top(checkout_form);
+            //scroll_top(checkout_form);
         }
+		$( '#prosites-checkout-table' ).addClass( 'hidden' );
+		$( '#sitesetup-step' ).addClass( 'active' );
 
         $( '.chosen-plan' ).removeClass( 'chosen-plan' );
         $( '.not-chosen-plan' ).removeClass( 'not-chosen-plan' );
@@ -519,6 +522,19 @@ jQuery( document ).ready( function ( $ ) {
 	    }
 	    $('.gateways [name=period]').val(period);
 	    $('#prosites-checkout-table').attr('data-period', period);
+		var wpsaas_plan_detail = $( '.pricing-column.chosen-plan .level-summary.price_' + period ).html();
+		var wpsaas_plan_value = $( '.pricing-column.chosen-plan .price.price_' + period + ' .price-plain' ).html();
+		$( '.wpsaas-plan-detail' ).html( wpsaas_plan_detail );
+		$( '.wpsaas-plan-value' ).html( wpsaas_plan_value );
+		var wpsaas_plan_length = '';
+		if( period == 1 ) {
+			var wpsaas_plan_length = 'Per Month';
+		} else if ( period == 3 ) {
+			var wpsaas_plan_length = 'Per Quarterly';
+		} else if( period == 12 ) {
+			var wpsaas_plan_length = 'Per Annually';
+		}
+		$( '.wpsaas-plan-length' ).html( wpsaas_plan_length );
 	}
 
 	// NBT support: Update templates or plans if required.
@@ -591,6 +607,20 @@ jQuery( document ).ready( function ( $ ) {
                 $( '#check-prosite-blog' ).removeClass( "hidden" );
                 $( '#registration_processing' ).addClass( "hidden" );
                 post_registration_process( data, status, form_fields );
+				$( '#planpayment-step' ).addClass( 'active' );
+				var wpsaas_plan_detail = $( '.pricing-column.chosen-plan .level-summary.price_' + period ).html();
+				var wpsaas_plan_value = $( '.pricing-column.chosen-plan .price.price_' + period + ' .price-plain' ).html();
+				$( '.wpsaas-plan-detail' ).html( wpsaas_plan_detail );
+				$( '.wpsaas-plan-value' ).html( wpsaas_plan_value );
+				var wpsaas_plan_length = '';
+				if( period == 1 ) {
+					var wpsaas_plan_length = 'Per Month';
+				} else if ( period == 3 ) {
+					var wpsaas_plan_length = 'Per Quarterly';
+				} else if( period == 12 ) {
+					var wpsaas_plan_length = 'Per Annually';
+				}
+				$( '.wpsaas-plan-length' ).html( wpsaas_plan_length );
             } );
 
     }
@@ -820,7 +850,7 @@ jQuery( document ).ready( function ( $ ) {
 
     } );
 
-    $('.coupon-wrapper').css('width', $('.coupon-wrapper .coupon-box input').width() + $('.coupon-wrapper .coupon-box button').width() + 70 );
+    //$('.coupon-wrapper').css('width', $('.coupon-wrapper .coupon-box input').width() + $('.coupon-wrapper .coupon-box button').width() + 70 );
 
     // Adjust period selector width
     //$('.period-selector-container').css('width', $('.coupon-wrapper .coupon-box input').width() + $('.coupon-wrapper .coupon-box button').width() + 70 );
@@ -829,7 +859,7 @@ jQuery( document ).ready( function ( $ ) {
         //width += $( item );
         width += parseInt( $( item ).find( 'div' ).css('width' ).replace('px', '') );
     } );
-    $('.period-selector-container').css('width', width + 2 );
+    //$('.period-selector-container').css('width', width + 2 );
 
     // Confirm before cancelling Stripe subscriptions.
     if ( typeof stripe_checkout !== 'undefined' ) {

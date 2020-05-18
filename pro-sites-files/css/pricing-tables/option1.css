@@ -102,7 +102,7 @@ ul.pricing-column.chosen-plan .alternate {
     background: #F5F5F5;
 }
 
-#gateways-1, #gateways-2, #gateways-3 {
+#gateways-1, #gateways-2, #gateways-3, .wpsaas-stripe-price-info {
     background: #F5F5F5;
 }
 

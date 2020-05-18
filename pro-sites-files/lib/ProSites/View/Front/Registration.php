@@ -90,6 +90,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 				$user_name  = '';
 				$user_email = '';
+				$user_password = '';
 
 				$content .= '<h2>' . esc_html__( 'Setup your site', 'psts' ) . '</h2>';
 
@@ -99,7 +100,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				ob_start();
 				do_action( 'signup_hidden_fields', 'validate-user' );
 				$content .= ob_get_clean();
-				$content .= self::render_user_section( $render_data, $errors, $user_name, $user_email );
+				$content .= self::render_user_section( $render_data, $errors, $user_name, $user_email, $user_password );
 
 				// BLOG SECTION
 				ob_start();
@@ -112,7 +113,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				$content .= ob_get_clean();
 				$content .= self::render_blog_section( $render_data, $errors );
 
-				$content .= '<div><input type="button" id="check-prosite-blog" value="' . esc_attr__( 'Reserve your site', 'psts' ) . '" /></div>';
+				$content .= '<div class="wpsaas-site-setup-btn"><input type="button" id="check-prosite-blog" value="' . esc_attr__( 'Reserve your site', 'psts' ) . '" /></div>';
 				$content .= '<div class="hidden" id="registration_processing">
 							<img src="' . $img_base . 'loading.gif"> Processing...
 							</div>';
@@ -132,28 +133,36 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 		}
 
-		private static function render_user_section( $render_data = array(), $errors, $user_name, $user_email ) {
+		private static function render_user_section( $render_data = array(), $errors, $user_name, $user_email, $user_password ) {
 
-			$content = '<div>';
+			$content = '<div class="wpsaas-field-wrap">';
 
 			if( ! is_user_logged_in() ) {
 
-				$content .= '<div class="username"><label for="user_name">' . __( 'Username:' ) . '</label>';
+				$content .= '<div class="username">';
 				if ( $errmsg = $errors->get_error_message('user_name') ) {
-					$content .= '<p class="error">' .$errmsg. '</p>';
+					//$content .= '<p class="error">' .$errmsg. '</p>';
 				}
 
-				$content .= '<input name="user_name" type="text" id="user_name" value="' . esc_attr( $user_name ) . '" maxlength="60" />';
-				$content .= __( '(Must be at least 4 characters, letters and numbers only.)', 'psts' );
+				$content .= '<input name="user_name" type="hidden" id="user_name" value="' . esc_attr( $user_name ) . '" maxlength="60" />';
+				//$content .= __( '(Must be at least 4 characters, letters and numbers only.)', 'psts' );
 				$content .= '</div>';
 
-				$content .= '<div class="email"><label for="user_email">' . __( 'Email&nbsp;Address:', 'psts' ) . '</label>';
+				$content .= '<div class="email">';
 				if ( $errmsg = $errors->get_error_message('user_email') ) {
 					$content .= '<p class="error">' . $errmsg  . '</p>';
 				}
 
-				$content .= '<input name="user_email" type="email" id="user_email" value="' . esc_attr($user_email) . '" maxlength="200" /><br />';
-				$content .= __('We send your registration email to this address. (Double-check your email address before continuing.)');
+				$content .= '<input name="user_email" type="email" id="user_email" placeholder="Email" value="' . esc_attr($user_email) . '" maxlength="200" />';
+				$content .= __('<p class="help-desc">We send your registration email to this address. (Double-check your email address before continuing.)</p>');
+				$content .= '</div>';
+				
+				$content .= '<div class="password_field">';
+				if ( $errmsg = $errors->get_error_message('user_password') ) {
+					$content .= '<p class="error">' . $errmsg  . '</p>';
+				}
+
+				$content .= '<input name="user_password" type="password" id="user_password" placeholder="Password" value="' . esc_attr($user_password) . '" />';
 				$content .= '</div>';
 
 				if ( $errmsg = $errors->get_error_message('generic') ) {
@@ -166,6 +175,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				$user = wp_get_current_user();
 				$content .= '<input type="hidden" name="user_name" value="' . $user->user_login . '" />';
 				$content .= '<input type="hidden" name="user_email" value="' . $user->user_email . '" />';
+				$content .= '<input type="hidden" name="user_password" value="' . $user->user_password . '" />';
 				$content .= '<input type="hidden" name="new_blog" value="1" />';
 			}
 
@@ -176,7 +186,7 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 
 		private static function render_blog_section( $render_data = array(), $errors, $blogname = '', $blog_title = '' ) {
 			$current_site = get_current_site();
-			$content = '<div>';
+			$content = '<div class="wpsaas-field-wrap">';
 
 			// Blog name
 //			if ( !is_subdomain_install() ) {
@@ -188,9 +198,9 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				$content .= '<p class="error">' . $errmsg . '</p>';
 			}
 			if ( !is_subdomain_install() ) {
-				$content .= '<span class="prefix_address">' . $current_site->domain . $current_site->path . '</span><input name="blogname" type="text" id="blogname" value="' . esc_attr( $blogname ) . '" maxlength="60" /></div>';
+				$content .= '<div class="wpsaas-domain-wrap-field"><span class="wpsaas-domain-prefix wpsaas-domain-before prefix_address">' . $current_site->domain . $current_site->path . '</span><input name="blogname" type="text" id="blogname" value="' . esc_attr( $blogname ) . '" maxlength="60" /></div></div>';
 			} else {
-				$content .= '<input name="blogname" type="text" id="blogname" value="' . esc_attr( $blogname ) . '" maxlength="60" /><span class="suffix_address">.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) ) . '</span></div>';
+				$content .= '<div class="wpsaas-domain-wrap-field"><input name="blogname" type="text" id="blogname" value="' . esc_attr( $blogname ) . '" maxlength="60" /><span class="wpsaas-domain-prefix wpsaas-domain-after suffix_address">.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) ) . '</span></div></div>';
 			}
 
 			$content .= '<div class="blog_title"><label for="blog_title">' . esc_html__('Site Title:', 'psts' ) . '</label>';
@@ -199,24 +209,24 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 			}
 			$content .= '<input name="blog_title" type="text" id="blog_title" value="'.esc_attr( $blog_title ) . '" /></div>';
 
-			$yes_checked = !isset( $_POST['blog_public'] ) || $_POST['blog_public'] == '1' ? 'checked="checked"' : '';
+			/*$yes_checked = !isset( $_POST['blog_public'] ) || $_POST['blog_public'] == '1' ? 'checked="checked"' : '';
 			$no_checked = isset( $_POST['blog_public'] ) && $_POST['blog_public'] == '0' ? 'checked="checked"' : '';
 
 			$content .= '<div id="privacy">
-        		<p class="privacy-intro">
-            		<label for="blog_public_on">' . esc_html__('Privacy:', 'psts') . '</label> ' .
-			            esc_html__( 'Allow search engines to index this site.', 'psts' ) .
-			            '<br style="clear:both" />
-	                <label class="checkbox" for="blog_public_on">
-		                <input type="radio" id="blog_public_on" name="blog_public" value="1" ' . $yes_checked  . '/>
-		                <strong>' . esc_html__( 'Yes', 'psts' ) . '</strong>
-	                </label>
-	                <label class="checkbox" for="blog_public_off">
-		                <input type="radio" id="blog_public_off" name="blog_public" value="0" ' . $no_checked  . '/>
-		                <strong>' . esc_html__( 'No', 'psts' ) . '</strong>
-	                </label>
-        		</p>
-			</div>';
+        		<div class="privacy-intro">
+            		<label for="blog_public_on">' . esc_html__('Privacy: Allow search engines to index this site.', 'psts') . '</label>
+	                <div class="wpsaas-radio-wrap">
+						<label class="checkbox" for="blog_public_on">
+							<input type="radio" id="blog_public_on" name="blog_public" value="1" ' . $yes_checked  . '/>
+							<strong>' . esc_html__( 'Yes', 'psts' ) . '</strong>
+						</label>
+						<label class="checkbox" for="blog_public_off">
+							<input type="radio" id="blog_public_off" name="blog_public" value="0" ' . $no_checked  . '/>
+							<strong>' . esc_html__( 'No', 'psts' ) . '</strong>
+						</label>
+					</div>
+        		</div>
+			</div>';*/
 
 			ob_start();
 			do_action( 'signup_blogform', $errors );

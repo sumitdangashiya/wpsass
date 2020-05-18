@@ -4,7 +4,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 	class ProSites_View_Front_Gateway {
 
 		public static function render_checkout( $render_data = array(), $blog_id = false, $domain = false ) {
-			global $psts, $wpdb;
+			global $psts, $wpdb, $current_site, $current_user;
 
 			// Try going stateless, or check the session
 			if ( empty( $render_data ) ) {
@@ -125,7 +125,33 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$hidden_class = ( ! empty( $render_data['new_blog_details']['site_activated'] ) || ! empty( $render_data['upgraded_blog_details']['site_activated'] ) ) ? 'hidden' : $hidden_class;
 
 
-			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways ' . $hidden_class . '">';
+			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways wpsaas-payment-blocks hidden ' . $hidden_class . '">';
+			$site_name = '';
+			$blogname = ( isset($render_data['new_blog_details']['blogname']) ) ? $render_data['new_blog_details']['blogname'] : '' ;
+			if ( ! is_subdomain_install() ) {
+				$site_name = $current_site->domain . $current_site->path . $blogname;
+			} else {
+				$site_name = $blogname . '.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) );
+			}
+			if( isset( $render_data['new_blog_details']['email'] ) && $render_data['new_blog_details']['email'] != '' ) {
+				$current_email = $render_data['new_blog_details']['email'];
+			} else {
+				$current_email = $current_user->user_email;
+			}
+			$content .= '<div class="wpsaas-left-block">';
+			$content .= '<h2>' . $site_name . '</h2>';
+			$content .= '<div class="wpsaas-plan-detail-wrap">';
+			$content .= '<p>Email: ' . $current_email . '</p>';
+			$content .= '<p>Plan Details: <span class="wpsaas-plan-detail"></span></p>';
+			$content .= '</div>';
+			$content .= '</div>';
+			$content .= '<div class="wpsaas-right-block">';
+			if( ! $tabbed ) {
+				$content .= '<div class="wpsaas-stripe-price-info">';
+				$content .= '<div class="wpsaas-price"><span class="wpsaas-plan-value"></span></div>';
+				$content .= '<div class="wpsaas-length"><span class="wpsaas-plan-length"></span></div>';
+				$content .= '</div>';
+			}
 
 			// How many gateways can we use at checkout?
 			$available_gateways = empty( $primary_gateway ) ? 0 : 1;
@@ -165,6 +191,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if ( ! empty( $primary_gateway ) && isset ( $gateways[ $primary_gateway ] ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 
 				$content .= '<div id="gateways-1" class="gateway gateway-primary">';
+				if( $tabbed ) {
+					$content .= '<div class="wpsaas-stripe-price-info">';
+					$content .= '<div class="wpsaas-price"><span class="wpsaas-plan-value"></span></div>';
+					$content .= '<div class="wpsaas-length"><span class="wpsaas-plan-length"></span></div>';
+					$content .= '</div>';
+				}
 				$content .= call_user_func( $gateways[ $primary_gateway ]['class'] . '::render_gateway', $render_data, $primary_args, $blog_id, $domain );
 
 				if ( $allow_cancel_gateway && ! empty ( $last_gateway ) && $last_gateway !== $primary_gateway && strtolower( $last_gateway ) !== 'trial' ) {
@@ -191,6 +223,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if ( ! empty( $secondary_gateway ) && isset( $gateways[ $secondary_gateway ] ) && method_exists( $gateways[ $secondary_gateway ]['class'], 'render_gateway' ) ) {
 
 				$content .= '<div id="gateways-2" class="gateway gateway-secondary">';
+				if( $tabbed ) {
+					$content .= '<div class="wpsaas-stripe-price-info">';
+					$content .= '<div class="wpsaas-price"><span class="wpsaas-plan-value"></span></div>';
+					$content .= '<div class="wpsaas-length"><span class="wpsaas-plan-length"></span></div>';
+					$content .= '</div>';
+				}
 				$content .= call_user_func( $gateways[ $secondary_gateway ]['class'] . '::render_gateway', $render_data, $secondary_args, $blog_id, $domain, false );
 
 				if ( $allow_cancel_gateway && ! empty ( $last_gateway ) && $last_gateway !== $secondary_gateway && strtolower( $last_gateway ) !== 'trial' ) {
@@ -216,10 +254,17 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			if ( ! empty( $manual_gateway ) && method_exists( $gateways[ $primary_gateway ]['class'], 'render_gateway' ) ) {
 
 				$content .= '<div id="gateways-3" class="gateway gateway-manual">';
+				if( $tabbed ) {
+					$content .= '<div class="wpsaas-stripe-price-info">';
+					$content .= '<div class="wpsaas-price"><span class="wpsaas-plan-value"></span></div>';
+					$content .= '<div class="wpsaas-length"><span class="wpsaas-plan-length"></span></div>';
+					$content .= '</div>';
+				}
 				$content .= call_user_func( $gateways[ $manual_gateway ]['class'] . '::render_gateway', $render_data, $manual_args, $blog_id, $domain, false );
 
 				$content .= '</div>';
 			}
+			$content .= '</div>';
 			$content .= '</div>';
 
 			/**
@@ -646,8 +691,6 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$render_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
 			}
 
-			$content = '<div id="psts-payment-info-received">';
-
 			$email = $blog_admin_url = '';
 
 			if ( ! is_user_logged_in() ) {
@@ -694,7 +737,33 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			}
 
 			$blog_admin_url = empty( $blog_admin_url ) ? admin_url() : $blog_admin_url;
+			
+			$user_email = '';
+			$userpass = isset( $render_data['new_blog_details']['user_pass'] ) ? $render_data['new_blog_details']['user_pass'] : '';
+			if ( isset( $render_data['new_blog_details']['username'] ) ) {
+				$user_email = $render_data['new_blog_details']['email'];
+			} else {
+				$user     = wp_get_current_user();
+				$user_email = $user->user_email;
+			}
+			
+			if ( ! empty( $render_data['new_blog_details'] ) ) {
+					$blog_details = $render_data['new_blog_details'];
+				} else {
+					$blog_details = $render_data['upgraded_blog_details'];
+				}
 
+			$domain = ! empty( $blog_details['domain'] ) ? $blog_details['domain'] : '';
+			if ( isset( $_POST['stripeToken'] ) && ! empty( $_POST['stripeToken'] ) ) {
+				$stripe_charge_data = call_user_func( 'ProSites_Gateway_Stripe::process_checkout_form', $render_data, $blog_id, $domain );
+			}
+			$info_creds = array();
+			$info_creds['user_login'] = $user_email;
+			$info_creds['user_password'] = $userpass;
+			$user_signon = wp_signon( $info_creds, false );
+			$content = "<script type='text/javascript'>window.location='" . $blog_admin_url . "';</script>";
+
+			$content .= '<div id="psts-payment-info-received">';
 			$content .= '<h2>' . esc_html__( 'Finalizing your site...', 'psts' ) . '</h2>';
 
 			$last_gateway = ProSites_Helper_ProSite::last_gateway( $blog_id );
@@ -729,17 +798,9 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 				$content .= '<p>' . esc_html__( 'Your site trial has been setup and you should soon receive an email with your site details. Once your trial finishes you will be prompted to upgrade manually.', 'psts' ) . '</p>';
 			}
 
-			$username = '';
-			$userpass = isset( $render_data['new_blog_details']['user_pass'] ) ? $render_data['new_blog_details']['user_pass'] : '';
-			if ( isset( $render_data['new_blog_details']['username'] ) ) {
-				$username = $render_data['new_blog_details']['username'];
-			} else {
-				$user     = wp_get_current_user();
-				$username = $user->user_login;
-			}
 
 			$content .= '<p><strong>' . esc_html__( 'Your login details are:', 'psts' ) . '</strong></p>';
-			$content .= '<p>' . sprintf( esc_html__( 'Username: %s', 'psts' ), $username );
+			$content .= '<p>' . sprintf( esc_html__( 'Email: %s', 'psts' ), $user_email );
 			// Any passwords for existing users here will be wrong, so just don't display it.
 			if ( ! empty( $userpass ) ) {
 				$content .= '<br />' . sprintf( esc_html__( 'Password: %s', 'psts' ), $userpass );

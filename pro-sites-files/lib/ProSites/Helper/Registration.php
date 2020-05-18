@@ -23,7 +23,7 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 		 *
 		 * @return string $key Activation key
 		 */
-		public static function signup_blog( $domain, $path, $title, $user, $user_email, $meta = array() )  {
+		public static function signup_blog( $domain, $path, $title, $user, $user_email, $user_password, $meta = array() )  {
 			global $wpdb;
 
 			$key = substr( md5( time() . rand() . $domain ), 0, 16 );
@@ -46,7 +46,7 @@ if ( ! class_exists( 'ProSites_Helper_Registration' ) ) {
 			$user_id = username_exists( $user );
 
 			if ( ! $user_id ) {
-				$password = wp_generate_password( 12, false );
+				$password = $user_password;
 				$user_id  = wpmu_create_user( $user, $password, $user_email );
 
 				$creds    = array(

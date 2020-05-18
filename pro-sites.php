@@ -144,7 +144,7 @@ class ProSites {
 		), 100 ); //delay to make sure it is last hook to admin_init
 
 		//trials
-		add_action( 'wpmu_new_blog', array( &$this, 'trial_extend' ) );
+		add_action( 'wp_insert_site', array( &$this, 'trial_extend' ) );
 		add_action( 'admin_notices', array( &$this, 'trial_notice' ), 2 );
 
 		add_action( 'pre_get_posts', array( &$this, 'checkout_page_load' ) );
@@ -4224,7 +4224,6 @@ function admin_levels() {
 	function checkout_redirect_page() {
 		//This page should never be shown
 		global $blog_id,$wpdb,$psts, $wpdb, $current_site, $current_prosite_blog;
-
 		/*
 		if( !current_user_can('edit_pages') ) {
 			echo "<p>" . __('Nice Try...', 'psts') . "</p>";  //If accessed properly, this message doesn't appear.
@@ -4234,7 +4233,7 @@ function admin_levels() {
 
 		echo '<div class="wrap">';
 		//~ echo "<script type='text/javascript'>window.location='" . $this->checkout_url( $blog_id ) . "';</script>";
-		$levels        = (array) get_site_option( 'psts_levels' );
+		/*$levels        = (array) get_site_option( 'psts_levels' );
 		echo '<a href="' . $this->checkout_url( $blog_id ) . '"></a>';
 		$current_level = $this->get_level( $blog_id );
 		$expire        = $this->get_expire( $blog_id );
@@ -4285,8 +4284,68 @@ function admin_levels() {
 		} else {
 			 echo '<div id="message" style="background-color:#fcf5b9;border:1px solid #e8d004;border-radius:3px;padding:5px 10px;margin:5px 0px 10px;width:50%;"><p style="font-size: 16px;">' . sprintf( __( 'Your subscription has been canceled. You should continue to have access until %1$s.', 'psts' ), $end_date ) . '</p></div>';
 		}
-		echo '<h2>'.__( 'Change your plan', 'psts' ) . '</h2>';
-		echo do_shortcode('[wpsaas_plan]');
+		echo '<h2>'.__( 'Change your plan', 'psts' ) . '</h2>';*/
+
+		$plan_content    = '';
+		$gateways        = ProSites_Helper_Gateway::get_gateways();
+		$gateway_details = ProSites_View_Front_Gateway::get_gateway_details( $gateways );
+
+		$is_pro_site = is_pro_site( $blog_id );
+
+		$session_data                          = array();
+		$session_data['new_blog_details']      = ProSites_Helper_Session::session( 'new_blog_details' );
+		$session_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
+		$domain = '';
+		if( isset( $session_data['new_blog_details']['domain'] ) && $session_data['new_blog_details']['domain'] != '' ) {
+			$domain = $session_data['new_blog_details']['domain'];
+		} elseif( isset( $session_data['upgraded_blog_details']['domain'] ) && $session_data['upgraded_blog_details']['domain'] != '' ) {
+			$domain = $session_data['upgraded_blog_details']['domain'];
+		}
+
+		//if ( ! is_user_logged_in() || ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['site_activated'] ) && $session_data['new_blog_details']['site_activated'] ) ) {
+		$pre_content = '';
+
+		// PayPal Fix, As the user is redirected to Paypal and then sent back over to the site
+		if ( isset( $_GET['token'] ) && isset( $_GET['PayerID'] ) && isset( $_GET['action'] ) && $_GET['action'] == 'complete' ) {
+			return self::render_payment_submitted( '', '', $blog_id );
+		}
+
+		if ( ( isset( $session_data['new_blog_details']['payment_success'] ) && true === $session_data['new_blog_details']['payment_success'] ) ||
+			 ( isset( $session_data['upgraded_blog_details']['payment_success'] ) && true === $session_data['upgraded_blog_details']['payment_success'] )
+		) {
+			$pre_content .= ProSites_View_Front_Gateway::render_payment_submitted();
+		}
+
+		// Check manual payments
+		if ( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['manual_submitted'] ) && true === $session_data['new_blog_details']['manual_submitted'] ) ) {
+			$pre_content .= ProSites_View_Front_Gateway::render_manual_submitted( '', '', $blog_id );
+		}
+
+		if ( ! empty( $pre_content ) ) {
+			return $pre_content;
+		}
+
+		//For gateways after redirection, upon page refresh
+		$page_reload = ! empty( $_GET['action'] ) && $_GET['action'] == 'complete' && isset( $_GET['token'] );
+
+		$cancel = ! empty( $_GET['action'] ) && $_GET['action'] == 'cancel';
+
+		//If action is new_blog, but new blog is not allowed
+		$new_blog_allowed = is_user_logged_in() && ! empty( $_GET['action'] ) && $_GET['action'] == 'new_blog' && ! ProSites_Helper_ProSite::allow_new_blog();
+
+		if ( $is_pro_site && ( $cancel || ! isset( $_GET['action'] ) || $page_reload || $new_blog_allowed ) ) {
+			// EXISTING DETAILS
+			if ( isset( $gateways ) && isset( $gateway_details ) ) {
+				$gateway_order = isset( $gateway_details['order'] ) ? $gateway_details['order'] : array();
+				$plan_content  = ProSites_View_Front_Gateway::render_current_plan_information( array(), $blog_id, $domain, $gateways, $gateway_order );
+				$plan_content .= '<h2>' . esc_html__( 'Change your plan', 'psts' ) . '</h2>';
+			}
+		} else {
+			// NOTIFICATIONS ONLY
+			$plan_content = ProSites_View_Front_Gateway::render_notification_information( array(), $blog_id, $domain, $gateways, $gateway_details['order'] );
+		}
+		echo $plan_content;
+		//echo do_shortcode('[wpsaas_plan]');
 	}
 
 	function checkout_grid( $blog_id, $domain = '' ) {
@@ -4686,10 +4745,10 @@ function admin_levels() {
 		$registration = get_site_option('registration');
 
 		if( ! is_user_logged_in() || ( ProSites_Helper_ProSite::allow_new_blog() && isset( $_GET['action'] ) && 'new_blog' == $_GET['action'] ) || isset( $_POST['level'] ) || ! empty( $session_data['username'] ) )  {
-
+	
 			$show_signup = $this->get_setting( 'show_signup' );
 			$show_signup = 'all' == $registration ? $show_signup : false;
-
+			
 			if( ! is_user_logged_in() && ! $show_signup ) {
 				$content .= '<p>' . __( 'You must first login before you can choose a site to upgrade:', 'psts' ) . '</p>';
 				$content .= wp_login_form( array( 'echo' => false ) );
@@ -5758,9 +5817,9 @@ function setup_wizard() {
 		} else {
 			$psts->update_setting( 'network_logo', '' );
 		}
-
-		wp_redirect(admin_url()."network/admin.php?page=psts");
-		exit;
+		echo "<script type='text/javascript'>window.location='" . admin_url() . "network/admin.php?page=psts';</script>";
+		//wp_redirect(admin_url()."network/admin.php?page=psts");
+		//exit;
 	}
 
 	?>
@@ -6890,7 +6949,7 @@ function wpsaas_plan_func(){
 				</div>
 			</div>
 		</form>
-		<script src="https://js.stripe.com/v3/"></script>
+		
 	</div>
 	<?php
 	return ob_get_clean();

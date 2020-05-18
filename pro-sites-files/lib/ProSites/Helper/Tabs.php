@@ -177,4 +177,3 @@ if ( ! class_exists( 'ProSites_Helper_Tabs' ) ) {
 	}
 
 }
-	

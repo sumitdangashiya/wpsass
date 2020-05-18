@@ -48,7 +48,7 @@ class ProSites_Module_Plugins {
 		add_action( 'psts_withdraw', array( &$this, 'deactivate_all' ) );
 		add_action( 'psts_upgrade', array( &$this, 'auto_activate' ), 10, 3 );
 		add_action( 'psts_downgrade', array( &$this, 'deactivate' ), 10, 3 );
-		add_action( 'wpmu_new_blog', array( &$this, 'new_blog' ), 50 ); //auto activation hook
+		add_action( 'wp_insert_site', array( &$this, 'new_blog' ), 50 ); //auto activation hook
 
 		add_filter( 'all_plugins', array( &$this, 'remove_plugins' ) );
 		add_filter( 'plugin_action_links', array( &$this, 'action_links' ), 10, 4 );

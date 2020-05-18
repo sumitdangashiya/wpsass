@@ -276,6 +276,14 @@ class ProSites_Gateway_Stripe {
 
 		// Register custom checkout form script.
 		wp_register_script(
+			'wpsaas-stripe-live-js',
+			'https://js.stripe.com/v3/',
+			array(),
+			$psts->version,
+			true
+		);
+		
+		wp_register_script(
 			'psts-stripe-checkout-js',
 			$psts->plugin_url . 'gateways/gateway-stripe-files/assets/js/checkout.js',
 			array(),
@@ -1267,7 +1275,8 @@ class ProSites_Gateway_Stripe {
 
 		// File that contains checkout form.
 		include_once 'gateway-stripe-files/views/frontend/checkout.php';
-
+		
+		//wp_enqueue_script( 'wpsaas-stripe-live-js' );
 		wp_enqueue_script( 'psts-stripe-checkout-js' );
 
 		// Get the content as a string.
