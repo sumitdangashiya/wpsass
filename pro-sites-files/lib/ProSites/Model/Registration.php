@@ -57,8 +57,12 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 			$ajax_response = array();
 
 			if ( $doing_ajax ) {
-
-				$user_name  = sanitize_text_field( $_POST['blogname'] );
+				
+				if( isset( $_POST['user_name'] ) && $_POST['user_name'] != ''  ) {
+					$user_name = sanitize_text_field($_POST['user_name']);
+				} else {
+					$user_name  = 'wpsaasuser' . rand();
+				}				
 				$user_email = sanitize_email( $_POST['user_email'] );
 				$user_password  = sanitize_text_field( $_POST['user_password'] );
 
@@ -75,7 +79,7 @@ if ( ! class_exists( 'ProSites_Model_Registration' ) ) {
 					$validation = wpmu_validate_user_signup( $user_name, $user_email );  // nicer errors, but doesn't deal with custom fields
 
 					$user_check = register_new_user( $user_name, $user_email ); // checks custom fields, but ugly errors
-
+					
 					$user_check->errors = array_merge( $user_check->errors, $validation['errors']->errors );
 
 					$user_check->errors = array_merge( $user_check->errors, $blog_validation['errors']->errors );

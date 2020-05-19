@@ -149,6 +149,9 @@ if ( ! class_exists( 'ProSites_View_Front_Registration' ) ) {
 				$content .= '</div>';
 
 				$content .= '<div class="email">';
+				if ( $errmsg = $errors->get_error_message('user_name') ) {
+					$content .= '<p class="error">' .$errmsg. '</p>';
+				}
 				if ( $errmsg = $errors->get_error_message('user_email') ) {
 					$content .= '<p class="error">' . $errmsg  . '</p>';
 				}

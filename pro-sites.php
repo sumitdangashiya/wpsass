@@ -4879,14 +4879,14 @@ function admin_levels() {
 					$content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __( 'Choose a different site', 'psts' ) . '</a></p>';
 				} elseif ( $allow_multi ) {
 					// If not show add new blog link.
-					$content .= '<div class="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+					$content .= '<div class="psts-signup-another"><a class="wpsaas-common-btn" href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 				}
 
 				return $content;
 			}
 
 			if( $allow_multi ) {
-				$content .= '<div class="psts-signup-another"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+				$content .= '<div class="psts-signup-another"><a class="wpsaas-common-btn" href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 			}
 
 			//this is the main hook for new checkout page
@@ -4949,7 +4949,7 @@ function admin_levels() {
 			if( !empty( $user_domain ) && $allow_multi ) {
 				//Already have a site, allow to signup for another
 				$inactive_site = !empty( $site->active ) && 1 == $site->active ? '': sprintf( __('Your site <strong>%s</strong> has not been activated yet.', 'psts' ), $user_domain ). '<br/>';
-				$content .= '<div class="psts-signup-another">' . $inactive_site . '<a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+				$content .= '<div class="psts-signup-another">' . $inactive_site . '<a class="wpsaas-common-btn" href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
 			}elseif( empty( $user_domain ) ) {
 				//Don't have a site, let user create one
 				$content .= '<div class="psts-signup"><a href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for a site.', 'psts' ) . '</a>' . '</div>';

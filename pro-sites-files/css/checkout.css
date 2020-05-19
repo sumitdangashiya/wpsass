@@ -1141,7 +1141,7 @@ ul.pricing-column.chosen-plan {
 
 #gateways-1, #gateways-2, #gateways-3, .wpsaas-stripe-price-info {
 	background-color: #f7f7f7;
-	padding: 40px 50px;
+	padding: 40px 30px;
 }
 
 .psts-cancel-link .prosites-cancel-link {
@@ -1491,9 +1491,10 @@ ul.pricing-column.chosen-plan {
 	padding: 20px 20px 20px;
 }
 .pricing-column .button-box .choose-plan-button,
-.psts-signup-another a,
 .psts-cancel-link .prosites-cancel-link .cancel-prosites-plan,
-#psts-stripe-card-update {
+#psts-stripe-card-update,
+#psts-existing-submit,
+.wpsaas-common-btn {
 	display: inline-block;
 	border: 1px solid #74c5d4;
 	vertical-align: top;
@@ -1506,12 +1507,18 @@ ul.pricing-column.chosen-plan {
 	color: #fff;
 	cursor: pointer;
 	font-weight: 400;
+	text-transform: none;
 	text-decoration: none;
 }
 .pricing-column .button-box .choose-plan-button:hover,
-.psts-signup-another a:hover,
-.wpsaas-stripe-button-wrap .wpsaas-stripe-button:hover {
+.wpsaas-stripe-button-wrap .wpsaas-stripe-button:hover,
+#psts-existing-submit:hover,
+.wpsaas-common-btn:hover {
 	text-decoration: none;
+}
+#psts-existing-submit {
+	padding: 10px 30px;
+	margin-top: 0;
 }
 .pricing-column .summary::after {
 	content: "";
@@ -1614,7 +1621,7 @@ ul.pricing-column.chosen-plan {
 #psts-payment-info-received h2 {
 	text-align: center;
 	color: #666;
-	font-size: 42px;
+	font-size: 40px;
 	font-weight: 400;
 	line-height: 1.2;
 	margin: 0 0 30px;
@@ -1900,6 +1907,22 @@ form#psts-stripe-update {
 #psts-payment-info-received p, #psts-payment-info-received ul li {
 	font-size: 16px;
 	line-height: 1.5;
+}
+.wpsaas-card-table-detail {
+	font-size: 16px;
+}
+.wpsaas-card-table-detail input[type="password"] {
+	padding: 0 10px;
+	font-size: 16px;
+	letter-spacing: 0;
+}
+.psts-info-list {
+	margin-left: 0;
+}
+.psts-info-list li {
+	font-size: 16px;
+	line-height: 1.5;
+	text-align: center;
 }
 /*New checkout wizard end*/
 
