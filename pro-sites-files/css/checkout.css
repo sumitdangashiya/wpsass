@@ -1925,7 +1925,56 @@ form#psts-stripe-update {
 	text-align: center;
 }
 /*New checkout wizard end*/
+/*admin side account page start*/
+.wpsaas-admin-account-sec, .wpsaas-admin-account-sec * {
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box; /* Firefox, other Gecko */
+	box-sizing: border-box;
+}
+.wrap.wpsaas-admin-account-sec {
+	background-color: #fff;
+	margin-top: 0;
+	margin-right: 0;
+	padding-top: 50px;
+	margin-left: -20px;
+}
+/*admin side account page end*/
 
+@media only screen and (max-width: 1024px) {
+	#gateways ul li {
+	    margin-right: 5px;
+	    padding: 5px 5px;
+	}
+	#gateways ul li a {
+	    font-size: 14px;
+	}
+	.wpsaas-left-block {
+	    width: 60%;
+	}
+	.wpsaas-right-block {
+	    width: 40%;
+	}
+}
+@media only screen and (max-width: 991px) {
+	.pricing-column .button-box .choose-plan-button, 
+	.psts-cancel-link .prosites-cancel-link .cancel-prosites-plan, 
+	#psts-stripe-card-update, 
+	#psts-existing-submit, 
+	.wpsaas-common-btn {
+	    padding: 10px 30px;
+	}
+	#gateways-1, #gateways-2, #gateways-3, .wpsaas-stripe-price-info {
+	    padding: 30px 15px;
+	}
+	#gateways ul li {
+	    margin-right: 0;
+	    width: 100%;
+	    text-align: center;
+	}
+	.wpsaas-right-block h2 {
+	    font-size: 30px;
+	}
+}
 @media only screen and (min-width: 570px) and (max-width: 809px) {
 	.pricing-column .summary .price {
 		margin: 0 auto 0;
@@ -1934,12 +1983,50 @@ form#psts-stripe-update {
 	}
 }
 
+@media screen and (max-width: 767px) {
+	.wpsaas-plan-detail-wrap p {
+	    font-size: 18px;
+	}
+	.wpsaas-right-block h2 {
+	    font-size: 25px;
+	}
+	#prosites-signup-form-checkout h2, #psts-checkout-output h2, #psts-payment-info-received h2 {
+	    font-size: 35px;
+	    margin: 0 0 10px;
+	}
+}
 @media screen and (max-width: 569px) {
 	#prosites-checkout-table .pricing-column {
 		width: 100% !important;
 	}
+	#wpsaas-plan-checkout-main .pricing-column {
+	    padding-left: 0;
+	    padding-right: 0;
+	    margin-bottom: 30px;
+	}
+	.free-plan-link {
+	    margin-left: 0 !important;
+	    width: 100% !important;
+	}
 
 	.free-plan-link a {
 		display: block;
+	}
+	.login-existing {
+	    padding: 15px;
+	}
+}
+@media only screen and (max-width: 480px) {
+	#prosites-user-register .wpsaas-field-wrap input, .wpsaas-domain-wrap-field {
+	    font-size: 15px;
+	}
+	.wpsaas-left-block, .wpsaas-right-block {
+	    width: 100%;
+	}
+	.wpsaas-left-block h2 {
+	    font-size: 30px;
+	}
+	.reserved_msg p {
+	    font-size: 21px;
 	}
 }

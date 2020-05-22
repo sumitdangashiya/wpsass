@@ -1166,7 +1166,6 @@ class ProSites {
 	}
 
 	function checkout_page_load( $query ) {
-
 		$x = '';
 
 		//allow overriding and changing the root site to put the checkout page on
@@ -4231,121 +4230,52 @@ function admin_levels() {
 		}
 		*/
 
-		echo '<div class="wrap">';
+		echo '<div class="wrap wpsaas-admin-account-sec">';
 		//~ echo "<script type='text/javascript'>window.location='" . $this->checkout_url( $blog_id ) . "';</script>";
-		/*$levels        = (array) get_site_option( 'psts_levels' );
-		echo '<a href="' . $this->checkout_url( $blog_id ) . '"></a>';
-		$current_level = $this->get_level( $blog_id );
-		$expire        = $this->get_expire( $blog_id );
-		$result        = $wpdb->get_row( "SELECT * FROM {$wpdb->base_prefix}pro_sites WHERE blog_ID = '$blog_id'" );
-		if ( $result ) {
-				if ( $result->term == 1 || $result->term == 3 || $result->term == 12 ) {
-					$term = sprintf( _n( '%s Month','%s Months', $result->term, 'psts' ), $result->term );
-				} else {
-					$term = $result->term;
-				}
-			} else {
-				$term = 0;
-			}
 
-			if ( $expire && $expire > time() ) {
-				echo '<h2>' . __( 'Your current plan', 'psts' ) . '</h2>';
-
-				echo '<ul>';
-
-				echo '<li>' . sprintf( __( 'Level: <strong>%s</strong>', 'psts' ), $levels[ $current_level ]['name'] ) . '</li>';
-				if ( $expire > 2147483647 ) {
-					echo '<li>' . __( 'WPSAAS privileges will expire: <strong>Never</strong>', 'psts' ) . '</li>';
-				} else {
-					$trialing = ProSites_Helper_Registration::is_trial( $blog_id );
-					$active_trial = $trialing ? __( '(Active trial)', 'psts') : '';
-
-					echo '<li>' . sprintf( __( 'Renewal due on: <strong>%s</strong>', 'psts' ), date_i18n( get_option( 'date_format' ), $expire ) ) . ' ' . $active_trial . '</li>';
-				}
-				echo '</ul>';
-
-			}
-		echo '</div>'; //div wrap
-		$end_date = date_i18n( get_option( 'date_format' ), $psts->get_expire( $blog_id ) );
-		$level_id = $psts->get_level( $blog_id );
-		$level    = $psts->get_level_setting( $level_id, 'name' );
-		$cancel_label        = __( 'Cancel Your Subscription', 'psts' );
-
-		$canceled = get_blog_option( $blog_id, 'psts_is_canceled' );
-		if(isset($_POST['action_cancel'])) {
-			update_blog_option( $blog_id, 'psts_is_canceled', 1 );
-			echo '<script>location.reload();</script>';
-		}
-		if($canceled == '') {
-			echo '<form action="" method="post">';
-			echo '<input style="background-color:#74c5d4;color:#fff;padding:0px 70px;border-radius:25px;font-size:14px" type="submit" class="cancel-prosites-plan button" name="action_cancel" title="' . esc_attr( $cancel_label ) . '" value="' . esc_html( $cancel_label ) . '" />';
-			echo '</form>';
-			echo '<p class="prosites-cancel-description">' . sprintf( __( 'If you choose to cancel your subscription this site should continue to have %1$s features until %2$s.', 'psts' ), $level, $end_date ) . '</p>';
-		} else {
-			 echo '<div id="message" style="background-color:#fcf5b9;border:1px solid #e8d004;border-radius:3px;padding:5px 10px;margin:5px 0px 10px;width:50%;"><p style="font-size: 16px;">' . sprintf( __( 'Your subscription has been canceled. You should continue to have access until %1$s.', 'psts' ), $end_date ) . '</p></div>';
-		}
-		echo '<h2>'.__( 'Change your plan', 'psts' ) . '</h2>';*/
-
-		$plan_content    = '';
-		$gateways        = ProSites_Helper_Gateway::get_gateways();
-		$gateway_details = ProSites_View_Front_Gateway::get_gateway_details( $gateways );
-
-		$is_pro_site = is_pro_site( $blog_id );
-
-		$session_data                          = array();
-		$session_data['new_blog_details']      = ProSites_Helper_Session::session( 'new_blog_details' );
-		$session_data['upgraded_blog_details'] = ProSites_Helper_Session::session( 'upgraded_blog_details' );
-		$domain = '';
+		$content = $domain = '';
 		if( isset( $session_data['new_blog_details']['domain'] ) && $session_data['new_blog_details']['domain'] != '' ) {
 			$domain = $session_data['new_blog_details']['domain'];
 		} elseif( isset( $session_data['upgraded_blog_details']['domain'] ) && $session_data['upgraded_blog_details']['domain'] != '' ) {
 			$domain = $session_data['upgraded_blog_details']['domain'];
 		}
+		
+		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
+		wp_enqueue_script( 'jquery-ui-tabs' );
 
-		//if ( ! is_user_logged_in() || ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['site_activated'] ) && $session_data['new_blog_details']['site_activated'] ) ) {
-		$pre_content = '';
+		wp_localize_script( 'psts-checkout', 'prosites_checkout', array(
+			'ajax_url' => ProSites_Helper_ProSite::admin_ajax_url(),
+			'confirm_cancel' => __( "Please note that if you cancel your subscription you will not be immune to future price increases. The price of un-canceled subscriptions will never go up!\n\nAre you sure you really want to cancel your subscription?\nThis action cannot be undone!", 'psts'),
+			'button_signup' => __( "Sign Up", 'psts' ),
+			'button_choose' => __( "Choose Plan", 'psts' ),
+			'button_chosen' => __( "Chosen Plan", 'psts' ),
+			'logged_in' => is_user_logged_in(),
+			'new_blog'  => ProSites_Helper_ProSite::allow_new_blog() ? 'true' : 'false',
+			'nbt_update_required' => $this->nbt_update_required(),
+		) );
 
-		// PayPal Fix, As the user is redirected to Paypal and then sent back over to the site
-		if ( isset( $_GET['token'] ) && isset( $_GET['PayerID'] ) && isset( $_GET['action'] ) && $_GET['action'] == 'complete' ) {
-			return self::render_payment_submitted( '', '', $blog_id );
+		if ( ! current_theme_supports( 'psts_style' ) ) {
+			wp_enqueue_style( 'psts-checkout', $this->plugin_url . 'css/checkout.css', false, $this->version );
+			wp_enqueue_style( 'dashicons' ); // in case it hasn't been loaded yet
+
+			/* Checkout layout */
+			$layout_option = $this->get_setting( 'pricing_table_layout', 'option1' );
+			$checkout_layout = apply_filters( 'prosites_checkout_css', $this->plugin_url . 'css/pricing-tables/' . $layout_option . '.css' );
+			wp_enqueue_style( 'psts-checkout-layout', $checkout_layout, false, $this->version );
+
+			/* Apply styles from options */
+			$checkout_style = ProSites_View_Pricing_Styling::get_styles_from_options();
+			if( ! empty( $checkout_style ) ) {
+				wp_add_inline_style( 'psts-checkout-layout', $checkout_style );
+			};
+
 		}
-
-		if ( ( isset( $session_data['new_blog_details']['payment_success'] ) && true === $session_data['new_blog_details']['payment_success'] ) ||
-			 ( isset( $session_data['upgraded_blog_details']['payment_success'] ) && true === $session_data['upgraded_blog_details']['payment_success'] )
-		) {
-			$pre_content .= ProSites_View_Front_Gateway::render_payment_submitted();
+		if ( $this->get_setting( 'plans_table_enabled' ) || $this->get_setting( 'comparison_table_enabled' ) ) {
+			wp_enqueue_style( 'psts-plans-pricing', $this->plugin_url . 'css/plans-pricing.css', false, $this->version );
 		}
-
-		// Check manual payments
-		if ( ( isset( $session_data['new_blog_details'] ) && isset( $session_data['new_blog_details']['manual_submitted'] ) && true === $session_data['new_blog_details']['manual_submitted'] ) ) {
-			$pre_content .= ProSites_View_Front_Gateway::render_manual_submitted( '', '', $blog_id );
-		}
-
-		if ( ! empty( $pre_content ) ) {
-			return $pre_content;
-		}
-
-		//For gateways after redirection, upon page refresh
-		$page_reload = ! empty( $_GET['action'] ) && $_GET['action'] == 'complete' && isset( $_GET['token'] );
-
-		$cancel = ! empty( $_GET['action'] ) && $_GET['action'] == 'cancel';
-
-		//If action is new_blog, but new blog is not allowed
-		$new_blog_allowed = is_user_logged_in() && ! empty( $_GET['action'] ) && $_GET['action'] == 'new_blog' && ! ProSites_Helper_ProSite::allow_new_blog();
-
-		if ( $is_pro_site && ( $cancel || ! isset( $_GET['action'] ) || $page_reload || $new_blog_allowed ) ) {
-			// EXISTING DETAILS
-			if ( isset( $gateways ) && isset( $gateway_details ) ) {
-				$gateway_order = isset( $gateway_details['order'] ) ? $gateway_details['order'] : array();
-				$plan_content  = ProSites_View_Front_Gateway::render_current_plan_information( array(), $blog_id, $domain, $gateways, $gateway_order );
-				$plan_content .= '<h2>' . esc_html__( 'Change your plan', 'psts' ) . '</h2>';
-			}
-		} else {
-			// NOTIFICATIONS ONLY
-			$plan_content = ProSites_View_Front_Gateway::render_notification_information( array(), $blog_id, $domain, $gateways, $gateway_details['order'] );
-		}
-		echo $plan_content;
-		//echo do_shortcode('[wpsaas_plan]');
+		
+		$content .= ProSites_View_Front_Checkout::render_checkout_page( $content, $blog_id, $domain );
+		echo "<div id='psts-checkout-output'>" . $content . "</div>";		
 	}
 
 	function checkout_grid( $blog_id, $domain = '' ) {
@@ -4732,13 +4662,14 @@ function admin_levels() {
 
 	//outputs the checkout form
 	function checkout_output( $content ) {
+		
 		global $wpdb;
 		$has_blog = false;
 		//make sure we are in the loop and on current page loop item
 		if ( ! in_the_loop() || get_queried_object_id() != get_the_ID() ) {
 			return $content;
 		}
-
+		
 		//make sure logged in, Or if user comes just after signup, check session for domain name
 		$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
 		// Get the registration settings of network.
