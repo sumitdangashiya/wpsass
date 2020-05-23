@@ -1123,6 +1123,7 @@ ul.pricing-column.chosen-plan {
 
 #gateways ul li {
 	display: inline-block;
+	margin-bottom: 0;
 	margin-right: 10px;
 	padding: 5px 10px;
 }
@@ -1130,7 +1131,7 @@ ul.pricing-column.chosen-plan {
 #gateways ul li a {
 	outline: none;
 	border: none;
-	font-size: 0.8em;
+	font-size: 16px;
 	text-decoration: none;
 }
 
@@ -1553,6 +1554,7 @@ ul.pricing-column.chosen-plan {
 }
 .wpsaas-coupon-wrap .apply_code {
 	background-color: #74c5d4;
+	border: 0;
 	color: #eee;
 	font-size: 12px !important;
 	text-transform: none;
@@ -1844,6 +1846,7 @@ span.wpsaas-plan-detail * {
 .wpsaas-stripe-button-wrap .wpsaas-stripe-button {
 	width: 100%;
 	background-color: #3ba6e4;
+	border: 0;
 	color: #fff;
 	font-size: 23px;
 	line-height: 1.2;
@@ -1910,6 +1913,13 @@ form#psts-stripe-update {
 }
 .wpsaas-card-table-detail {
 	font-size: 16px;
+	border-collapse: collapse;
+    border-spacing: 0;
+    empty-cells: show;
+    margin: 20px 0;
+    max-width: 100%;
+    overflow: hidden;
+    width: 100%;
 }
 .wpsaas-card-table-detail input[type="password"] {
 	padding: 0 10px;
@@ -1922,6 +1932,15 @@ form#psts-stripe-update {
 .psts-info-list li {
 	font-size: 16px;
 	line-height: 1.5;
+	text-align: center;
+}
+.wpsaas-card-table-detail tr td {
+    border: 1px solid #dcd7ca;
+    line-height: 1.2;
+    padding: 10px;
+    text-align: left;
+}
+.psts-cancel-notification {
 	text-align: center;
 }
 /*New checkout wizard end*/
@@ -1937,6 +1956,7 @@ form#psts-stripe-update {
 	margin-right: 0;
 	padding-top: 50px;
 	margin-left: -20px;
+	min-height: 680px;
 }
 /*admin side account page end*/
 

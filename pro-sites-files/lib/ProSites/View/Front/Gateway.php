@@ -856,6 +856,12 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$user  = wp_get_current_user();
 			$email = $user->user_email;
+			
+			if( isset( $_GET['page'] ) && $_GET['page'] == 'psts-checkout' ) {
+				$rediect_checkout_url = get_admin_url( $blog_id, 'admin.php?page=psts-checkout' );
+			} else {
+				$rediect_checkout_url = $psts->checkout_url( $blog_id );
+			}
 
 			$content .= '<h2>' . esc_html__( 'Plan updated...', 'psts' ) . '</h2>';
 			$content .= '<p>' . sprintf( esc_html__( 'Your plan was successfully modified from %s to %s. You will receive a receipt email shortly to confirm this action.', 'psts' ), $previous, $current ) . '</p>';
@@ -866,7 +872,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			            '<li>' . sprintf( esc_html__( 'Make sure that your email address is correct (%s)', 'psts' ), $email ) . '</li>' .
 			            '</ul>';
 			$content .= '<p>' . esc_html__( 'If your email address is incorrect or you noticed a problem, please contact us to resolve the issue.', 'psts' ) . '</p>';
-			$content .= '<a href="' . $psts->checkout_url( $blog_id ) . '">' . esc_html__( 'Go back to your account.', 'psts' ) . '</a>';
+			$content .= '<a class="wpsaas-common-btn" href="' . $rediect_checkout_url . '">' . esc_html__( 'Go back to your account.', 'psts' ) . '</a>';
 			$content .= '</div>';
 
 			ProSites_Helper_Session::unset_session( 'plan_updated' );

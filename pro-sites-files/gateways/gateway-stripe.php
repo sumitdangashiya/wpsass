@@ -256,6 +256,7 @@ class ProSites_Gateway_Stripe {
 
 		// Register front end scripts and styles.
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts' ) );
 
 		// Get the expiry date.
 		add_filter( 'psts_get_blog_subscription_expiry', array( $this, 'subscription_expiry' ), 10, 3 );
@@ -275,13 +276,6 @@ class ProSites_Gateway_Stripe {
 		global $psts;
 
 		// Register custom checkout form script.
-		wp_register_script(
-			'wpsaas-stripe-live-js',
-			'https://js.stripe.com/v3/',
-			array(),
-			$psts->version,
-			true
-		);
 		
 		wp_register_script(
 			'psts-stripe-checkout-js',
@@ -1276,7 +1270,6 @@ class ProSites_Gateway_Stripe {
 		// File that contains checkout form.
 		include_once 'gateway-stripe-files/views/frontend/checkout.php';
 		
-		//wp_enqueue_script( 'wpsaas-stripe-live-js' );
 		wp_enqueue_script( 'psts-stripe-checkout-js' );
 
 		// Get the content as a string.

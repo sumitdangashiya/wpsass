@@ -603,10 +603,16 @@ class ProSites_Gateway_Manual {
 
 		$user  = wp_get_current_user();
 		$email = $user->user_email;
+		
+		if( isset( $_GET['page'] ) && $_GET['page'] == 'psts-checkout' ) {
+			$rediect_checkout_url = get_admin_url( $blog_id, 'admin.php?page=psts-checkout' );
+		} else {
+			$rediect_checkout_url = $psts->checkout_url( $blog_id );
+		}
 
 		$content .= '<h2>' . esc_html__( 'Plan update...', 'psts' ) . '</h2>';
 		$content .= '<p>' . sprintf( esc_html__( 'We have recieved your request to update plan from %s to %s. Once we verify the payment details, the plan will be updated.', 'psts' ), $previous, $current ) . '</p>';
-		$content .= '<a href="' . $psts->checkout_url( $blog_id ) . '">' . esc_html__( 'Go back to your account.', 'psts' ) . '</a>';
+		$content .= '<a class="wpsaas-common-btn" href="' . $rediect_checkout_url . '">' . esc_html__( 'Go back to your account.', 'psts' ) . '</a>';
 		$content .= '</div>';
 
 		ProSites_Helper_Session::unset_session( 'plan_updated' );

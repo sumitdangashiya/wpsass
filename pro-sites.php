@@ -4240,6 +4240,66 @@ function admin_levels() {
 			$domain = $session_data['upgraded_blog_details']['domain'];
 		}
 		
+		
+		//make sure logged in, Or if user comes just after signup, check session for domain name
+		$session_data = ProSites_Helper_Session::session( 'new_blog_details' );
+		// Get the registration settings of network.
+		$registration = get_site_option('registration');
+
+		$current_user_id = get_current_user_id();
+		//get allowed roles for checkout
+		$checkout_roles = $this->get_setting( 'checkout_roles', array( 'administrator', 'editor' ) );
+
+		//set blog_id
+		if ( isset( $_POST['bid'] ) ){
+			$blog_id = intval( $_POST['bid'] );
+		} else if ( isset( $_GET['bid'] ) ){
+			$blog_id = intval( $_GET['bid'] );
+		}
+
+		//Check if multiple signups are allowed
+		$allow_multi = $this->get_setting('multiple_signup');
+		$allow_multi = 'all' == $registration || 'blog' == $registration ? $allow_multi : false;
+
+		if ( $blog_id ) {
+
+			//check for admin permissions for this blog
+			switch_to_blog( $blog_id );
+
+			$permission = $this->check_user_role( $current_user_id, $checkout_roles );
+			restore_current_blog();
+			if ( ! $permission ) {
+				$content = '<p>' . __( 'Sorry, but you do not have permission to upgrade this site. Only the site administrator can upgrade their site.', 'psts' ) . '</p>';
+				$content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __( 'Choose a different site', 'psts' ) . '</a></p>';
+			}
+
+			if ( $this->get_expire( $blog_id ) > 2147483647 ) {
+				$level   = $this->get_level_setting( $this->get_level( $blog_id ), 'name' );
+				$content = '<p>' . sprintf( __( 'This site has been permanently given %s status.', 'psts' ), $level ) . '</p>';
+
+				// Get blogs of the user.
+				$blogs = isset( $blogs ) ? $blogs : ProSites_Helper_ProSite::get_blogs_of_user( false, false, 2 );
+				// If blogs count is more than one, show selection link.
+				if ( count( $blogs ) > 1 ) {
+					$content .= '<p><a href="' . $this->checkout_url() . '">&laquo; ' . __( 'Choose a different site', 'psts' ) . '</a></p>';
+				} elseif ( $allow_multi ) {
+					// If not show add new blog link.
+					$content .= '<div class="psts-signup-another"><a class="wpsaas-common-btn" href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+				}
+			}
+
+			if( $allow_multi ) {
+				$content .= '<div class="psts-signup-another"><a class="wpsaas-common-btn" href="' . esc_url( $this->checkout_url() . '?action=new_blog' ) . '">' . esc_html__( 'Sign up for another site.', 'psts' ) . '</a>' . '</div>';
+			}
+
+			//this is the main hook for new checkout page
+			$content = apply_filters( 'psts_primary_checkout_table', $content, $blog_id );
+
+		} elseif ( $session_domain = ProSites_Helper_Session::session( 'domain' ) ) {
+			//this is the main hook for new checkout page
+			$content = apply_filters( 'psts_primary_checkout_table', $content, '', $session_domain );
+		}		
+		
 		wp_enqueue_script( 'psts-checkout', $this->plugin_url . 'js/checkout.js', array( 'jquery' ), $this->version );
 		wp_enqueue_script( 'jquery-ui-tabs' );
 
@@ -4274,7 +4334,7 @@ function admin_levels() {
 			wp_enqueue_style( 'psts-plans-pricing', $this->plugin_url . 'css/plans-pricing.css', false, $this->version );
 		}
 		
-		$content .= ProSites_View_Front_Checkout::render_checkout_page( $content, $blog_id, $domain );
+		//$content .= ProSites_View_Front_Checkout::render_checkout_page( $content, $blog_id, $domain );
 		echo "<div id='psts-checkout-output'>" . $content . "</div>";		
 	}
 
@@ -6870,7 +6930,7 @@ function wpsaas_plan_func(){
 										<button id="btnSubmit" class="btn wpsaas-stripe-button"><?php _e( 'Pay', 'psts' ) ?></button>
 										<div class="payment_processing" style="display: none;"><?php _e( 'Processing.... Please Wait', 'psts' ) ?></div>
 									</div>
-									<div class="error payment-error" role="alert">
+									<div class="error payment-error test" role="alert">
 										<span class="message"></span>
 									</div>
 								</div>
