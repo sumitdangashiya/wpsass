@@ -127,12 +127,19 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways wpsaas-payment-blocks hidden ' . $hidden_class . '">';
 			$site_name = '';
-			$blogname = ( isset($render_data['new_blog_details']['blogname']) ) ? $render_data['new_blog_details']['blogname'] : '' ;
-			if ( ! is_subdomain_install() ) {
-				$site_name = $current_site->domain . $current_site->path . $blogname;
+			if( isset($render_data['new_blog_details']['blogname']) ) {
+				$blogname = $render_data['new_blog_details']['blogname'];
+				if ( ! is_subdomain_install() ) {
+					$site_name = $current_site->domain . $current_site->path . $blogname;
+				} else {
+					$site_name = $blogname . '.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) );
+				}
 			} else {
-				$site_name = $blogname . '.' . ( $site_domain = preg_replace( '|^www\.|', '', $current_site->domain ) );
+				$protocols = array('http://', 'http://www.', 'www.', 'https://', 'https://www.');
+				$site_name = str_replace($protocols, '', get_site_url( $blog_id ));
 			}
+			//$blogname = ( isset($render_data['new_blog_details']['blogname']) ) ? $render_data['new_blog_details']['blogname'] : '' ;
+			
 			if( isset( $render_data['new_blog_details']['email'] ) && $render_data['new_blog_details']['email'] != '' ) {
 				$current_email = $render_data['new_blog_details']['email'];
 			} else {

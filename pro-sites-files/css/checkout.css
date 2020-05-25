@@ -1877,8 +1877,10 @@ span.wpsaas-plan-detail * {
     text-align: center;
 }
 form#psts-stripe-update {
-    text-align: center;
-    padding-bottom: 30px;
+	text-align: center;
+	padding-bottom: 30px;
+	max-width: 500px;
+	margin: 30px auto 0;
 }
 #psts_existing_info p {
 	font-size: 16px;

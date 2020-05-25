@@ -1162,7 +1162,11 @@ class ProSites_Gateway_Stripe {
 		) );
 
 		// Form action url.
-		$url = add_query_arg( array( 'update_stripe_card' => 1 ), $psts->checkout_url( $blog_id ) );
+		if( isset( $_GET['page'] ) && $_GET['page'] == 'psts-checkout' ) {
+			$url = add_query_arg( array( 'update_stripe_card' => 1 ), get_admin_url( $blog_id, 'admin.php?page=psts-checkout&bid=' . $blog_id ) );
+		} else {
+			$url = add_query_arg( array( 'update_stripe_card' => 1 ), $psts->checkout_url( $blog_id ) );
+		}
 
 		// File that contains checkout form.
 		include_once 'gateway-stripe-files/views/frontend/card-update.php';
