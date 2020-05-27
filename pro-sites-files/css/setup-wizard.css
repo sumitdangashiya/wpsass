@@ -221,6 +221,31 @@ input[type="number"].wpsass-setup-wizard-offer {
 	color: #007cba;
 	margin-left: 20px;
 }
+input[type="text"].wpsass-setup-wizard-offer:disabled,
+input[type="number"].wpsass-setup-wizard-offer:disabled {
+	color: #a0a5aa;
+	border-color: #ddd;
+	background-color: #f7f7f7;
+	box-shadow: none;
+	text-shadow: 0 1px 0 #fff;
+	cursor: default;
+	transform: none;
+}
+.wpsaas-wizard-level-table {
+	position: relative;
+}
+.wpsaas-wizard-level-table .payment_processing {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	text-align: center;
+	padding-top: 10px;
+	font-size: 18px;
+}
+.wizard-add-level:disabled {
+	opacity: 0.8;
+}
 .wpsass-setup-wizard-payment-wrap {
 	max-width: 500px;
 	margin: 0 auto;

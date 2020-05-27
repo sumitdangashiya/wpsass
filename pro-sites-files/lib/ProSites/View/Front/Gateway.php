@@ -559,10 +559,11 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 
 			//If action is new_blog, but new blog is not allowed
 			$new_blog_allowed = is_user_logged_in() && ! empty( $_GET['action'] ) && $_GET['action'] == 'new_blog' && ! ProSites_Helper_ProSite::allow_new_blog();
-
+			
 			if ( $is_pro_site && ( $cancel || ! isset( $_GET['action'] ) || $page_reload || $new_blog_allowed ) ) {
 				// EXISTING DETAILS
-				if ( isset( $gateways ) && isset( $gateway_details ) ) {
+				$admin_generic_info   = ProSites_Helper_ProSite::get_blog_info( $blog_id );
+				if ( isset( $gateways ) && isset( $gateway_details ) && $admin_generic_info['level'] != '' ) {
 					$gateway_order = isset( $gateway_details['order'] ) ? $gateway_details['order'] : array();
 					$plan_content  = self::render_current_plan_information( array(), $blog_id, $domain, $gateways, $gateway_order );
 					$plan_content .= '<h2>' . esc_html__( 'Change your plan', 'psts' ) . '</h2>';

@@ -59,9 +59,12 @@ jQuery( document ).ready( function(){
 					'is_visible' : is_visible,
 				},
 				beforeSend : function() {
-					
+					jQuery( '.wpsaas-wizard-add-level-table .payment_processing' ).show();
+					jQuery( '.wizard-add-level' ).prop( 'disabled', true );
 				},
 				success: function ( result ) {
+					jQuery( '.wpsaas-wizard-add-level-table .payment_processing' ).hide();
+					jQuery( '.wizard-add-level' ).prop( 'disabled', false );
 					var level_no = parseInt( jQuery( '.level-no' ).text() ) + 1;
 					jQuery( '.level-no' ).text( level_no );
 					jQuery( 'input[name="add_name"]' ).val('');
@@ -88,9 +91,12 @@ jQuery( document ).ready( function(){
 				'delete_level_id' : delete_level_id,
 			},
 			beforeSend : function() {
-				
+				jQuery( '.wpsaas-wizard-delete-level-table .payment_processing' ).show();
+				jQuery( '.wizard-delete-level' ).prop( 'disabled', true );
 			},
 			success: function ( result ) {
+				jQuery( '.wpsaas-wizard-delete-level-table .payment_processing' ).hide();
+				jQuery( '.wizard-delete-level' ).prop( 'disabled', false );
 				jQuery( '#prosites-level-list #the-list' ).html( result );
 				var total_count = jQuery( '#prosites-level-list #the-list tr' ).length;
 				var level_no = parseInt( total_count ) + 1;
@@ -108,6 +114,16 @@ jQuery( document ).ready( function(){
 		}
 	});
 	
+	jQuery( '.wpsass-setup-wizard-offer-trial' ).on( 'change', function(){
+		if( jQuery( this ).val() == 0 ) {
+			jQuery( '.wpsass-setup-wizard-offer-trial' ).prop( 'disabled', true );
+			jQuery( 'input[name="offer_trial_check"]' ).prop( 'checked', false );
+		} else {
+			jQuery( '.wpsass-setup-wizard-offer-trial' ).prop( 'disabled', false );
+			jQuery( 'input[name="offer_trial_check"]' ).prop( 'checked', true );
+		}
+	} );
+	
 	jQuery( 'input[name="setup_fee_check"]' ).on( 'click', function(){
 		if( jQuery( this ).prop( 'checked' ) == true ){
 			jQuery( '.wpsass-setup-wizard-offer-fee' ).prop( 'disabled', false );
@@ -116,6 +132,16 @@ jQuery( document ).ready( function(){
 			jQuery( '.wpsass-setup-wizard-offer-fee' ).val( '0' );
 		}
 	});
+	
+	jQuery( '.wpsass-setup-wizard-offer-fee' ).on( 'change', function(){
+		if( jQuery( this ).val() == 0 ) {
+			jQuery( '.wpsass-setup-wizard-offer-fee' ).prop( 'disabled', true );
+			jQuery( 'input[name="setup_fee_check"]' ).prop( 'checked', false );
+		} else {
+			jQuery( '.wpsass-setup-wizard-offer-fee' ).prop( 'disabled', false );
+			jQuery( 'input[name="setup_fee_check"]' ).prop( 'checked', true );
+		}
+	} );
 	
 	jQuery( 'input[name="wpsass_setup_wizard_submit"]' ).on( 'click', function(){
 		jQuery( '.wpsass-setup-wizard-extensions-pro .wpsass-setup-wizard-extensions-block input[type="checkbox"]' ).each( function(){

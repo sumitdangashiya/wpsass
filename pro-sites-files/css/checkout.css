@@ -988,7 +988,6 @@ ul.pricing-column ul.feature-section li {
 
 .pricing-column .coupon-box input {
 	position: relative;
-	top: -4px;
 }
 
 ::-webkit-input-placeholder,
@@ -1560,9 +1559,10 @@ ul.pricing-column.chosen-plan {
 	text-transform: none;
 	font-weight: 700;
 	border-radius: 2px 10px 10px 2px;
-	padding: 0 10px;
+	padding: 20px 10px;
 	min-height: 66px;
 	position: absolute;
+	text-decoration: none;
 	top: 0;
 	right: 0;
 }

@@ -96,12 +96,12 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 					<td>
 						<label>
 							<p><input type="radio" name="psts[pricing_table_period_position]"
-							          value="option1" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'option1' ), 'option1' ); ?> />
+							          value="option1" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'option2' ), 'option1' ); ?> />
 								<?php esc_html_e( 'First column (Part of table)', 'psts' ); ?></p>
 						</label>
 						<label>
 							<p><input type="radio" name="psts[pricing_table_period_position]"
-							          value="option2" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'option1' ), 'option2' ); ?> />
+							          value="option2" <?php checked( $psts->get_setting( 'pricing_table_period_position', 'option2' ), 'option2' ); ?> />
 								<?php esc_html_e( 'Above the table', 'psts' ); ?></p>
 							<p class="description"><?php esc_html_e( 'For visual purposes, moving the period selector to the top will also remove the first/details column from the table. If the coupons box is attached to the first column it will automatically be moved below the table.', 'psts' ); ?></p>
 						</label>
@@ -123,12 +123,12 @@ if ( ! class_exists( 'ProSites_View_Pricing' ) ) {
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Coupon Position', 'psts' ) ?></th>
 					<td><?php
-						$pos_bottom = $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) == 'option2' ? 1 : 0;
+						$pos_bottom = $psts->get_setting( 'pricing_table_coupon_position', 'option2' ) == 'option2' ? 1 : 0;
 						?>
 						<label>
 							<p>
 								<input type="radio" name="psts[pricing_table_coupon_position]"
-								       value="option1" <?php checked( $psts->get_setting( 'pricing_table_coupon_position', 'option1' ), 'option1' ); ?> />
+								       value="option1" <?php checked( $psts->get_setting( 'pricing_table_coupon_position', 'option2' ), 'option1' ); ?> />
 								<?php esc_html_e( 'First column (Part of table)', 'psts' ); ?></p>
 						</label>
 						<label>

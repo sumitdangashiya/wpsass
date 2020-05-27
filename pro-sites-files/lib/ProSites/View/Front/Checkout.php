@@ -34,7 +34,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			// Reposition coupon based on option
 			$coupons_enabled        = $psts->get_setting( 'coupons_enabled' );
 			$coupons_enabled        = 'enabled' === $coupons_enabled ? true : false;
-			$pt_pos                 = $psts->get_setting( 'pricing_table_coupon_position', 'option1' );
+			$pt_pos                 = $psts->get_setting( 'pricing_table_coupon_position', 'option2' );
 
 			// Are the tables enabled?
 			$plans_table_enabled    = $psts->get_setting( 'plans_table_enabled', 'enabled' );
@@ -50,7 +50,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 			}
 
 			// Add period selector above table based on option
-			if ( 'option2' == $psts->get_setting( 'pricing_table_period_position', 'option1' ) && $plans_table_enabled ) {
+			if ( 'option2' == $psts->get_setting( 'pricing_table_period_position', 'option2' ) && $plans_table_enabled ) {
 				add_filter( 'prosites_inner_pricing_table_pre', array( get_class(), 'render_standalone_periods' ) );
 			}
 
@@ -133,8 +133,8 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			//Show first column, if feature table is enabled or period selector position is in first column, coupon is to be shown in first column
 			$show_first_column = $show_feature_table ||
-			                     ( 'option2' != $psts->get_setting( 'pricing_table_period_position', 'option1' ) && $show_periods ) ||
-			                     ( $add_coupon && 'option1' == $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) );
+			                     ( 'option2' != $psts->get_setting( 'pricing_table_period_position', 'option2' ) && $show_periods ) ||
+			                     ( $add_coupon && 'option1' == $psts->get_setting( 'pricing_table_coupon_position', 'option2' ) );
 
 			if ( $show_first_column ) {
 				$total_columns = count( $columns );
@@ -224,10 +224,10 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 				if ( $show_buy_buttons ) {
 					if ( empty( $column['button'] ) ) {
 						if ( $add_coupon && 'option1' == $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) ) {
-							$content .= '<li class="coupon">';
-							$content .= '<div class="coupon-box">';
+							$content .= '<li class="coupon wpsaas-coupon-wrap">';
+							$content .= '<div class="coupon-box wpsaas-coupon-field">';
 							$content .= '<input type="text" name="apply-coupon" placeholder="' . __( 'Enter coupon', 'psts' ) . '" />';
-							$content .= '<a name="apply-coupon-link" class="apply-coupon-link">' . $column['coupon'] . '</a>';
+							$content .= '<a name="apply-coupon-link" class="apply-coupon-link apply_code">' . $column['coupon'] . '</a>';
 							$content .= '</div>';
 							$content .= '</li>';
 						} else {

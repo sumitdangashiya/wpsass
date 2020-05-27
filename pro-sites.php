@@ -5793,6 +5793,7 @@ function setup_wizard() {
 		$network_site_name = ( isset( $_POST[ 'network_site_name' ] ) && $_POST[ 'network_site_name' ] != '' ) ? $_POST[ 'network_site_name' ] : 'wpsass';
 		$value = wp_unslash( $network_site_name );
 		update_site_option( 'site_name', $value );
+		update_site_option( 'registration', 'all' );
 
 		if( isset( $_FILES['network_logo']['tmp_name'] ) && $_FILES['network_logo']['tmp_name'] != '' ) {
 			$wp_upload_dir = wp_upload_dir();
@@ -5809,8 +5810,6 @@ function setup_wizard() {
 			$psts->update_setting( 'network_logo', '' );
 		}
 		echo "<script type='text/javascript'>window.location='" . admin_url() . "network/admin.php?page=psts';</script>";
-		//wp_redirect(admin_url()."network/admin.php?page=psts");
-		//exit;
 	}
 
 	?>
@@ -5905,12 +5904,13 @@ function setup_wizard() {
 					</select>
 				</div>
 				<div class="wpsass-setup-wizard-plan col-4">
-					<label><?php _e( 'OFFER TRIAL', 'psts' ) ?><input type="checkbox" name="offer_trial_check" value="1" <?php checked( @$settings['offer_trial_check'], '1' );?> /></label>
-					<select name="offer_trial" class="chosen wpsass-setup-wizard-offer-trial" <?php echo ( $settings['offer_trial_check'] == '' ) ? 'disabled' : '' ; ?>>
+					<?php 
+					$trial_days         = $psts->get_setting( 'trial_days' );
+					$trial_days_options = '';
+					?>
+					<label><?php _e( 'OFFER TRIAL', 'psts' ) ?><input type="checkbox" name="offer_trial_check" value="1" <?php echo ( $settings['offer_trial_check'] == '1' && $trial_days != '' ) ? 'checked' : '' ; ?> /></label>
+					<select name="offer_trial" class="chosen wpsass-setup-wizard-offer-trial" <?php echo ( $settings['offer_trial_check'] == '' || $trial_days == 0 ) ? 'disabled' : '' ; ?>>
 						<?php
-						$trial_days         = $psts->get_setting( 'trial_days' );
-						$trial_days_options = '';
-
 						for ( $counter = 0; $counter <= 365; $counter ++ ) {
 							$trial_days_options .= '<option value="' . $counter . '"' . ( $counter == $trial_days ? ' selected' : '' ) . '>' . ( ( $counter ) ? $counter : __( 'Disabled', 'psts' ) ) . '</option>' . "\n";
 						}
@@ -5920,7 +5920,7 @@ function setup_wizard() {
 				</div>
 				<div class="wpsass-setup-wizard-plan col-4">
 					<label><?php _e( 'SETUP FEE', 'psts' ) ?><input type="checkbox" name="setup_fee_check" value="1" <?php checked( @$settings['setup_fee_check'], '1' );?> /></label>
-					<input type="number" name="setup_fee" class="wpsass-setup-wizard-offer wpsass-setup-wizard-offer-fee" value="99" <?php echo ( $settings['setup_fee_check'] == '' ) ? 'disabled' : '' ; ?> />
+					<input type="number" name="setup_fee" class="wpsass-setup-wizard-offer wpsass-setup-wizard-offer-fee" min="0" value="99" <?php echo ( $settings['setup_fee_check'] == '' ) ? 'disabled' : '' ; ?> />
 				</div>
 			</div>
 			<h3><?php _e( 'Create Plans', 'psts' ) ?></h3>
@@ -5993,47 +5993,52 @@ function setup_wizard() {
 			$last_level = ( is_array( $level_list ) ) ? count( $level_list ) : 0;
 			$periods    = $settings[ 'enabled_periods' ];
 			?>
-			<table width="100%" cellpadding="3" cellspacing="3" class="widefat">
-				<thead>
-					<tr>
-						<th scope="col"><?php _e( 'Plan', 'psts' ); ?></th>
-						<th scope="col"><?php _e( 'Name', 'psts' ); ?></th>
-						<th scope="col"><?php _e( 'Is Visible', 'psts' ); ?></th>
-						<th scope="col"><?php _e( '1 Month Price', 'psts' ); ?></th>
-						<th scope="col"><?php _e( '3 Month Price', 'psts' ); ?></th>
-						<th scope="col"><?php _e( '12 Month Price', 'psts' ); ?></th>
-						<th scope="col"></th>
-					</tr>
-				</thead>
-				<tbody id="the-list">
-					<tr>
-						<td scope="row" style="padding-left: 20px;">
-							<strong class="level-no"><?php echo $last_level + 1; ?></strong>
-						</td>
-						<td>
-							<input value="" size="50" maxlength="100" name="add_name" type="text"/>
-						</td>
-						<td>
-							<input value="1" name="add_is_visible" type="checkbox" checked="checked"/>
-						</td>
-						<td>
-							<label><?php echo setup_currency( $settings['currency'] ); ?></label>
-							<input class="price-1" value="" size="4" name="add_price_1" type="text"/>
-						</td>
-						<td>
-							<label><?php echo setup_currency( $settings['currency'] ); ?></label>
-							<input class="price-3" value="" size="4" name="add_price_3" type="text"/>
-						</td>
-						<td>
-							<label><?php echo setup_currency( $settings['currency'] ); ?></label>
-							<input class="price-12" value="" size="4" name="add_price_12" type="text"/>
-						</td>
-						<td>
-							<input class="button wizard-add-level" type="button" name="add_level" value="<?php _e( 'Add &raquo;', 'psts' ) ?>"/>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<div class="wpsaas-wizard-level-table wpsaas-wizard-add-level-table">
+				<table width="100%" cellpadding="3" cellspacing="3" class="widefat">
+					<thead>
+						<tr>
+							<th scope="col"><?php _e( 'Plan', 'psts' ); ?></th>
+							<th scope="col"><?php _e( 'Name', 'psts' ); ?></th>
+							<th scope="col"><?php _e( 'Is Visible', 'psts' ); ?></th>
+							<th scope="col"><?php _e( '1 Month Price', 'psts' ); ?></th>
+							<th scope="col"><?php _e( '3 Month Price', 'psts' ); ?></th>
+							<th scope="col"><?php _e( '12 Month Price', 'psts' ); ?></th>
+							<th scope="col"></th>
+						</tr>
+					</thead>
+					<tbody id="the-list">
+						<tr>
+							<td scope="row" style="padding-left: 20px;">
+								<strong class="level-no"><?php echo $last_level + 1; ?></strong>
+							</td>
+							<td>
+								<input value="" size="50" maxlength="100" name="add_name" type="text"/>
+							</td>
+							<td>
+								<input value="1" name="add_is_visible" type="checkbox" checked="checked"/>
+							</td>
+							<td>
+								<label><?php echo setup_currency( $settings['currency'] ); ?></label>
+								<input class="price-1" value="" size="4" name="add_price_1" type="text"/>
+							</td>
+							<td>
+								<label><?php echo setup_currency( $settings['currency'] ); ?></label>
+								<input class="price-3" value="" size="4" name="add_price_3" type="text"/>
+							</td>
+							<td>
+								<label><?php echo setup_currency( $settings['currency'] ); ?></label>
+								<input class="price-12" value="" size="4" name="add_price_12" type="text"/>
+							</td>
+							<td>
+								<input class="button wizard-add-level" type="button" name="add_level" value="<?php _e( 'Add &raquo;', 'psts' ) ?>"/>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="payment_processing" style="display: none;">
+					<img src="<?php echo $psts->plugin_url;?>images/loading.gif"> Processing...
+				</div>
+			</div>
 			<?php
 			$posts_columns = array(
 				'level'      => __( 'Level', 'psts' ),
@@ -6045,114 +6050,119 @@ function setup_wizard() {
 				'edit'       => '',
 			);
 			?>
-			<table width="100%" cellpadding="3" cellspacing="3" class="widefat level-settings" id="prosites-level-list">
-				<thead>
-					<tr>
-						<th scope="col"><?php _e( 'Plan', 'psts' ); ?></th>
-						<th scope="col"><?php _e( 'Name', 'psts' ); ?></th>
-						<th scope="col"><?php _e( 'Is Visible', 'psts' ); ?></th>
-						<th scope="col">
-							<label>
-								<input name="enable_1" id="enable_1" value="1" title="<?php _e( 'Enable 1 Month Checkout', 'psts' ); ?>" type="checkbox" <?php checked( in_array( 1, $periods ) ); ?> /> <?php _e( '1 Month Price', 'psts' ); ?>
-							</label>
-						</th>
-						<th scope="col">
-							<label>
-								<input name="enable_3" id="enable_3" value="1" title="<?php _e( 'Enable 3 Month Checkout', 'psts' ); ?>" type="checkbox" <?php checked( in_array( 3, $periods ) ); ?> /> <?php _e( '3 Month Price', 'psts' ); ?>
-							</label>
-						</th>
-						<th scope="col">
-							<label>
-								<input name="enable_12" id="enable_12" value="1" title="<?php _e( 'Enable 12 Month Checkout', 'psts' ); ?>" type="checkbox" <?php checked( in_array( 12, $periods ) ); ?> /> <?php _e( '12 Month Price', 'psts' ); ?>
-							</label>
-						</th>
-						<th scope="col"></th>
-					</tr>
-				</thead>
-				<tbody id="the-list">
-					<?php
-					if ( is_array( $level_list ) && count( $level_list ) ) {
-						$bgcolor = $class = '';
-						foreach ( $level_list as $level_code => $level ) {
-							$class = ( 'alternate' == $class ) ? '' : 'alternate';
-							echo '<tr class="' . $class . ' blog-row">';
-								foreach ( $posts_columns as $column_name => $column_display_name ) {
-									switch ( $column_name ) {
-										case 'level':
-											?>
-											<td scope="row" style="padding-left: 20px;">
-												<strong><?php echo $level_code; ?></strong>
-											</td>
-											<?php
-											break;
-
-										case 'name':
-											?>
-											<td scope="row">
-												<input data-position="<?php echo esc_attr( (int) $level_code ); ?>" value="<?php echo esc_attr( $level['name'] ) ?>" size="50" maxlength="100" name="name[<?php echo $level_code; ?>]" type="text"/>
-											</td>
-											<?php
-											break;
-
-										case 'is_visible':
-											?>
-											<td scope="row">
-												<?php $is_visible = isset( $level['is_visible'] ) ? $level['is_visible'] : 1; ?>
-												<input value="1" name="is_visible[<?php echo $level_code; ?>]" type="checkbox" <?php echo checked( $is_visible, 1 ); ?> />
-											</td>
-											<?php
-											break;
-
-										case 'price_1':
-											?>
-											<td scope="row">
-												<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-1" value="<?php echo ( isset( $level['price_1'] ) ) ? number_format( (float) $level['price_1'], 2, '.', '' ) : ''; ?>" size="4" name="price_1[<?php echo $level_code; ?>]" type="text"/>
-											</td>
-											<?php
-											break;
-
-										case 'price_3':
-											?>
-											<td scope="row">
-												<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-3" value="<?php echo ( isset( $level['price_3'] ) ) ? number_format( (float) $level['price_3'], 2, '.', '' ) : ''; ?>" size="4" name="price_3[<?php echo $level_code; ?>]" type="text"/>
-											</td>
-											<?php
-											break;
-
-										case 'price_12':
-											?>
-											<td scope="row">
-												<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-12" value="<?php echo ( isset( $level['price_12'] ) ) ? number_format( (float) $level['price_12'], 2, '.', '' ) : ''; ?>" size="4" name="price_12[<?php echo $level_code; ?>]" type="text"/>
-											</td>
-											<?php
-											break;
-
-										case 'edit':
-											?>
-											<td scope="row">
-												<?php if ( count( $level_list ) > 1 ) {
-													//Display delete option for last level only
-													?>
-													<input class="button wizard-delete-level" type="button" data-id="<?php echo $level_code; ?>" name="delete_level[<?php echo $level_code; ?>]" value="<?php _e( 'Delete &raquo;', 'psts' ) ?>"/>
-												<?php } ?>
-											</td>
-											<?php
-											break;
-									}
-								}
-							echo '</tr>';
-						}
-					} else {
-						$bgcolor = 'transparent';
-						?>
-						<tr style='background-color: <?php echo $bgcolor; ?>'>
-							<td colspan="6"><?php _e( 'No levels yet.', 'psts' ) ?></td>
+			<div class="wpsaas-wizard-level-table wpsaas-wizard-delete-level-table">
+				<table width="100%" cellpadding="3" cellspacing="3" class="widefat level-settings" id="prosites-level-list">
+					<thead>
+						<tr>
+							<th scope="col"><?php _e( 'Plan', 'psts' ); ?></th>
+							<th scope="col"><?php _e( 'Name', 'psts' ); ?></th>
+							<th scope="col"><?php _e( 'Is Visible', 'psts' ); ?></th>
+							<th scope="col">
+								<label>
+									<input name="enable_1" id="enable_1" value="1" title="<?php _e( 'Enable 1 Month Checkout', 'psts' ); ?>" type="checkbox" <?php checked( in_array( 1, $periods ) ); ?> /> <?php _e( '1 Month Price', 'psts' ); ?>
+								</label>
+							</th>
+							<th scope="col">
+								<label>
+									<input name="enable_3" id="enable_3" value="1" title="<?php _e( 'Enable 3 Month Checkout', 'psts' ); ?>" type="checkbox" <?php checked( in_array( 3, $periods ) ); ?> /> <?php _e( '3 Month Price', 'psts' ); ?>
+								</label>
+							</th>
+							<th scope="col">
+								<label>
+									<input name="enable_12" id="enable_12" value="1" title="<?php _e( 'Enable 12 Month Checkout', 'psts' ); ?>" type="checkbox" <?php checked( in_array( 12, $periods ) ); ?> /> <?php _e( '12 Month Price', 'psts' ); ?>
+								</label>
+							</th>
+							<th scope="col"></th>
 						</tr>
-					<?php
-					} // end if levels
-					?>
-				</tbody>
-			</table>
+					</thead>
+					<tbody id="the-list">
+						<?php
+						if ( is_array( $level_list ) && count( $level_list ) ) {
+							$bgcolor = $class = '';
+							foreach ( $level_list as $level_code => $level ) {
+								$class = ( 'alternate' == $class ) ? '' : 'alternate';
+								echo '<tr class="' . $class . ' blog-row">';
+									foreach ( $posts_columns as $column_name => $column_display_name ) {
+										switch ( $column_name ) {
+											case 'level':
+												?>
+												<td scope="row" style="padding-left: 20px;">
+													<strong><?php echo $level_code; ?></strong>
+												</td>
+												<?php
+												break;
+
+											case 'name':
+												?>
+												<td scope="row">
+													<input data-position="<?php echo esc_attr( (int) $level_code ); ?>" value="<?php echo esc_attr( $level['name'] ) ?>" size="50" maxlength="100" name="name[<?php echo $level_code; ?>]" type="text"/>
+												</td>
+												<?php
+												break;
+
+											case 'is_visible':
+												?>
+												<td scope="row">
+													<?php $is_visible = isset( $level['is_visible'] ) ? $level['is_visible'] : 1; ?>
+													<input value="1" name="is_visible[<?php echo $level_code; ?>]" type="checkbox" <?php echo checked( $is_visible, 1 ); ?> />
+												</td>
+												<?php
+												break;
+
+											case 'price_1':
+												?>
+												<td scope="row">
+													<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-1" value="<?php echo ( isset( $level['price_1'] ) ) ? number_format( (float) $level['price_1'], 2, '.', '' ) : ''; ?>" size="4" name="price_1[<?php echo $level_code; ?>]" type="text"/>
+												</td>
+												<?php
+												break;
+
+											case 'price_3':
+												?>
+												<td scope="row">
+													<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-3" value="<?php echo ( isset( $level['price_3'] ) ) ? number_format( (float) $level['price_3'], 2, '.', '' ) : ''; ?>" size="4" name="price_3[<?php echo $level_code; ?>]" type="text"/>
+												</td>
+												<?php
+												break;
+
+											case 'price_12':
+												?>
+												<td scope="row">
+													<label><?php echo setup_currency( $settings['currency'] ); ?></label><input class="price-12" value="<?php echo ( isset( $level['price_12'] ) ) ? number_format( (float) $level['price_12'], 2, '.', '' ) : ''; ?>" size="4" name="price_12[<?php echo $level_code; ?>]" type="text"/>
+												</td>
+												<?php
+												break;
+
+											case 'edit':
+												?>
+												<td scope="row">
+													<?php if ( count( $level_list ) > 1 ) {
+														//Display delete option for last level only
+														?>
+														<input class="button wizard-delete-level" type="button" data-id="<?php echo $level_code; ?>" name="delete_level[<?php echo $level_code; ?>]" value="<?php _e( 'Delete &raquo;', 'psts' ) ?>"/>
+													<?php } ?>
+												</td>
+												<?php
+												break;
+										}
+									}
+								echo '</tr>';
+							}
+						} else {
+							$bgcolor = 'transparent';
+							?>
+							<tr style='background-color: <?php echo $bgcolor; ?>'>
+								<td colspan="6"><?php _e( 'No levels yet.', 'psts' ) ?></td>
+							</tr>
+						<?php
+						} // end if levels
+						?>
+					</tbody>
+				</table>
+				<div class="payment_processing" style="display: none;">
+					<img src="<?php echo $psts->plugin_url;?>images/loading.gif"> Processing...
+				</div>
+			</div>
 			<div class="wpsass-setup-wizard-btn">
 				<a href="javascript:void(0)" class="next wpsass-setup-wizard-skip" ><?php _e( 'Skip This Step', 'psts' ) ?></a>
 				<input type="button" name="previous" class="previous action-button" value="Previous" />
