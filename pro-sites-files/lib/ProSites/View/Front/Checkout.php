@@ -223,7 +223,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 				if ( $show_buy_buttons ) {
 					if ( empty( $column['button'] ) ) {
-						if ( $add_coupon && 'option1' == $psts->get_setting( 'pricing_table_coupon_position', 'option1' ) ) {
+						if ( $add_coupon && 'option1' == $psts->get_setting( 'pricing_table_coupon_position', 'option2' ) ) {
 							$content .= '<li class="coupon wpsaas-coupon-wrap">';
 							$content .= '<div class="coupon-box wpsaas-coupon-field">';
 							$content .= '<input type="text" name="apply-coupon" placeholder="' . __( 'Enter coupon', 'psts' ) . '" />';
@@ -477,7 +477,7 @@ if ( ! class_exists( 'ProSites_View_Front_Checkout' ) ) {
 
 			if ( empty( $level ) ) {
 
-				if ( 'option1' != $psts->get_setting( 'pricing_table_period_position', 'option1' ) ) {
+				if ( 'option1' != $psts->get_setting( 'pricing_table_period_position', 'option2' ) ) {
 					//return '<div class="period-selector placeholder"></div>';
 					return '';
 				}
