@@ -144,7 +144,7 @@ class ProSites {
 		), 100 ); //delay to make sure it is last hook to admin_init
 
 		//trials
-		add_action( 'wp_insert_site', array( &$this, 'trial_extend' ) );
+		add_action( 'wpmu_new_blog', array( &$this, 'trial_extend' ) );
 		add_action( 'admin_notices', array( &$this, 'trial_notice' ), 2 );
 
 		add_action( 'pre_get_posts', array( &$this, 'checkout_page_load' ) );

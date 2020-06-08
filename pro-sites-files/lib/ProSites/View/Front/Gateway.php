@@ -768,7 +768,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$info_creds = array();
 			$info_creds['user_login'] = $user_email;
 			$info_creds['user_password'] = $userpass;
-			$user_signon = wp_signon( $info_creds, false );
+			//$user_signon = wp_signon( $info_creds, false );
 			$content = "<script type='text/javascript'>window.location='" . $blog_admin_url . "';</script>";
 
 			$content .= '<div id="psts-payment-info-received">';
