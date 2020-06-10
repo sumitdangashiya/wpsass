@@ -5781,6 +5781,34 @@ function setup_wizard() {
 
 	// Submit wizard setting
 	if( isset( $_POST['wpsass_setup_wizard_submit'] ) ) {
+		$periods = array();
+		if ( isset( $_POST['enable_1'] ) ) {
+			$periods[] = 1;
+		}
+		if ( isset( $_POST['enable_3'] ) ) {
+			$periods[] = 3;
+		}
+		if ( isset( $_POST['enable_12'] ) ) {
+			$periods[] = 12;
+		}
+
+		$psts->update_setting( 'enabled_periods', $periods );
+
+		$old_levels = $levels;
+
+		foreach ( $_POST['name'] as $level => $name ) {
+			$stripped_name                  = stripslashes( trim( wp_filter_nohtml_kses( $name ) ) );
+			$name                           = empty( $stripped_name ) ? $levels[ $level ]['name'] : $stripped_name;
+			$levels[ $level ]['name']       = $name;
+			$levels[ $level ]['price_1']    = isset($_POST['price_1'] ) ? round( @$_POST['price_1'][ $level ], 2 ) : $old_levels[$level]['price_1'];
+			$levels[ $level ]['price_3']    = isset($_POST['price_3'] ) ? round( @$_POST['price_3'][ $level ], 2 ) : $old_levels[$level]['price_3'];
+			$levels[ $level ]['price_12']   = isset($_POST['price_12'] ) ? round( @$_POST['price_12'][ $level ], 2 ) : $old_levels[$level]['price_12'];
+
+			$levels[ $level ]['is_visible'] = isset( $_POST['is_visible'][ $level ] ) ? intval( $_POST['is_visible'][ $level ] ) : 0;
+		}
+
+		do_action( 'update_site_option_psts_levels', $levels, $old_levels );
+		update_site_option( 'psts_levels', $levels );
 		$gateway_active = ( $_POST['gateway_active'] != '' ) ? $_POST['gateway_active'] : array() ;
 
 		$psts->update_setting( 'gateways_enabled', @$gateway_active );

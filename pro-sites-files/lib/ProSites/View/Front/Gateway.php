@@ -125,7 +125,7 @@ if ( ! class_exists( 'ProSites_View_Front_Gateway' ) ) {
 			$hidden_class = ( ! empty( $render_data['new_blog_details']['site_activated'] ) || ! empty( $render_data['upgraded_blog_details']['site_activated'] ) ) ? 'hidden' : $hidden_class;
 
 
-			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways wpsaas-payment-blocks hidden ' . $hidden_class . '">';
+			$content .= '<div' . ( $tabbed ? ' id="gateways"' : '' ) . ' class="gateways checkout-gateways wpsaas-payment-blocks ' . $hidden_class . '">';
 			$site_name = '';
 			if( isset($render_data['new_blog_details']['blogname']) ) {
 				$blogname = $render_data['new_blog_details']['blogname'];

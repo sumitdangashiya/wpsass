@@ -878,5 +878,23 @@ jQuery( document ).ready( function ( $ ) {
             return confirm( prosites_checkout.confirm_cancel );
         } );
     }
-
+	
+	if( $( '#psts-processcard-error' ).length ) {
+		$( '#prosites-checkout-table' ).addClass( 'hidden' );
+		$( '.wpsaas-plan-checkout-step li' ).addClass( 'active' );
+	}
+	var wpsaas_plan_period = $( '.gateways [name=period]' ).val();
+	var wpsaas_plan_detail = $( '.pricing-column.chosen-plan .level-summary.price_' + wpsaas_plan_period ).html();
+	var wpsaas_plan_value = $( '.pricing-column.chosen-plan .price.price_' + wpsaas_plan_period + ' .price-plain' ).html();
+	$( '.wpsaas-plan-detail' ).html( wpsaas_plan_detail );
+	$( '.wpsaas-plan-value' ).html( wpsaas_plan_value );
+	var wpsaas_plan_length = '';
+	if( wpsaas_plan_period == 1 ) {
+		var wpsaas_plan_length = 'Per Month';
+	} else if ( wpsaas_plan_period == 3 ) {
+		var wpsaas_plan_length = 'Per Quarterly';
+	} else if( wpsaas_plan_period == 12 ) {
+		var wpsaas_plan_length = 'Per Annually';
+	}
+	$( '.wpsaas-plan-length' ).html( wpsaas_plan_length );
 } );
